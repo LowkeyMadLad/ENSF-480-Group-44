@@ -4,7 +4,6 @@ public class Ticket {
     private String ticketNum; // T <Time/date><TheatreID><Seatnm>
     private String movie;
     private String theatre;
-    private Seat seat;
     private Date showtime;
 
     public String getTicketNum() {
@@ -29,14 +28,6 @@ public class Ticket {
 
     public void setTheatre(String theatre) {
         this.theatre = theatre;
-    }
-
-    public Seat getSeat() {
-        return this.seat;
-    }
-
-    public void setSeat(Seat seat) {
-        this.seat = seat;
     }
 
     public Date getShowtime() {
