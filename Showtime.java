@@ -37,4 +37,23 @@ public class Showtime {
         Collections.sort(list);
         return list;
     }
+
+    public boolean isAvailable(String seatNo){
+        return seats.get(seatNo);
+    }
+
+    public void toggleAvailability(String seatNo){
+        seats.replace(seatNo, !seats.get(seatNo));
+    }
+
+    public double availableSeatPercentage(){
+        if(seats.size() == 0) return 0;
+        double available = 0;
+
+        for(Map.Entry<String, Boolean> e : seats.entrySet()){
+            if(e.getValue()) available++;
+        }
+
+        return available / seats.size() * 100.0;
+    }
 }

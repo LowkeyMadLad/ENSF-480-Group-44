@@ -2,9 +2,18 @@ import java.util.ArrayList;
 
 public class User {
     private ArrayList<Ticket> tickets;
+    private TheatreStrategy searchStrat;
 
     public User(){
         this.tickets = new ArrayList<Ticket>();
+    }
+
+    public void setStrategy(TheatreStrategy strat){
+        searchStrat = strat;
+    }
+
+    public void performSearch(){
+        searchStrat.search();
     }
 
     public ArrayList<Ticket> getTickets() {
