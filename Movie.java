@@ -2,6 +2,8 @@ import java.util.Date;
 import java.util.ArrayList;
 
 public class Movie {
+    private Theatre Theatre;
+    
     public String name;
 
     public Date announcemenDate;

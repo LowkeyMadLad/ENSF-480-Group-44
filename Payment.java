@@ -6,4 +6,5 @@ public class Payment {
     public Payment(float amount, boolean ru){
         this.amount = amount;
     }
+    // Comment
 }
