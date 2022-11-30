@@ -6,10 +6,11 @@ public class PaymentCard {
     private String cardOwner;
     private int cvv;
 
-    public PaymentCard(String cn, String co, int cvv) {
-        cardNumber = cn;
+    public PaymentCard(String cn, String co, int cvv) throws Exception{
+        cardNumber = cn.replaceAll("\\s","");
         cardOwner = co;
         this.cvv = cvv;
+        validate();
     }
 
     public String getCardNumber() {
@@ -34,6 +35,12 @@ public class PaymentCard {
 
     public void setCvv(int cvv) {
         this.cvv = cvv;
+    }
+
+    private void validate() throws Exception{
+        if(cardNumber.length() != 12 || Integer.toString(cvv).length() != 3){
+            throw new Exception("Invalid Card");
+        }
     }
 
 }
