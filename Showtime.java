@@ -1,18 +1,34 @@
 import java.util.*;
+import java.sql.*;
+// using sql date
+import java.sql.Date;
 
 public class Showtime {
-    public Movie movie;
-
-    public Date time;
+    private String theatre;
+    private String movie;
+    private Date showtime;
 
     private HashMap<String, Boolean> seats;
 
+    // obsolete
+    /* 
     public Showtime(Date showtime, Movie movie){
         this.time = showtime;
         this.movie = movie;
         seats = new HashMap<String, Boolean>();
         setSeatArrangement();
     }
+    */
+
+    // sql edition
+    public Showtime(String theatre, String movie, Date showtime){
+        this.theatre = theatre;
+        this.movie = movie;
+        this.showtime = showtime;
+        seats = new HashMap<String, Boolean>();
+        setSeatArrangement();
+    }
+
     private void setSeatArrangement(){
         // add seats to hash
         // depends on how we want seats to look like
@@ -59,4 +75,18 @@ public class Showtime {
 
         return available / seats.size() * 100.0;
     }
+
+    public String getTheatre() {
+        return this.theatre;
+    }
+    public String getMovie() {
+        return this.movie;
+    }
+    public Date getShowtime() {
+        return this.showtime;
+    }
+    public HashMap<String,Boolean> getSeats() {
+        return this.seats;
+    }
+
 }

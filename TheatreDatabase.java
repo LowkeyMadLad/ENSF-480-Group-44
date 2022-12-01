@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.sql.*;
+// using sql date
+import java.sql.Date;
 
 /* danny's note:
  * i am trying to remove the need for classes

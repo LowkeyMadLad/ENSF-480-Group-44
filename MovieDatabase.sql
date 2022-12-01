@@ -45,8 +45,16 @@ VALUES
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-28 12:00:00'),
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-28 18:00:00'),
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-29 12:00:00'),
-('Scotiabank Theatres', 'Black Punther' , '2022-12-29 18:00:00');
-
+('Scotiabank Theatres', 'Black Punther' , '2022-12-29 18:00:00'),
+-- invalid showtime testing:
+('Scotiabank Theatres', 'Ratatouille' , '2021-10-10 12:00:00'),
+('Scotiabank Theatres', 'Ratatouille' , '2022-12-22 18:00:00'),
+('Scotiabank Theatres', '1984' , '1984-01-06 18:00:00'),
+('Scotiabank Theatres', '1984' , '1984-01-06 18:00:00');
+-- ratatouille is going to have one showtime before its announcement date
+-- but one valid showtime. the invalid showtime should be removed.
+-- 1984 will have showtimes from the past, which should all be removed
+-- since 1984 wont have any valid showtimes, the movie should not appear
 
 DROP TABLE IF EXISTS LoginServer;
 CREATE TABLE LoginServer (
@@ -69,7 +77,7 @@ INSERT INTO MovieReleaseDate (MovieName, ReleaseDate)
 VALUES
 ('AVATAR' , '2022-11-30 12:00:00'),
 ('Black Adam' , '2022-11-30 12:00:00'),
-('Schulich Ohms' , '2025-1-1 12:00:00'),
+('Schulich Ohms' , '2025-01-01 12:00:00'),
 ('Black Punther' , '2022-11-30 12:00:00'),
 ('Ratatouille' , '2022-11-30 12:00:00'),
 ('1984' , '2022-11-30 12:00:00');
