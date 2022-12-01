@@ -1,8 +1,7 @@
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.sql.*;
 // using sql date
-import java.sql.Date;
+// import java.util.HashMap;
+import java.sql.*;
 
 /* danny's note:
  * i am trying to remove the need for classes
@@ -27,41 +26,91 @@ public class TheatreDatabase {
     private static TheatreDatabase database = null;
 
     // database stuff
-    private final String DBURL = "jdbc:mysql://localhost/??????????";
+    private final String DBURL = "jdbc:mysql://localhost/MOVIE_DATABASE";
     private final String USERNAME = "student";
-    private final String PASSWORD = "ensf"; 
+    private final String PASSWORD = "ensf";
     private Connection dbConnect;
 
     // converting db entries into objects
-    private ArrayList<Showtime> allShowtimes;
-    private HashMap<String, Date> announcementDates;
+    // private ArrayList<Showtime> allShowtimes;
+    // private HashMap<String, Date> announcementDates;
 
-    private TheatreDatabase() throws Exception{
-        allShowtimes = new ArrayList<Showtime>();
-        refreshDatabase(); 
+    private TheatreDatabase() throws DBConnectException{
+        // allShowtimes = new ArrayList<Showtime>();
+        // announcementDates = new HashMap<String, Date>();
+        // refreshDatabase(); 
     }
 
-    public ArrayList<String> getTheatreList(){
+    public ArrayList<String> getTheatreList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
+
+        initializeConnection();
+        String query = "SELECT DISTINCT MovieTheatre FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
+
+        while(results.next()){
+            list.add(results.getString("MovieTheatre"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
 
         return list;
     }
-    public ArrayList<String> getMovieList(String theatre){
+
+    public ArrayList<String> getMovieList(String theatre) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
 
+        initializeConnection();
+        String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION WHERE MovieTheatre = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        ResultSet results = myStmt.executeQuery();
+        
+        while(results.next()){
+            list.add(results.getString("MovieName"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
         return list;
+    }
+
+    public Date getAnnouncementDate(String movie) throws DBConnectException, SQLException{
+        initializeConnection();
+        String query = "SELECT ReleaseDate FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        ResultSet results = myStmt.executeQuery();
+
+        Date dt = results.getDate("ReleaseDate");
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return dt;
     }
 
     // get the instance of the database singleton
-    public static TheatreDatabase getDB() throws Exception{
+    public static TheatreDatabase getDB() throws DBConnectException{
         if(database == null){
             database = new TheatreDatabase();
         }
         return database;
     }
 
+    public Connection getConnection(){
+        return dbConnect;
+    }
+
     // database connections
-    public void refreshDatabase() throws Exception{
+    /* obsolete?
+    public void refreshDatabase() throws DBConnectExcept{
         initializeConnection();
         allShowtimes.clear();
         Showtime st;
@@ -81,6 +130,13 @@ public class TheatreDatabase {
                     allShowtimes.add(st);
                 }
             }
+            query = "SELECT * FROM MovieReleaseDate";
+            myStmt = dbConnect.prepareStatement(query);
+            results = myStmt.executeQuery();
+            while (results.next()) {
+                announcementDates.put(results.getString("MovieName"), 
+                                    results.getDate("ReleaseDate"));
+            }
             // closes
             myStmt.close();
             results.close();
@@ -91,15 +147,16 @@ public class TheatreDatabase {
         }
         allShowtimes.trimToSize();
     }
+    */
 
-    public void initializeConnection() throws Exception{
+    public void initializeConnection() throws DBConnectException{
         try {
             dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
         } catch (SQLException e) {
-            throw new Exception("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
+            throw new DBConnectException("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
         }
         if (dbConnect == null) {
-            throw new Exception("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
+            throw new DBConnectException("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
         }
     }
 }

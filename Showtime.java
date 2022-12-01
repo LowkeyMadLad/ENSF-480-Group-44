@@ -4,13 +4,18 @@ import java.sql.*;
 import java.sql.Date;
 
 public class Showtime {
+    TheatreDatabase db;
+    private Connection dbConnect;
+
     private String theatre;
     private String movie;
     private Date showtime;
 
     private HashMap<String, Boolean> seats;
 
-    public Showtime(String theatre, String movie, Date showtime){
+    public Showtime(String theatre, String movie, Date showtime) throws DBConnectException, SQLException{
+        db = TheatreDatabase.getDB();
+        dbConnect = db.getConnection();
         this.theatre = theatre;
         this.movie = movie;
         this.showtime = showtime;
@@ -18,7 +23,7 @@ public class Showtime {
         setSeatArrangement();
     }
 
-    private void setSeatArrangement(){
+    private void setSeatArrangement() throws DBConnectException, SQLException{
         // add seats to hash
         // depends on how we want seats to look like
 
@@ -31,9 +36,31 @@ public class Showtime {
         for(int letter = 65; letter <= 68; letter++){
             for(int col = 1; col <= 8; col++){
                 String id = "" + (char)letter + Integer.toString(col);
-                seats.put(id, true);
+                boolean isAvailable = !isOnDB(id);
+                seats.put(id, isAvailable);
             }
         }
+    }
+
+    private boolean isOnDB(String seatNo) throws DBConnectException, SQLException{
+        db.initializeConnection();
+        String query = "SELECT Seat FROM MovieTickets WHERE MovieTheatre = ? AND MovieName = ? AND MovieTime = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setDate(3, showtime);
+        ResultSet results = myStmt.executeQuery();
+
+        boolean found = false;
+        // if(results.size??? != 0???? or something){
+        //     found = true;
+        // }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return false;
     }
 
     public ArrayList<String> organizeSeats(){
