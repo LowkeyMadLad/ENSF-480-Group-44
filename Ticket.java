@@ -1,43 +1,31 @@
 import java.util.Date;
 
 public class Ticket {
-    private String ticketNum; // T <Time/date><TheatreID><Seatnm>
+    private static long ticketID = 0; 
+
     private String movie;
     private String theatre;
     private Date showtime;
 
-    public String getTicketNum() {
-        return this.ticketNum;
+    public Ticket(String theatre, String movie, Date showtime){
+        this.theatre = theatre;
+        this.movie = movie;
+        this.showtime = showtime;
+        ticketID++;
     }
 
-    public void setTicketNum(String ticketNum) {
-        this.ticketNum = ticketNum;
+    public long getTicketNum() {
+        return Ticket.ticketID;
     }
-
     public String getMovie() {
         return this.movie;
     }
-
-    public void setMovie(String movie) {
-        this.movie = movie;
-    }
-
     public String getTheatre() {
         return this.theatre;
     }
-
-    public void setTheatre(String theatre) {
-        this.theatre = theatre;
-    }
-
     public Date getShowtime() {
         return this.showtime;
     }
-
-    public void setShowtime(Date showtime) {
-        this.showtime = showtime;
-    }
-    
 
     // @Override
     // public String toString(){

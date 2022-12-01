@@ -5,7 +5,7 @@ public class RegisteredUser extends User{
     private String password;
     private PaymentCard card;
 
-    public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) {
+    public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) throws Exception {
         this.name = name;
         this.email = email;
         this.address = address;
