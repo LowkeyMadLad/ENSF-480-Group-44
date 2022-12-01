@@ -19,6 +19,13 @@ public class TheatreDatabase {
         return null;
     }
 
+    public void addTheatre(Theatre theatre){
+        theatres.add(theatre);
+    }
+    public void addTheatre(String theatre){
+        theatres.add(new Theatre(theatre));
+    }
+
     private TheatreDatabase(){
         theatres = new ArrayList<Theatre>();
     }

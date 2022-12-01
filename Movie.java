@@ -28,4 +28,11 @@ public class Movie {
         }
         return null;
     }
+
+    public void addShowtime(Showtime st){
+        showtimes.add(st);
+    }
+    public void addShowtime(Date dt){
+        showtimes.add(new Showtime(dt));
+    }
 }
