@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.sql.*;
 // using sql date
 import java.sql.Date;
@@ -25,40 +26,80 @@ public class TheatreDatabase {
     // singleton instance
     private static TheatreDatabase database = null;
 
-    private ArrayList<Theatre> theatres;
+    // database stuff
+    private final String DBURL = "jdbc:mysql://localhost/??????????";
+    private final String USERNAME = "student";
+    private final String PASSWORD = "ensf"; 
+    private Connection dbConnect;
 
-    public Theatre getTheatre(int index){
-        return theatres.get(index);
-    }
-    public int getSize(){
-        return theatres.size();
-    }
+    // converting db entries into objects
+    private ArrayList<Showtime> allShowtimes;
+    private HashMap<String, Date> announcementDates;
 
-    public Theatre getTheatre(String theatre){
-        for(int i = 0; i < theatres.size(); i++){
-            if(theatres.get(i).name.equals(theatre)){
-                return theatres.get(i);
-            }
-        }
-        return null;
+    private TheatreDatabase() throws Exception{
+        allShowtimes = new ArrayList<Showtime>();
+        refreshDatabase(); 
     }
 
-    public void addTheatre(Theatre theatre){
-        theatres.add(theatre);
-    }
-    public void addTheatre(String theatre){
-        theatres.add(new Theatre(theatre));
-    }
+    public ArrayList<String> getTheatreList(){
+        ArrayList<String> list = new ArrayList<String>();
 
-    private TheatreDatabase(){
-        theatres = new ArrayList<Theatre>();
+        return list;
+    }
+    public ArrayList<String> getMovieList(String theatre){
+        ArrayList<String> list = new ArrayList<String>();
+
+        return list;
     }
 
     // get the instance of the database singleton
-    public static TheatreDatabase getDB(){
+    public static TheatreDatabase getDB() throws Exception{
         if(database == null){
             database = new TheatreDatabase();
         }
         return database;
+    }
+
+    // database connections
+    public void refreshDatabase() throws Exception{
+        initializeConnection();
+        allShowtimes.clear();
+        Showtime st;
+        try {
+            // query information to the sql database
+            String query = "SELECT * FROM MOVIE_INFORMATION";
+            PreparedStatement myStmt = dbConnect.prepareStatement(query);
+            ResultSet results = myStmt.executeQuery();
+            while (results.next()) {
+                try {
+                    st = new Showtime(results.getString("MovieTheatre"), 
+                        results.getString("MovieName"), results.getDate("MovieTime"));
+                } catch (IllegalArgumentException e) {
+                    st = null;
+                }
+                if (st != null) {
+                    allShowtimes.add(st);
+                }
+            }
+            // closes
+            myStmt.close();
+            results.close();
+            dbConnect.close();
+        } catch (SQLException e) {
+            System.err.println("Unexcpected SQL exception thrown in refreshDatabaseItems in DatabaseItems. Read the SQL error code for more details");
+            e.printStackTrace();
+        }
+        allShowtimes.trimToSize();
+    }
+
+    public void initializeConnection() throws Exception{
+        try {
+            dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
+        } catch (SQLException e) {
+            throw new Exception("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
+        }
+        if (dbConnect == null) {
+            throw new Exception("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
+        }
     }
 }

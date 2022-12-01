@@ -7,6 +7,7 @@ public class Payment {
     public Payment(float amount, PaymentCard card){
         this.amount = amount;
         this.card = card;
+        validate();
     }
     
     private void validate(){

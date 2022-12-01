@@ -10,17 +10,6 @@ public class Showtime {
 
     private HashMap<String, Boolean> seats;
 
-    // obsolete
-    /* 
-    public Showtime(Date showtime, Movie movie){
-        this.time = showtime;
-        this.movie = movie;
-        seats = new HashMap<String, Boolean>();
-        setSeatArrangement();
-    }
-    */
-
-    // sql edition
     public Showtime(String theatre, String movie, Date showtime){
         this.theatre = theatre;
         this.movie = movie;
