@@ -1,12 +1,15 @@
 import java.util.*;
 
 public class Showtime {
+    public Movie movie;
+
     public Date time;
 
     private HashMap<String, Boolean> seats;
 
-    public Showtime(Date showtime){
+    public Showtime(Date showtime, Movie movie){
         this.time = showtime;
+        this.movie = movie;
         seats = new HashMap<String, Boolean>();
         setSeatArrangement();
     }

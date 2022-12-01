@@ -26,15 +26,15 @@ public class User {
         }
     }
 
-    public void removeTicket(String ticketNo) throws TicketErrorException{
-        for (Ticket ticket : tickets) {
-            if (ticket.getTicketNum().equals(ticketNo)) {
-                tickets.remove(ticket);
-                return;
-            }
-        }
-        throw new TicketErrorException();
-    }
+    // public void removeTicket(String ticketNo) throws TicketErrorException{
+    //     for (Ticket ticket : tickets) {
+    //         if (ticket.getTicketNum().equals(ticketNo)) {
+    //             tickets.remove(ticket);
+    //             return;
+    //         }
+    //     }
+    //     throw new TicketErrorException();
+    // }
 
     
 }

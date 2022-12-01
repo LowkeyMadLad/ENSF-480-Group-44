@@ -2,7 +2,7 @@ import java.util.Date;
 import java.util.ArrayList;
 
 public class Movie {
-    private Theatre Theatre;
+    public Theatre theatre;
     
     public String name;
 
@@ -10,14 +10,18 @@ public class Movie {
 
     private ArrayList<Showtime> showtimes;
 
-    public Movie(String name, Date announcementDate){
+    public Movie(String name, Date announcementDate, Theatre theatre){
         showtimes = new ArrayList<Showtime>();
         this.name = name;
         this.announcemenDate = announcementDate;
+        this.theatre = theatre;
     }
 
     public Showtime getShowtime(int index){
         return showtimes.get(index);
+    }
+    public int getSize(){
+        return showtimes.size();
     }
 
     public Showtime getShowtime(Date date){
@@ -33,6 +37,6 @@ public class Movie {
         showtimes.add(st);
     }
     public void addShowtime(Date dt){
-        showtimes.add(new Showtime(dt));
+        showtimes.add(new Showtime(dt, this));
     }
 }
