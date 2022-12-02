@@ -4,7 +4,7 @@ import java.sql.*;
 public class SearchTheatre implements TheatreStrategy{
 
     @Override
-    public void search() throws DBConnectException, SQLException {
+    public Ticket search() throws DBConnectException, SQLException {
         TheatreDatabase db = TheatreDatabase.getDB();
 
         // display theatres
@@ -102,20 +102,20 @@ public class SearchTheatre implements TheatreStrategy{
         // take input
         System.out.println("Enter your choice:");
         String seatchoice = scanner.nextLine(); 
-        String seat = null;
+        String seat = seatchoice.toUpperCase();
         // verify validity of input
-        if(takenSeats.contains(seatchoice)){
+        if(takenSeats.contains(seat)){
             System.out.println("That seat is taken! Exiting... ");
             System.exit(1);
-        } else if(!seats.contains(seatchoice)){
+        } else if(!seats.contains(seat)){
             System.out.println("Invalid Entry! Exiting... ");
-        } else{
-            seat = seatchoice;
-        }
-        // at this point, the search is done. you just create a Ticket
-        // and send in the required variables, and the rest of the program
+            System.exit(1);
+        } 
+        // at this point, the search is done. it just creates a Ticket
+        // and sends in the required variables, and the rest of the program
         // will do its thing. search has done what it needed to. 
         scanner.close();
+        return (new Ticket(theatre, movie, dt, seat));
     }
     
 }

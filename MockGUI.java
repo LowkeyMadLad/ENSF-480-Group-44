@@ -30,7 +30,9 @@ public class MockGUI {
                 System.exit(1);
                 break;
         }
-        user.performSearch();
+        Ticket ticket = user.performSearch();
+        System.out.println("Your ticket: ");
+        System.out.println(ticket.toString());
 
         scanner.close();
     }

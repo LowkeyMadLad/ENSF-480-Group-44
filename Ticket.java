@@ -6,11 +6,13 @@ public class Ticket {
     private String movie;
     private String theatre;
     private Date showtime;
+    private String seat;
 
-    public Ticket(String theatre, String movie, Date showtime){
+    public Ticket(String theatre, String movie, Date showtime, String seat){
         this.theatre = theatre;
         this.movie = movie;
         this.showtime = showtime;
+        this.seat = seat;
         ticketID++;
     }
 
@@ -27,9 +29,11 @@ public class Ticket {
         return this.showtime;
     }
 
-    // @Override
-    // public String toString(){
-
-    // }
+    @Override
+    public String toString(){
+        String t = "";
+        t += "Seat " + seat + "\nTo watch " + movie + "\nAt " + theatre + "\nOn " + showtime;
+        return t;
+    }
 
 }

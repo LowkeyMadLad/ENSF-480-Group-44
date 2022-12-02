@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class RegisteredUser extends User{
     private String name; // Changing name does not make sense in this context
     private String email;
@@ -5,12 +7,26 @@ public class RegisteredUser extends User{
     private String password;
     private PaymentCard card;
 
+    // tickets bought by an RU will be saved to their account
+    private ArrayList<Ticket> tickets;
+
     public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) throws Exception {
         this.name = name;
         this.email = email;
         this.address = address;
         this.password = password;
         this.card = new PaymentCard(password, cardNumber, cvv);
+        this.tickets = new ArrayList<Ticket>();
+    }
+
+    public ArrayList<Ticket> getTickets() {
+        return this.tickets;
+    }
+
+    public void addTicket(Ticket t) throws TicketErrorException {
+        if(!(tickets.add(t))){
+            throw new TicketErrorException();
+        }
     }
 
     
