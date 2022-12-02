@@ -1,3 +1,5 @@
+import java.sql.SQLException;
+
 public interface TheatreStrategy {
-    public void search();
+    public void search() throws DBConnectException, SQLException;
 }

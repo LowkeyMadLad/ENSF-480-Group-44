@@ -1,7 +1,5 @@
 import java.util.*;
 import java.sql.*;
-// using sql date
-import java.sql.Date;
 
 public class Showtime {
     TheatreDatabase db;
@@ -9,11 +7,11 @@ public class Showtime {
 
     private String theatre;
     private String movie;
-    private Date showtime;
+    private Timestamp showtime;
 
     private HashMap<String, Boolean> seats;
 
-    public Showtime(String theatre, String movie, Date showtime) throws DBConnectException, SQLException{
+    public Showtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
         db = TheatreDatabase.getDB();
         dbConnect = db.getConnection();
         this.theatre = theatre;
@@ -44,23 +42,25 @@ public class Showtime {
 
     private boolean isOnDB(String seatNo) throws DBConnectException, SQLException{
         db.initializeConnection();
-        String query = "SELECT Seat FROM MovieTickets WHERE MovieTheatre = ? AND MovieName = ? AND MovieTime = ?";
+        dbConnect = db.getConnection();
+        String query = "SELECT Seat FROM MovieTickets WHERE MovieTheatre = ? AND MovieName = ? AND MovieTime = ? AND Seat = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, theatre);
         myStmt.setString(2, movie);
-        myStmt.setDate(3, showtime);
+        myStmt.setTimestamp(3, showtime);
+        myStmt.setString(4, seatNo);
         ResultSet results = myStmt.executeQuery();
 
         boolean found = false;
-        // if(results.size??? != 0???? or something){
-        //     found = true;
-        // }
+        if(results.isBeforeFirst()){
+            found = true;
+        }
 
         myStmt.close();
         results.close();
         dbConnect.close();
 
-        return false;
+        return found;
     }
 
     public ArrayList<String> organizeSeats(){
@@ -98,7 +98,7 @@ public class Showtime {
     public String getMovie() {
         return this.movie;
     }
-    public Date getShowtime() {
+    public Timestamp getShowtime() {
         return this.showtime;
     }
     public HashMap<String,Boolean> getSeats() {

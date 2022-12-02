@@ -80,14 +80,35 @@ public class TheatreDatabase {
         return list;
     }
 
-    public Date getAnnouncementDate(String movie) throws DBConnectException, SQLException{
+    public ArrayList<Timestamp> getShowtimeList(String theatre, String movie) throws DBConnectException, SQLException{
+        ArrayList<Timestamp> list = new ArrayList<Timestamp>();
+
+        initializeConnection();
+        String query = "SELECT MovieTime FROM MOVIE_INFORMATION WHERE MovieTheatre = ? AND MovieName = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        ResultSet results = myStmt.executeQuery();
+        
+        while(results.next()){
+            list.add(results.getTimestamp("MovieTime"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return list;
+    }
+
+    public Timestamp getAnnouncementDate(String movie) throws DBConnectException, SQLException{
         initializeConnection();
         String query = "SELECT ReleaseDate FROM MovieReleaseDate WHERE MovieName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, movie);
         ResultSet results = myStmt.executeQuery();
 
-        Date dt = results.getDate("ReleaseDate");
+        Timestamp dt = results.getTimestamp("ReleaseDate");
 
         myStmt.close();
         results.close();

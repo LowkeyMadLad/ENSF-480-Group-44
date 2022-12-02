@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class User {
@@ -12,7 +13,7 @@ public class User {
         searchStrat = strat;
     }
 
-    public void performSearch(){
+    public void performSearch() throws DBConnectException, SQLException{
         searchStrat.search();
     }
 
