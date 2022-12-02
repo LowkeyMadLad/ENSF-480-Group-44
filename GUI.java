@@ -31,6 +31,8 @@ public class GUI extends JFrame implements ActionListener{
 
     private static JTextField usernameTextInput;
     private static JTextField passTextInput;
+    private static JTextField seatNumInput;
+    private static JTextField confirmationNumInput;
 
     private static JTextArea textArea;
     private static JScrollPane scrollBar;
@@ -304,6 +306,59 @@ public class GUI extends JFrame implements ActionListener{
         frame1.setVisible(true);
     }
 
+    public void CancelPayment()
+    {
+        JFrame frame1 = new JFrame("Cancel Payment Page");
+        frame1.setSize(700, 700);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel signUp = new JLabel("Cancel Payment");
+        //username.setFont(secondHeader);
+        signUp.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
+        signUp.setBounds(5, 10, 300, 50);
+        panel1.add(signUp);
+
+
+        JLabel seatDispTxt = new JLabel("What is Your Seat #");
+        seatDispTxt.setBounds(10, 90, 300, 25);
+        panel1.add(seatDispTxt);
+
+        //creating a label and input for order name
+        JLabel confirmationTxt = new JLabel("What is Your Confirmation #");
+        //password.setFont(secondHeader);
+        confirmationTxt.setBounds(20, 150, 600, 25);
+        panel1.add(confirmationTxt);
+        
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                System.out.println("Seat #: " + seatNumInput.getText());
+                System.out.println("Confirmation #: " + confirmationNumInput.getText());
+            }
+        });
+        submitButton.setBounds(5, 230, 200, 25);
+        panel1.add(submitButton);
+
+        
+        seatNumInput = new JTextField(16);
+        seatNumInput.setBounds(5, 110, 300, 25);
+        panel1.add(seatNumInput);
+
+        confirmationNumInput = new JTextField(16);
+        confirmationNumInput.setBounds(5, 180, 300, 25);
+        panel1.add(confirmationNumInput);
+
+        frame1.setVisible(true);
+    }
+
     //main actionPerformed method that does various things based on the button pressed
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
@@ -322,14 +377,19 @@ public class GUI extends JFrame implements ActionListener{
             
         }
 
-        if(e.getActionCommand().equals("login"))
+        if(e.getActionCommand().equals("Login"))
         {
             LoginPage();
         }
 
-        if(e.getActionCommand().equals("sign up"))
+        if(e.getActionCommand().equals("Sign Up"))
         {
-            LoginPage();
+            SignUpPage();
+        }
+
+        if(e.getActionCommand().equals("Cancel Payment"))
+        {
+            CancelPayment();
         }
 
         showTimesComboBox.addItemListener(new ItemListener(){
