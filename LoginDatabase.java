@@ -1,6 +1,6 @@
 import java.sql.*;
 
-import com.mysql.cj.log.Log;
+// import com.mysql.cj.log.Log;
 
 public class LoginDatabase {
     //private static LoginDatabase loginDatabase = null;
@@ -22,7 +22,7 @@ public class LoginDatabase {
         }
     }
 
-    public boolean checkLoginInformation(String username, String password)
+    public boolean checkLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
         
@@ -42,7 +42,7 @@ public class LoginDatabase {
         return false;
     }
 
-    public RegisteredUser getLoginInformation(String username, String password)
+    public RegisteredUser getLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
 
@@ -50,7 +50,7 @@ public class LoginDatabase {
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
-        RegisteredUser registeredUser;
+        RegisteredUser registeredUser = null;
 
         while(results.next())
         {
@@ -58,15 +58,15 @@ public class LoginDatabase {
             String creditCardInfo = results.getString("CardNumber");
             String email = results.getString("Email");
             String address = results.getString("Address");
-            int cvv = results.getString("CVV");
+            int cvv =Integer.parseInt(results.getString("CVV"));
 
-             registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
+            registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
         }
 
         return registeredUser;
     }
 
-    public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv)
+    public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv) throws DBConnectException, SQLException
     {
         initializeConnection();
 
@@ -78,7 +78,7 @@ public class LoginDatabase {
         myStmt.setString(4, email);
         myStmt.setString(5, address);
         myStmt.setString(6, cardNumber);
-        myStmt.setString(7, cvv);
+        myStmt.setString(7, Integer.toString(cvv));
         
         myStmt.executeUpdate();
 
@@ -88,5 +88,12 @@ public class LoginDatabase {
         }
         myStmt.close();
 
+    }
+
+    public static void main(String[] args) throws SQLException, DBConnectException{
+        LoginDatabase db = new LoginDatabase();
+        String k = "Hell0";
+        db.initializeConnection();
+        db.signUp(k, k, k, k, k, "453", 0123);
     }
 }
