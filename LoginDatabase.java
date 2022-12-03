@@ -26,14 +26,14 @@ public class LoginDatabase {
     {
         initializeConnection();
         
-        String query = "SELECT pass FROM LoginServer WHERE EXISTS (Username = ?)";
+        String query = "SELECT Pass FROM LoginServer WHERE EXISTS (Username = ?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
 
         while(results.next())
         {
-            if(results.getString("pass") == password)
+            if(results.getString("Pass") == password)
             {
                 return true;
             }
@@ -45,7 +45,7 @@ public class LoginDatabase {
     public RegisteredUser getLoginInformation(String username, String password)
     {
         initializeConnection();
-        
+
         String query = "SELECT * FROM LoginServer WHERE EXISTS (Username = ?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
@@ -55,10 +55,10 @@ public class LoginDatabase {
         while(results.next())
         {
             String name = results.getString("Name");
-            String creditCardInfo = results.getString("Credit Card Info");
+            String creditCardInfo = results.getString("CardNumber");
             String email = results.getString("Email");
             String address = results.getString("Address");
-            int cvv = results.getString("Cvv");
+            int cvv = results.getString("CVV");
 
              registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
         }
@@ -70,7 +70,7 @@ public class LoginDatabase {
     {
         initializeConnection();
 
-        String query = "INSERT INTO LoginServer (Username, pass, name, email, address, cardNumber, cvv) VALUES (?,?,?,?,?,?,?)";
+        String query = "INSERT INTO LoginServer (Username, Pass, Name, Email, Address, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         myStmt.setString(2, password);
