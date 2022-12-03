@@ -44,6 +44,8 @@ public class LoginDatabase {
 
     public RegisteredUser getLoginInformation(String username, String password)
     {
+        initializeConnection();
+        
         String query = "SELECT * FROM LoginServer WHERE EXISTS (Username = ?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
@@ -66,6 +68,8 @@ public class LoginDatabase {
 
     public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv)
     {
+        initializeConnection();
+
         String query = "INSERT INTO LoginServer (Username, pass, name, email, address, cardNumber, cvv) VALUES (?,?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
