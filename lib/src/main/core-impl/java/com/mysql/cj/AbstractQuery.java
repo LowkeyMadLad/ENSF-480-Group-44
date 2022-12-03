@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -45,7 +45,6 @@ import com.mysql.cj.protocol.ProtocolEntityFactory;
 import com.mysql.cj.protocol.Resultset;
 import com.mysql.cj.protocol.Resultset.Type;
 
-//TODO should not be protocol-specific
 public abstract class AbstractQuery implements Query {
 
     /** Used to generate IDs when profiling. */
@@ -90,11 +89,15 @@ public abstract class AbstractQuery implements Query {
     /** Elapsed time of the execution */
     private long executeTime = -1;
 
+    /** Query attributes bindings */
+    protected QueryAttributesBindings queryAttributesBindings;
+
     public AbstractQuery(NativeSession sess) {
         statementCounter++;
         this.session = sess;
         this.maxAllowedPacket = sess.getPropertySet().getIntegerProperty(PropertyKey.maxAllowedPacket);
         this.charEncoding = sess.getPropertySet().getStringProperty(PropertyKey.characterEncoding).getValue();
+        this.queryAttributesBindings = new NativeQueryAttributesBindings(sess);
     }
 
     @Override
@@ -151,6 +154,7 @@ public abstract class AbstractQuery implements Query {
     }
 
     public void closeQuery() {
+        this.queryAttributesBindings = null;
         this.session = null;
     }
 
@@ -170,6 +174,11 @@ public abstract class AbstractQuery implements Query {
         if (this.batchedArgs != null) {
             this.batchedArgs.clear();
         }
+    }
+
+    @Override
+    public QueryAttributesBindings getQueryAttributesBindings() {
+        return this.queryAttributesBindings;
     }
 
     @Override

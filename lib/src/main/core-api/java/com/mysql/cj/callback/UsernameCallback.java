@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -27,10 +27,25 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-package testsuite.x;
+package com.mysql.cj.callback;
 
 /**
- * Marker for async tests.
+ * A callback that can be used to exchange username information to a callback handler owner.
  */
-public interface AsyncTests {
+public class UsernameCallback implements MysqlCallback {
+    private String username;
+
+    public UsernameCallback(String username) {
+        this.username = username;
+    }
+
+    /**
+     * Get the username provided by the caller of {@link MysqlCallbackHandler#handle(MysqlCallback)}.
+     * 
+     * @return
+     *         the username to pass over to the callback handler.
+     */
+    public String getUsername() {
+        return this.username;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -27,30 +27,21 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-package com.mysql.cj.protocol.x;
+package com.mysql.cj.protocol.a;
 
-import java.io.FilterInputStream;
-import java.io.InputStream;
+import java.sql.Clob;
 
-/**
- * An {@link InputStream} wrapper that allows switching to different underlying {@link InputStream}s under the same {@link InputStream} instance.
- */
-public class ReusableInputStream extends FilterInputStream {
-    protected ReusableInputStream(InputStream in) {
-        super(in);
-    }
+import com.mysql.cj.BindValue;
+import com.mysql.cj.exceptions.ExceptionFactory;
 
-    /**
-     * Sets a new underlying {@link InputStream} in this {@link ReusableInputStream}.
-     * 
-     * @param newIn
-     *            the new {@link InputStream} to set.
-     * @return
-     *         the previous underlying {@link InputStream}.
-     */
-    public InputStream setInputStream(InputStream newIn) {
-        InputStream previousIn = this.in;
-        this.in = newIn;
-        return previousIn;
+public class ClobValueEncoder extends ReaderValueEncoder {
+
+    @Override
+    public byte[] getBytes(BindValue binding) {
+        try {
+            return readBytes(((Clob) binding.getValue()).getCharacterStream(), binding);
+        } catch (Throwable t) {
+            throw ExceptionFactory.createException(t.getMessage(), t, this.exceptionInterceptor);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -27,33 +27,33 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-package testsuite.x;
+package com.mysql.cj.protocol.a;
 
-import java.util.Properties;
+import com.mysql.cj.BindValue;
+import com.mysql.cj.conf.PropertySet;
+import com.mysql.cj.exceptions.ExceptionInterceptor;
+import com.mysql.cj.protocol.Message;
+import com.mysql.cj.protocol.ServerSession;
+import com.mysql.cj.util.StringUtils;
 
-import com.mysql.cj.conf.PropertyDefinitions;
-import com.mysql.cj.xdevapi.Session;
-import com.mysql.cj.xdevapi.SessionFactory;
+public class NullValueEncoder extends AbstractValueEncoder {
 
-public abstract class BaseXDevAPITestCase {
-    protected String baseUrl = System.getProperty(PropertyDefinitions.SYSP_testsuite_url_mysqlx);
-    protected boolean isSetForXTests = this.baseUrl != null && this.baseUrl.length() > 0;
-    protected SessionFactory f = new SessionFactory();
-
-    public BaseXDevAPITestCase() {
-        super();
-        // TODO create instance of SessionFactory
+    @Override
+    public void init(PropertySet pset, ServerSession serverSess, ExceptionInterceptor excInterceptor) {
+        super.init(pset, serverSess, excInterceptor);
     }
 
-    protected Session getSession(String url) {
-        Session sess = this.f.getSession(url);
-
-        return sess;
+    @Override
+    public byte[] getBytes(BindValue binding) {
+        return StringUtils.getBytes("null");
     }
 
-    protected Session getSession(Properties props) {
-        Session sess = this.f.getSession(props);
+    @Override
+    public String getString(BindValue binding) {
+        return "NULL";
+    }
 
-        return sess;
+    public void encodeAsBinary(Message msg, BindValue binding) {
+        // No-op. Null values are encoded in special null bytes.
     }
 }

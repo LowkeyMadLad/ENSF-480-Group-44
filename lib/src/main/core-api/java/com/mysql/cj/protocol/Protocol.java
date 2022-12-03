@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -31,6 +31,7 @@ package com.mysql.cj.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 import com.mysql.cj.MessageBuilder;
 import com.mysql.cj.QueryResult;
@@ -39,6 +40,7 @@ import com.mysql.cj.TransactionEventHandler;
 import com.mysql.cj.conf.PropertySet;
 import com.mysql.cj.exceptions.CJException;
 import com.mysql.cj.exceptions.ExceptionInterceptor;
+import com.mysql.cj.protocol.Protocol.ProtocolEventListener.EventType;
 
 /**
  * A protocol provides the facilities to communicate with a MySQL server.
@@ -125,8 +127,6 @@ public interface Protocol<M extends Message> {
      * 
      */
     void changeUser(String user, String password, String database);
-
-    String getPasswordCharacterEncoding();
 
     boolean versionMeetsMinimum(int major, int minor, int subminor);
 
@@ -280,4 +280,35 @@ public interface Protocol<M extends Message> {
     void reset();
 
     String getQueryTimingUnits();
+
+    public static interface ProtocolEventListener {
+
+        public enum EventType {
+            SERVER_SHUTDOWN, SERVER_CLOSED_SESSION;
+        }
+
+        void handleEvent(EventType type, Object info, Throwable reason);
+    }
+
+    public static interface ProtocolEventHandler {
+        /**
+         * Add listener for this protocol events.
+         * 
+         * @param l
+         *            {@link ProtocolEventListener} instance.
+         */
+        void addListener(ProtocolEventListener l);
+
+        /**
+         * Remove protocol listener.
+         * 
+         * @param l
+         *            {@link ProtocolEventListener} instance.
+         */
+        void removeListener(ProtocolEventListener l);
+
+        void invokeListeners(EventType type, Throwable reason);
+    }
+
+    Supplier<ValueEncoder> getValueEncoderSupplier(Object obj);
 }

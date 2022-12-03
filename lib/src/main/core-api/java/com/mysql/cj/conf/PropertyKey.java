@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -62,13 +62,14 @@ public enum PropertyKey {
 
     allowLoadLocalInfile("allowLoadLocalInfile", true), //
     allowLoadLocalInfileInPath("allowLoadLocalInfileInPath", true), //
-    allowSourceDownConnections("allowSourceDownConnections", "allowMasterDownConnections", true), //
     allowMultiQueries("allowMultiQueries", true), //
     allowNanAndInf("allowNanAndInf", true), //
     allowPublicKeyRetrieval("allowPublicKeyRetrieval", true), //
     allowReplicaDownConnections("allowReplicaDownConnections", "allowSlaveDownConnections", true), //
+    allowSourceDownConnections("allowSourceDownConnections", "allowMasterDownConnections", true), //
     allowUrlInLocalInfile("allowUrlInLocalInfile", true), //
     alwaysSendSetIsolation("alwaysSendSetIsolation", true), //
+    authenticationFidoCallbackHandler("authenticationFidoCallbackHandler", true), //
     authenticationPlugins("authenticationPlugins", true), //
     autoClosePStmtStreams("autoClosePStmtStreams", true), //
     autoDeserialize("autoDeserialize", true), //
@@ -100,6 +101,7 @@ public enum PropertyKey {
     connectTimeout("connectTimeout", true), //
     continueBatchOnError("continueBatchOnError", true), //
     createDatabaseIfNotExist("createDatabaseIfNotExist", true), //
+    customCharsetMapping("customCharsetMapping", true), //
     databaseTerm("databaseTerm", true), //
     defaultAuthenticationPlugin("defaultAuthenticationPlugin", true), //
     defaultFetchSize("defaultFetchSize", true), //
@@ -114,8 +116,6 @@ public enum PropertyKey {
     emptyStringsConvertToZero("emptyStringsConvertToZero", true), //
     emulateLocators("emulateLocators", true), //
     emulateUnsupportedPstmts("emulateUnsupportedPstmts", true), //
-    enabledSSLCipherSuites("enabledSSLCipherSuites", true), //
-    enabledTLSProtocols("enabledTLSProtocols", true), //
     enableEscapeProcessing("enableEscapeProcessing", true), //
     enablePacketDebug("enablePacketDebug", true), //
     enableQueryTimeouts("enableQueryTimeouts", true), //
@@ -124,13 +124,14 @@ public enum PropertyKey {
     failOverReadOnly("failOverReadOnly", true), //
     fallbackToSystemKeyStore("fallbackToSystemKeyStore", true), //
     fallbackToSystemTrustStore("fallbackToSystemTrustStore", true), //
+    forceConnectionTimeZoneToSession("forceConnectionTimeZoneToSession", true), //
     functionsNeverReturnBlobs("functionsNeverReturnBlobs", true), //
     gatherPerfMetrics("gatherPerfMetrics", true), //
     generateSimpleParameterMetadata("generateSimpleParameterMetadata", true), //
     getProceduresReturnsFunctions("getProceduresReturnsFunctions", true), //
-    holdResultsOpenOverStatementClose("holdResultsOpenOverStatementClose", true), //
     ha_enableJMX("ha.enableJMX", "haEnableJMX", true), //
     ha_loadBalanceStrategy("ha.loadBalanceStrategy", "haLoadBalanceStrategy", true), //
+    holdResultsOpenOverStatementClose("holdResultsOpenOverStatementClose", true), //
     ignoreNonTxTables("ignoreNonTxTables", true), //
     includeInnodbStatusInDeadlockExceptions("includeInnodbStatusInDeadlockExceptions", true), //
     includeThreadDumpInDeadlockExceptions("includeThreadDumpInDeadlockExceptions", true), //
@@ -147,8 +148,8 @@ public enum PropertyKey {
     loadBalanceExceptionChecker("loadBalanceExceptionChecker", true), //
     loadBalanceHostRemovalGracePeriod("loadBalanceHostRemovalGracePeriod", true), //
     loadBalancePingTimeout("loadBalancePingTimeout", true), //
-    loadBalanceSQLStateFailover("loadBalanceSQLStateFailover", true), //
     loadBalanceSQLExceptionSubclassFailover("loadBalanceSQLExceptionSubclassFailover", true), //
+    loadBalanceSQLStateFailover("loadBalanceSQLStateFailover", true), //
     loadBalanceValidateConnectionOnSwapServer("loadBalanceValidateConnectionOnSwapServer", true), //
     localSocketAddress("localSocketAddress", true), //
     locatorFetchBufferSize("locatorFetchBufferSize", true), //
@@ -157,6 +158,7 @@ public enum PropertyKey {
     logXaCommands("logXaCommands", true), //
     maintainTimeStats("maintainTimeStats", true), //
     maxAllowedPacket("maxAllowedPacket", true), //
+    maxByteArrayAsHex("maxByteArrayAsHex", true), //
     maxQuerySizeToLog("maxQuerySizeToLog", true), //
     maxReconnects("maxReconnects", true), //
     maxRows("maxRows", true), //
@@ -165,11 +167,15 @@ public enum PropertyKey {
     noAccessToProcedureBodies("noAccessToProcedureBodies", true), //
     noDatetimeStringSync("noDatetimeStringSync", true), //
     nullDatabaseMeansCurrent("nullDatabaseMeansCurrent", "nullCatalogMeansCurrent", true), //
+    ociConfigFile("ociConfigFile", true), //
     overrideSupportsIntegrityEnhancementFacility("overrideSupportsIntegrityEnhancementFacility", true), //
     packetDebugBufferSize("packetDebugBufferSize", true), //
     padCharsWithSpace("padCharsWithSpace", true), //
     paranoid("paranoid", false), //
-    parseInfoCacheFactory("parseInfoCacheFactory", true), //
+    queryInfoCacheFactory("queryInfoCacheFactory", "parseInfoCacheFactory", true), //
+    password1("password1", true), //
+    password2("password2", true), //
+    password3("password3", true), //
     passwordCharacterEncoding("passwordCharacterEncoding", true), //
     pedantic("pedantic", true), //
     pinGlobalTxToPhysicalConnection("pinGlobalTxToPhysicalConnection", true), //
@@ -180,7 +186,6 @@ public enum PropertyKey {
     processEscapeCodesForPrepStmts("processEscapeCodesForPrepStmts", true), //
     profilerEventHandler("profilerEventHandler", true), //
     profileSQL("profileSQL", true), //
-    forceConnectionTimeZoneToSession("forceConnectionTimeZoneToSession", true), //
     propertiesTransform("propertiesTransform", true), //
     queriesBeforeRetrySource("queriesBeforeRetrySource", "queriesBeforeRetryMaster", true), //
     queryInterceptors("queryInterceptors", true), //
@@ -196,6 +201,7 @@ public enum PropertyKey {
     retriesAllDown("retriesAllDown", true), //
     rewriteBatchedStatements("rewriteBatchedStatements", true), //
     rollbackOnPooledClose("rollbackOnPooledClose", true), //
+    scrollTolerantForwardOnly("scrollTolerantForwardOnly", true), //
     secondsBeforeRetrySource("secondsBeforeRetrySource", "secondsBeforeRetryMaster", true), //
     selfDestructOnPingMaxOperations("selfDestructOnPingMaxOperations", true), //
     selfDestructOnPingSecondsLifetime("selfDestructOnPingSecondsLifetime", true), //
@@ -211,6 +217,7 @@ public enum PropertyKey {
     socketTimeout("socketTimeout", true), //
     socksProxyHost("socksProxyHost", true), //
     socksProxyPort("socksProxyPort", true), //
+    socksProxyRemoteDns("socksProxyRemoteDns", true), //
     sslMode("sslMode", true), //
     strictUpdates("strictUpdates", true), //
     tcpKeepAlive("tcpKeepAlive", true), //
@@ -219,7 +226,10 @@ public enum PropertyKey {
     tcpSndBuf("tcpSndBuf", true), //
     tcpTrafficClass("tcpTrafficClass", true), //
     tinyInt1isBit("tinyInt1isBit", true), //
+    tlsCiphersuites("tlsCiphersuites", "enabledSSLCipherSuites", true), //
+    tlsVersions("tlsVersions", "enabledTLSProtocols", true), //
     traceProtocol("traceProtocol", true), //
+    trackSessionState("trackSessionState", true), //
     transformedBitIsBoolean("transformedBitIsBoolean", true), //
     treatUtilDateAsTimestamp("treatUtilDateAsTimestamp", true), //
     trustCertificateKeyStorePassword("trustCertificateKeyStorePassword", true), //
@@ -265,7 +275,6 @@ public enum PropertyKey {
     xdevapiSslTrustStoreUrl("xdevapi.ssl-truststore", "xdevapiSslTruststore", true), //
     xdevapiTlsCiphersuites("xdevapi.tls-ciphersuites", "xdevapiTlsCiphersuites", true), //
     xdevapiTlsVersions("xdevapi.tls-versions", "xdevapiTlsVersions", true), //
-    xdevapiUseAsyncProtocol("xdevapi.useAsyncProtocol", "xdevapiUseAsyncProtocol", true), //
 
     yearIsDateType("yearIsDateType", true), //
     zeroDateTimeBehavior("zeroDateTimeBehavior", true) //

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2002, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -37,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,6 +73,7 @@ import com.mysql.cj.protocol.a.result.ResultsetRowsStatic;
 import com.mysql.cj.result.DefaultColumnDefinition;
 import com.mysql.cj.result.Field;
 import com.mysql.cj.result.Row;
+import com.mysql.cj.util.SearchMode;
 import com.mysql.cj.util.StringUtils;
 
 /**
@@ -182,10 +184,9 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
     class TypeDescriptor {
         int bufferLength;
 
-        int charOctetLength;
-
         Integer datetimePrecision = null;
         Integer columnSize = null;
+        Integer charOctetLength = null;
 
         Integer decimalDigits = null;
 
@@ -383,6 +384,27 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
             if (this.columnSize == null) {
                 // JDBC spec reserved only 'int' type for precision, thus we need to cut longer values
                 this.columnSize = this.mysqlType.getPrecision() > Integer.MAX_VALUE ? Integer.MAX_VALUE : this.mysqlType.getPrecision().intValue();
+            }
+
+            switch (this.mysqlType) {
+                case CHAR:
+                case VARCHAR:
+                case TINYTEXT:
+                case MEDIUMTEXT:
+                case LONGTEXT:
+                case JSON:
+                case TEXT:
+                case TINYBLOB:
+                case MEDIUMBLOB:
+                case LONGBLOB:
+                case BLOB:
+                case BINARY:
+                case VARBINARY:
+                case BIT:
+                    this.charOctetLength = this.columnSize;
+                    break;
+                default:
+                    break;
             }
 
             // BUFFER_LENGTH
@@ -731,6 +753,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
     protected boolean tinyInt1isBit;
     protected boolean transformedBitIsBoolean;
     protected boolean useHostsInPrivileges;
+    protected boolean yearIsDateType;
 
     protected RuntimeProperty<DatabaseTerm> databaseTerm;
     protected RuntimeProperty<Boolean> nullDatabaseMeansCurrent;
@@ -771,6 +794,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         this.tinyInt1isBit = this.conn.getPropertySet().getBooleanProperty(PropertyKey.tinyInt1isBit).getValue();
         this.transformedBitIsBoolean = this.conn.getPropertySet().getBooleanProperty(PropertyKey.transformedBitIsBoolean).getValue();
         this.useHostsInPrivileges = this.conn.getPropertySet().getBooleanProperty(PropertyKey.useHostsInPrivileges).getValue();
+        this.yearIsDateType = this.conn.getPropertySet().getBooleanProperty(PropertyKey.yearIsDateType).getValue();
         this.quotedId = this.session.getIdentifierQuoteString();
     }
 
@@ -852,7 +876,8 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         row[2] = procNameAsBytes;                                                                                   // PROCEDURE/NAME
         row[3] = s2b(paramName);                                                                                    // COLUMN_NAME
         row[4] = s2b(String.valueOf(getColumnType(isOutParam, isInParam, isReturnParam, forGetFunctionColumns)));   // COLUMN_TYPE
-        row[5] = s2b(Short.toString((short) typeDesc.mysqlType.getJdbcType()));                                     // DATA_TYPE
+        row[5] = Short.toString(typeDesc.mysqlType == MysqlType.YEAR && !DatabaseMetaData.this.yearIsDateType ?     //
+                Types.SMALLINT : (short) typeDesc.mysqlType.getJdbcType()).getBytes();                              // DATA_TYPE (jdbc)
         row[6] = s2b(typeDesc.mysqlType.getName());                                                                 // TYPE_NAME
         row[7] = typeDesc.datetimePrecision == null ? s2b(typeDesc.columnSize.toString()) : s2b(typeDesc.datetimePrecision.toString());            // PRECISION
         row[8] = typeDesc.columnSize == null ? null : s2b(typeDesc.columnSize.toString());                          // LENGTH
@@ -880,7 +905,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         row[12] = null;
 
         if (forGetFunctionColumns) {
-            row[13] = null;                                                                                         // CHAR_OCTECT_LENGTH
+            row[13] = typeDesc.charOctetLength == null ? null : s2b(typeDesc.charOctetLength.toString());           // CHAR_OCTET_LENGTH
             row[14] = s2b(String.valueOf(ordinal));                                                                 // ORDINAL_POSITION
             row[15] = s2b(typeDesc.isNullable);                                                                     // IS_NULLABLE
             row[16] = procNameAsBytes;                                                                              // SPECIFIC_NAME
@@ -889,8 +914,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
             row[13] = null;                                                                                         // COLUMN_DEF
             row[14] = null;                                                                                         // SQL_DATA_TYPE (future use)
             row[15] = null;                                                                                         // SQL_DATETIME_SUB (future use)
-            // TODO CHAR_OCTET_LENGTH the maximum length of binary and character based columns. For any other datatype the returned value is a NULL
-            row[16] = null;                                                                                         // CHAR_OCTET_LENGTH
+            row[16] = typeDesc.charOctetLength == null ? null : s2b(typeDesc.charOctetLength.toString());           // CHAR_OCTET_LENGTH
             row[17] = s2b(String.valueOf(ordinal));                                                                 // ORDINAL_POSITION
             row[18] = s2b(typeDesc.isNullable);                                                                     // IS_NULLABLE
             row[19] = procNameAsBytes;                                                                              // SPECIFIC_NAME
@@ -1041,13 +1065,14 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                 if (indexOfFK != -1) {
                     int afterFk = indexOfFK + "FOREIGN KEY".length();
 
-                    int indexOfRef = StringUtils.indexOfIgnoreCase(afterFk, line, "REFERENCES", this.quotedId, this.quotedId, StringUtils.SEARCH_MODE__ALL);
+                    int indexOfRef = StringUtils.indexOfIgnoreCase(afterFk, line, "REFERENCES", this.quotedId, this.quotedId,
+                            SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                     if (indexOfRef != -1) {
 
                         int indexOfParenOpen = line.indexOf('(', afterFk);
                         int indexOfParenClose = StringUtils.indexOfIgnoreCase(indexOfParenOpen, line, ")", this.quotedId, this.quotedId,
-                                StringUtils.SEARCH_MODE__ALL);
+                                SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                         if (indexOfParenOpen == -1 || indexOfParenClose == -1) {
                             // throw SQLError.createSQLException();
@@ -1058,20 +1083,20 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                         int afterRef = indexOfRef + "REFERENCES".length();
 
                         int referencedColumnBegin = StringUtils.indexOfIgnoreCase(afterRef, line, "(", this.quotedId, this.quotedId,
-                                StringUtils.SEARCH_MODE__ALL);
+                                SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                         if (referencedColumnBegin != -1) {
                             referencedTableName = line.substring(afterRef, referencedColumnBegin);
 
                             int referencedColumnEnd = StringUtils.indexOfIgnoreCase(referencedColumnBegin + 1, line, ")", this.quotedId, this.quotedId,
-                                    StringUtils.SEARCH_MODE__ALL);
+                                    SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                             if (referencedColumnEnd != -1) {
                                 referencedColumnName = line.substring(referencedColumnBegin + 1, referencedColumnEnd);
                             }
 
                             int indexOfDbSep = StringUtils.indexOfIgnoreCase(0, referencedTableName, ".", this.quotedId, this.quotedId,
-                                    StringUtils.SEARCH_MODE__ALL);
+                                    SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                             if (indexOfDbSep != -1) {
                                 referencedDbName = referencedTableName.substring(0, indexOfDbSep);
@@ -1325,7 +1350,8 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     }
 
                                     MysqlType ft = MysqlType.getByName(type.toUpperCase());
-                                    rowVal[2] = s2b(String.valueOf(ft.getJdbcType()));
+                                    rowVal[2] = s2b(
+                                            String.valueOf(ft == MysqlType.YEAR && !DatabaseMetaData.this.yearIsDateType ? Types.SMALLINT : ft.getJdbcType()));
                                     rowVal[3] = s2b(type);
                                     rowVal[4] = hasLength ? Integer.toString(size + decimals).getBytes() : Long.toString(ft.getPrecision()).getBytes();
                                     rowVal[5] = Integer.toString(maxBufferSize).getBytes();
@@ -1416,7 +1442,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
             int dotIndex = " ".equals(this.quotedId) ? quotedProcName.indexOf(".")
                     : StringUtils.indexOfIgnoreCase(0, quotedProcName, ".", this.quotedId, this.quotedId,
-                            this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                            this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
             String dbName = null;
 
@@ -1476,10 +1502,11 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
                 if (procedureDef != null && procedureDef.length() != 0) {
                     // sanitize/normalize by stripping out comments
-                    procedureDef = StringUtils.stripComments(procedureDef, identifierAndStringMarkers, identifierAndStringMarkers, true, false, true, true);
+                    procedureDef = StringUtils.stripCommentsAndHints(procedureDef, identifierAndStringMarkers, identifierAndStringMarkers,
+                            !this.session.getServerSession().isNoBackslashEscapesSet());
 
                     int openParenIndex = StringUtils.indexOfIgnoreCase(0, procedureDef, "(", this.quotedId, this.quotedId,
-                            this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                            this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__FULL);
                     int endOfParamDeclarationIndex = 0;
 
                     endOfParamDeclarationIndex = endPositionOfParameterDeclaration(openParenIndex, procedureDef, this.quotedId);
@@ -1489,7 +1516,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                         // Grab the return column since it needs
                         // to go first in the output result set
                         int returnsIndex = StringUtils.indexOfIgnoreCase(0, procedureDef, " RETURNS ", this.quotedId, this.quotedId,
-                                this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                                this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__FULL);
 
                         int endReturnsDef = findEndOfReturnsClause(procedureDef, returnsIndex);
 
@@ -1672,11 +1699,11 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         while (parenDepth > 0 && currentPos < procedureDef.length()) {
             int closedParenIndex = StringUtils.indexOfIgnoreCase(currentPos, procedureDef, ")", quoteChar, quoteChar,
-                    this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                    this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
             if (closedParenIndex != -1) {
                 int nextOpenParenIndex = StringUtils.indexOfIgnoreCase(currentPos, procedureDef, "(", quoteChar, quoteChar,
-                        this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                        this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
                 if (nextOpenParenIndex != -1 && nextOpenParenIndex < closedParenIndex) {
                     parenDepth++;
@@ -1724,7 +1751,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         for (int i = 0; i < tokens.length; i++) {
             int nextEndOfReturn = StringUtils.indexOfIgnoreCase(startLookingAt, procedureDefn, tokens[i], openingMarkers, closingMarkers,
-                    this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                    this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
             if (nextEndOfReturn != -1) {
                 if (endOfReturn == -1 || (nextEndOfReturn < endOfReturn)) {
@@ -1739,7 +1766,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         // Label?
         endOfReturn = StringUtils.indexOfIgnoreCase(startLookingAt, procedureDefn, ":", openingMarkers, closingMarkers,
-                this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
         if (endOfReturn != -1) {
             // seek back until whitespace
@@ -2149,7 +2176,8 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 rowVal[1] = DatabaseMetaData.this.databaseTerm.getValue() == DatabaseTerm.SCHEMA ? s2b(dbStr) : null;          // TABLE_SCHEM
                                 rowVal[2] = s2b(tableName);                     // TABLE_NAME
                                 rowVal[3] = results.getBytes("Field");
-                                rowVal[4] = Short.toString((short) typeDesc.mysqlType.getJdbcType()).getBytes();// DATA_TYPE (jdbc)
+                                rowVal[4] = Short.toString(typeDesc.mysqlType == MysqlType.YEAR && !DatabaseMetaData.this.yearIsDateType ? Types.SMALLINT
+                                        : (short) typeDesc.mysqlType.getJdbcType()).getBytes();  // DATA_TYPE (jdbc)
                                 rowVal[5] = s2b(typeDesc.mysqlType.getName());  // TYPE_NAME (native)
                                 if (typeDesc.columnSize == null) {              // COLUMN_SIZE
                                     rowVal[6] = null;
@@ -2464,7 +2492,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
     @Override
     public int getDefaultTransactionIsolation() throws SQLException {
-        return java.sql.Connection.TRANSACTION_READ_COMMITTED;
+        return java.sql.Connection.TRANSACTION_REPEATABLE_READ;
     }
 
     @Override
@@ -3148,7 +3176,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
             //Continuing from above (database_name.sp_name)
             if (!" ".equals(this.quotedId)) {
                 idx = StringUtils.indexOfIgnoreCase(0, procName, ".", this.quotedId, this.quotedId,
-                        this.session.getServerSession().isNoBackslashEscapesSet() ? StringUtils.SEARCH_MODE__MRK_COM_WS : StringUtils.SEARCH_MODE__ALL);
+                        this.session.getServerSession().isNoBackslashEscapesSet() ? SearchMode.__MRK_COM_MYM_HNT_WS : SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
             } else {
                 idx = procName.indexOf(".");
             }
@@ -3921,7 +3949,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         byte[][] rowVal = new byte[18][];
 
         rowVal[0] = s2b(mysqlTypeName);                                                     // Type name
-        rowVal[1] = Integer.toString(mt.getJdbcType()).getBytes();                          // JDBC Data type
+        rowVal[1] = Integer.toString(mt == MysqlType.YEAR && !DatabaseMetaData.this.yearIsDateType ? Types.SMALLINT : mt.getJdbcType()).getBytes();                          // JDBC Data type
         // JDBC spec reserved only 'int' type for precision, thus we need to cut longer values
         rowVal[2] = Integer.toString(mt.getPrecision() > Integer.MAX_VALUE ? Integer.MAX_VALUE : mt.getPrecision().intValue()).getBytes(); // Precision
         switch (mt) {
@@ -3959,7 +3987,29 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         rowVal[8] = Integer.toString(java.sql.DatabaseMetaData.typeSearchable).getBytes();  // Searchable
         rowVal[9] = s2b(mt.isAllowed(MysqlType.FIELD_FLAG_UNSIGNED) ? "true" : "false");    // Unsignable
         rowVal[10] = s2b("false");                                                          // Fixed Prec Scale
-        rowVal[11] = s2b("false");                                                          // Auto Increment
+        switch (mt) {
+            case BIGINT:
+            case BIGINT_UNSIGNED:
+            case BOOLEAN:
+            case DOUBLE:
+            case DOUBLE_UNSIGNED:
+            case FLOAT:
+            case FLOAT_UNSIGNED:
+            case INT:
+            case INT_UNSIGNED:
+            case MEDIUMINT:
+            case MEDIUMINT_UNSIGNED:
+            case SMALLINT:
+            case SMALLINT_UNSIGNED:
+            case TINYINT:
+            case TINYINT_UNSIGNED:
+                rowVal[11] = s2b("true");                                                   // Auto Increment
+                break;
+            default:
+                rowVal[11] = s2b("false");                                                  // Auto Increment
+                break;
+
+        }
         rowVal[12] = s2b(mt.getName());                                                     // Locale Type Name
         switch (mt) {
             case DECIMAL: // TODO is it right? DECIMAL isn't a floating-point number...
@@ -4010,50 +4060,49 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         ArrayList<Row> tuples = new ArrayList<>();
 
-        /*
-         * The following are ordered by java.sql.Types, and then by how closely the MySQL type matches the JDBC Type (per spec)
-         */
-        tuples.add(new ByteArrayRow(getTypeInfo("BIT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("BOOL"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("TINYINT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("TINYINT UNSIGNED"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("BIGINT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("BIGINT UNSIGNED"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("LONG VARBINARY"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMBLOB"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("LONGBLOB"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("BLOB"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("VARBINARY"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("TINYBLOB"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("BINARY"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("LONG VARCHAR"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMTEXT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("LONGTEXT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("TEXT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("BIT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("BLOB"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("BOOL"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("CHAR"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("ENUM"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("SET"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DATE"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DATETIME"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("DECIMAL"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("NUMERIC"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("INTEGER"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("INTEGER UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE PRECISION"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE PRECISION UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("ENUM"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("FLOAT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("INT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("INT UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("INTEGER"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("INTEGER UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("LONG VARBINARY"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("LONG VARCHAR"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("LONGBLOB"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("LONGTEXT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMBLOB"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMINT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMINT UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("MEDIUMTEXT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("NUMERIC"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("REAL"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("SET"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("SMALLINT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("SMALLINT UNSIGNED"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("FLOAT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("DOUBLE PRECISION"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("REAL"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("VARCHAR"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("TINYTEXT"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("DATE"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("YEAR"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("TEXT"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("TIME"), getExceptionInterceptor()));
-        tuples.add(new ByteArrayRow(getTypeInfo("DATETIME"), getExceptionInterceptor()));
         tuples.add(new ByteArrayRow(getTypeInfo("TIMESTAMP"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("TINYBLOB"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("TINYINT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("TINYINT UNSIGNED"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("TINYTEXT"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("VARBINARY"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("VARCHAR"), getExceptionInterceptor()));
+        tuples.add(new ByteArrayRow(getTypeInfo("YEAR"), getExceptionInterceptor()));
 
         // TODO add missed types (aliases)
 
@@ -4186,7 +4235,8 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 byte[][] rowVal = new byte[8][];
                                 rowVal[0] = null;                                                                           // SCOPE is not used
                                 rowVal[1] = results.getBytes("Field");                                                      // COLUMN_NAME
-                                rowVal[2] = Short.toString((short) typeDesc.mysqlType.getJdbcType()).getBytes();            // DATA_TYPE
+                                rowVal[2] = Short.toString(typeDesc.mysqlType == MysqlType.YEAR && !DatabaseMetaData.this.yearIsDateType ? Types.SMALLINT
+                                        : (short) typeDesc.mysqlType.getJdbcType()).getBytes();                             // DATA_TYPE (jdbc)
                                 rowVal[3] = s2b(typeDesc.mysqlType.getName());                                              // TYPE_NAME
                                 rowVal[4] = typeDesc.columnSize == null ? null : s2b(typeDesc.columnSize.toString());       // COLUMN_SIZE
                                 rowVal[5] = s2b(Integer.toString(typeDesc.bufferLength));                                   // BUFFER_LENGTH
@@ -4312,7 +4362,8 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         String columnsDelimitter = ","; // what version did this change in?
 
-        int indexOfOpenParenLocalColumns = StringUtils.indexOfIgnoreCase(0, keysComment, "(", this.quotedId, this.quotedId, StringUtils.SEARCH_MODE__ALL);
+        int indexOfOpenParenLocalColumns = StringUtils.indexOfIgnoreCase(0, keysComment, "(", this.quotedId, this.quotedId,
+                SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
         if (indexOfOpenParenLocalColumns == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.14"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
@@ -4324,7 +4375,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         String keysCommentTrimmed = keysComment.trim();
 
         int indexOfCloseParenLocalColumns = StringUtils.indexOfIgnoreCase(0, keysCommentTrimmed, ")", this.quotedId, this.quotedId,
-                StringUtils.SEARCH_MODE__ALL);
+                SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
         if (indexOfCloseParenLocalColumns == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.15"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
@@ -4332,14 +4383,14 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         String localColumnNamesString = keysCommentTrimmed.substring(1, indexOfCloseParenLocalColumns);
 
-        int indexOfRefer = StringUtils.indexOfIgnoreCase(0, keysCommentTrimmed, "REFER ", this.quotedId, this.quotedId, StringUtils.SEARCH_MODE__ALL);
+        int indexOfRefer = StringUtils.indexOfIgnoreCase(0, keysCommentTrimmed, "REFER ", this.quotedId, this.quotedId, SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
         if (indexOfRefer == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.16"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
         }
 
         int indexOfOpenParenReferCol = StringUtils.indexOfIgnoreCase(indexOfRefer, keysCommentTrimmed, "(", this.quotedId, this.quotedId,
-                StringUtils.SEARCH_MODE__MRK_COM_WS);
+                SearchMode.__MRK_COM_MYM_HNT_WS);
 
         if (indexOfOpenParenReferCol == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.17"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
@@ -4347,7 +4398,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
         String referDbTableString = keysCommentTrimmed.substring(indexOfRefer + "REFER ".length(), indexOfOpenParenReferCol);
 
-        int indexOfSlash = StringUtils.indexOfIgnoreCase(0, referDbTableString, "/", this.quotedId, this.quotedId, StringUtils.SEARCH_MODE__MRK_COM_WS);
+        int indexOfSlash = StringUtils.indexOfIgnoreCase(0, referDbTableString, "/", this.quotedId, this.quotedId, SearchMode.__MRK_COM_MYM_HNT_WS);
 
         if (indexOfSlash == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.18"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
@@ -4357,7 +4408,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         String referTable = StringUtils.unQuoteIdentifier(referDbTableString.substring(indexOfSlash + 1).trim(), this.quotedId);
 
         int indexOfCloseParenRefer = StringUtils.indexOfIgnoreCase(indexOfOpenParenReferCol, keysCommentTrimmed, ")", this.quotedId, this.quotedId,
-                StringUtils.SEARCH_MODE__ALL);
+                SearchMode.__BSE_MRK_COM_MYM_HNT_WS);
 
         if (indexOfCloseParenRefer == -1) {
             throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.19"), MysqlErrorNumbers.SQL_STATE_GENERAL_ERROR, getExceptionInterceptor());
@@ -4666,28 +4717,13 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
 
     @Override
     public boolean supportsResultSetConcurrency(int type, int concurrency) throws SQLException {
-        switch (type) {
-            case ResultSet.TYPE_SCROLL_INSENSITIVE:
-                if ((concurrency == ResultSet.CONCUR_READ_ONLY) || (concurrency == ResultSet.CONCUR_UPDATABLE)) {
-                    return true;
-                }
-                throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.20"), MysqlErrorNumbers.SQL_STATE_ILLEGAL_ARGUMENT,
-                        getExceptionInterceptor());
-
-            case ResultSet.TYPE_FORWARD_ONLY:
-                if ((concurrency == ResultSet.CONCUR_READ_ONLY) || (concurrency == ResultSet.CONCUR_UPDATABLE)) {
-                    return true;
-                }
-                throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.20"), MysqlErrorNumbers.SQL_STATE_ILLEGAL_ARGUMENT,
-                        getExceptionInterceptor());
-
-            case ResultSet.TYPE_SCROLL_SENSITIVE:
-                return false;
-            default:
-                throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.20"), MysqlErrorNumbers.SQL_STATE_ILLEGAL_ARGUMENT,
-                        getExceptionInterceptor());
+        if ((type == ResultSet.TYPE_FORWARD_ONLY || type == ResultSet.TYPE_SCROLL_INSENSITIVE)
+                && (concurrency == ResultSet.CONCUR_READ_ONLY || concurrency == ResultSet.CONCUR_UPDATABLE)) {
+            return true;
+        } else if (type == ResultSet.TYPE_SCROLL_SENSITIVE) {
+            return false;
         }
-
+        throw SQLError.createSQLException(Messages.getString("DatabaseMetaData.20"), MysqlErrorNumbers.SQL_STATE_ILLEGAL_ARGUMENT, getExceptionInterceptor());
     }
 
     @Override

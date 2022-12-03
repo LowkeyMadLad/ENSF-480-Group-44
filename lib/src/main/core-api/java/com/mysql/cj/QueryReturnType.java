@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -29,15 +29,9 @@
 
 package com.mysql.cj;
 
-public interface BatchVisitor {
-
-    BatchVisitor increment();
-
-    BatchVisitor decrement();
-
-    BatchVisitor append(byte[] values);
-
-    BatchVisitor merge(byte[] begin, byte[] end);
-
-    BatchVisitor mergeWithLast(byte[] values);
+/**
+ * The possible return types from executing queries.
+ */
+public enum QueryReturnType {
+    PRODUCES_RESULT_SET, MAY_PRODUCE_RESULT_SET, DOES_NOT_PRODUCE_RESULT_SET, NONE;
 }

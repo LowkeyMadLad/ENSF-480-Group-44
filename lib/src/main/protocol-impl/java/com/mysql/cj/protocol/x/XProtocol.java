@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 2.0, as published by the
@@ -47,16 +47,15 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.mysql.cj.CharsetMapping;
 import com.mysql.cj.Constants;
 import com.mysql.cj.Messages;
 import com.mysql.cj.QueryResult;
 import com.mysql.cj.Session;
 import com.mysql.cj.TransactionEventHandler;
 import com.mysql.cj.conf.HostInfo;
-import com.mysql.cj.conf.PropertyDefinitions;
 import com.mysql.cj.conf.PropertyDefinitions.Compression;
 import com.mysql.cj.conf.PropertyDefinitions.SslMode;
 import com.mysql.cj.conf.PropertyDefinitions.XdevapiSslMode;
@@ -74,6 +73,8 @@ import com.mysql.cj.exceptions.FeatureNotAvailableException;
 import com.mysql.cj.exceptions.MysqlErrorNumbers;
 import com.mysql.cj.exceptions.SSLParamsException;
 import com.mysql.cj.exceptions.WrongArgumentException;
+import com.mysql.cj.log.Log;
+import com.mysql.cj.log.LogFactory;
 import com.mysql.cj.protocol.AbstractProtocol;
 import com.mysql.cj.protocol.ColumnDefinition;
 import com.mysql.cj.protocol.ExportControlled;
@@ -91,6 +92,7 @@ import com.mysql.cj.protocol.Resultset;
 import com.mysql.cj.protocol.ServerCapabilities;
 import com.mysql.cj.protocol.ServerSession;
 import com.mysql.cj.protocol.SocketConnection;
+import com.mysql.cj.protocol.ValueEncoder;
 import com.mysql.cj.protocol.a.NativeSocketConnection;
 import com.mysql.cj.protocol.x.Notice.XSessionStateChanged;
 import com.mysql.cj.result.DefaultColumnDefinition;
@@ -144,22 +146,6 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
 
     private Map<Class<? extends GeneratedMessageV3>, ProtocolEntityFactory<? extends ProtocolEntity, XMessage>> messageToProtocolEntityFactory = new HashMap<>();
 
-    public XProtocol(String host, int port, String defaultSchema, PropertySet propertySet) {
-
-        this.defaultSchemaName = defaultSchema;
-
-        // Override common connectTimeout with xdevapi.connect-timeout to provide unified logic in StandardSocketFactory
-        RuntimeProperty<Integer> connectTimeout = propertySet.getIntegerProperty(PropertyKey.connectTimeout);
-        RuntimeProperty<Integer> xdevapiConnectTimeout = propertySet.getIntegerProperty(PropertyKey.xdevapiConnectTimeout);
-        if (xdevapiConnectTimeout.isExplicitlySet() || !connectTimeout.isExplicitlySet()) {
-            connectTimeout.setValue(xdevapiConnectTimeout.getValue());
-        }
-
-        SocketConnection socketConn = new NativeSocketConnection();
-        socketConn.connect(host, port, propertySet, null, null, 0);
-        init(null, socketConn, propertySet, null);
-    }
-
     public XProtocol(HostInfo hostInfo, PropertySet propertySet) {
         String host = hostInfo.getHost();
         if (host == null || StringUtils.isEmptyOrWhitespaceOnly(host)) {
@@ -186,6 +172,9 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
     @Override
     public void init(Session sess, SocketConnection socketConn, PropertySet propSet, TransactionEventHandler trManager) {
         super.init(sess, socketConn, propSet, trManager);
+
+        // Session is not kept, so we need to do this
+        this.log = LogFactory.getLogger(getPropertySet().getStringProperty(PropertyKey.logger).getStringValue(), Log.LOGGER_INSTANCE_NAME);
 
         this.messageBuilder = new XMessageBuilder();
 
@@ -237,14 +226,14 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
         sendCapabilities(tlsCapabilities);
 
         try {
-            this.socketConnection.performTlsHandshake(null); //(this.serverSession);
+            this.socketConnection.performTlsHandshake(null, this.log);
         } catch (SSLParamsException | FeatureNotAvailableException | IOException e) {
             throw new CJCommunicationsException(e);
         }
 
         try {
             this.sender = new SyncMessageSender(this.socketConnection.getMysqlOutput());
-            this.reader = new SyncMessageReader(this.socketConnection.getMysqlInput());
+            this.reader = new SyncMessageReader(this.socketConnection.getMysqlInput(), this);
         } catch (IOException e) {
             throw new XProtocolError(e.getMessage(), e);
         }
@@ -310,7 +299,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
 
         try {
             this.sender = new SyncMessageSender(this.socketConnection.getMysqlOutput());
-            this.reader = new SyncMessageReader(this.socketConnection.getMysqlInput());
+            this.reader = new SyncMessageReader(this.socketConnection.getMysqlInput(), this);
             this.managedResource = this.socketConnection.getMysqlSocket();
         } catch (IOException e) {
             throw new XProtocolError(e.getMessage(), e);
@@ -325,7 +314,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
             this.clientCapabilities.put(XServerCapabilities.KEY_SESSION_CONNECT_ATTRS, attMap);
         }
 
-        // Override JDBC (global) SSL properties with xdevapi ones to provide unified logic in ExportControlled via common SSL properties.
+        // Override JDBC (global) SSL properties with X DevAPI ones to provide unified logic in ExportControlled via common SSL properties.
         RuntimeProperty<XdevapiSslMode> xdevapiSslMode = this.propertySet.<XdevapiSslMode>getEnumProperty(PropertyKey.xdevapiSslMode);
         RuntimeProperty<SslMode> jdbcSslMode = this.propertySet.<SslMode>getEnumProperty(PropertyKey.sslMode);
         if (xdevapiSslMode.isExplicitlySet() || !jdbcSslMode.isExplicitlySet()) {
@@ -377,50 +366,21 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
             sslMode.setValue(SslMode.REQUIRED);
         }
 
-        RuntimeProperty<String> xdevapiTlsVersions = this.propertySet.getStringProperty(PropertyKey.xdevapiTlsVersions);
-        RuntimeProperty<String> jdbcEnabledTlsProtocols = this.propertySet.getStringProperty(PropertyKey.enabledTLSProtocols);
-        if (xdevapiTlsVersions.isExplicitlySet()) {
-            if (sslMode.getValue() == SslMode.DISABLED) {
-                throw ExceptionFactory.createException(WrongArgumentException.class,
-                        "Option '" + PropertyKey.xdevapiTlsVersions.getKeyName() + "' can not be specified when SSL connections are disabled.");
-            }
-            if (xdevapiTlsVersions.getValue().trim().isEmpty()) {
-                throw ExceptionFactory.createException(WrongArgumentException.class,
-                        "At least one TLS protocol version must be specified in '" + PropertyKey.xdevapiTlsVersions.getKeyName() + "' list.");
+        if (sslMode.getValue() != SslMode.DISABLED) {
+            RuntimeProperty<String> xdevapiTlsVersions = this.propertySet.getStringProperty(PropertyKey.xdevapiTlsVersions);
+            RuntimeProperty<String> jdbcEnabledTlsProtocols = this.propertySet.getStringProperty(PropertyKey.tlsVersions);
+            if (xdevapiTlsVersions.isExplicitlySet()) {
+                String[] tlsVersions = xdevapiTlsVersions.getValue().split("\\s*,\\s*");
+                List<String> tryProtocols = Arrays.asList(tlsVersions);
+                ExportControlled.checkValidProtocols(tryProtocols);
+                jdbcEnabledTlsProtocols.setValue(xdevapiTlsVersions.getValue());
             }
 
-            String[] tlsVersions = xdevapiTlsVersions.getValue().split("\\s*,\\s*");
-            List<String> tryProtocols = Arrays.asList(tlsVersions);
-            ExportControlled.checkValidProtocols(tryProtocols);
-            jdbcEnabledTlsProtocols.setValue(xdevapiTlsVersions.getValue());
-
-        } else if (!jdbcEnabledTlsProtocols.isExplicitlySet()) {
-            jdbcEnabledTlsProtocols.setValue(xdevapiTlsVersions.getValue());
-        }
-
-        RuntimeProperty<String> xdevapiTlsCiphersuites = this.propertySet.getStringProperty(PropertyKey.xdevapiTlsCiphersuites);
-        RuntimeProperty<String> jdbcEnabledSslCipherSuites = this.propertySet.getStringProperty(PropertyKey.enabledSSLCipherSuites);
-        if (xdevapiTlsCiphersuites.isExplicitlySet()) {
-            if (sslMode.getValue() == SslMode.DISABLED) {
-                throw ExceptionFactory.createException(WrongArgumentException.class,
-                        "Option '" + PropertyKey.xdevapiTlsCiphersuites.getKeyName() + "' can not be specified when SSL connections are disabled.");
+            RuntimeProperty<String> xdevapiTlsCiphersuites = this.propertySet.getStringProperty(PropertyKey.xdevapiTlsCiphersuites);
+            RuntimeProperty<String> jdbcEnabledSslCipherSuites = this.propertySet.getStringProperty(PropertyKey.tlsCiphersuites);
+            if (xdevapiTlsCiphersuites.isExplicitlySet()) {
+                jdbcEnabledSslCipherSuites.setValue(xdevapiTlsCiphersuites.getValue());
             }
-
-            jdbcEnabledSslCipherSuites.setValue(xdevapiTlsCiphersuites.getValue());
-
-        } else if (!jdbcEnabledSslCipherSuites.isExplicitlySet()) {
-            jdbcEnabledSslCipherSuites.setValue(xdevapiTlsCiphersuites.getValue());
-        }
-
-        boolean verifyServerCert = sslMode.getValue() == SslMode.VERIFY_CA || sslMode.getValue() == SslMode.VERIFY_IDENTITY;
-        String trustStoreUrl = jdbcTrustCertKeyStoreUrl.getValue();
-        if (!verifyServerCert && !StringUtils.isNullOrEmpty(trustStoreUrl)) {
-            StringBuilder msg = new StringBuilder("Incompatible security settings. The property '");
-            msg.append(PropertyKey.xdevapiSslTrustStoreUrl.getKeyName()).append("' requires '");
-            msg.append(PropertyKey.xdevapiSslMode.getKeyName()).append("' as '");
-            msg.append(PropertyDefinitions.SslMode.VERIFY_CA).append("' or '");
-            msg.append(PropertyDefinitions.SslMode.VERIFY_IDENTITY).append("'.");
-            throw new CJCommunicationsException(msg.toString());
         }
 
         if (this.clientCapabilities.size() > 0) {
@@ -429,14 +389,15 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
             } catch (XProtocolError e) {
                 // XProtocolError: ERROR 5002 (HY000) Capability 'session_connect_attrs' doesn't exist
                 // happens when connecting to xplugin which doesn't support this feature. Just ignore this error.
-                if (e.getErrorCode() != 5002 && !e.getMessage().contains(XServerCapabilities.KEY_SESSION_CONNECT_ATTRS)) {
+                if (e.getErrorCode() != MysqlErrorNumbers.ER_X_CAPABILITY_NOT_FOUND
+                        && !e.getMessage().contains(XServerCapabilities.KEY_SESSION_CONNECT_ATTRS)) {
                     throw e;
                 }
                 this.clientCapabilities.remove(XServerCapabilities.KEY_SESSION_CONNECT_ATTRS);
             }
         }
 
-        if (xdevapiSslMode.getValue() != XdevapiSslMode.DISABLED) {
+        if (jdbcSslMode.getValue() != SslMode.DISABLED) {
             negotiateSSLConnection();
         }
 
@@ -518,7 +479,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
         this.currDatabase = database;
 
         beforeHandshake();
-        this.authProvider.connect(null, user, password, database);
+        this.authProvider.connect(user, password, database);
     }
 
     public void changeUser(String user, String password, String database) {
@@ -526,16 +487,17 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
         this.currPassword = password;
         this.currDatabase = database;
 
-        this.authProvider.changeUser(null, user, password, database);
+        this.authProvider.changeUser(user, password, database);
     }
 
     public void afterHandshake() {
-        // TODO setup all required server session states
+        // setup all required server session states
 
         if (this.compressionEnabled) {
             try {
                 this.reader = new SyncMessageReader(new FullReadInputStream(
-                        new CompressionSplittedInputStream(this.socketConnection.getMysqlInput(), new CompressorStreamsFactory(this.compressionAlgorithm))));
+                        new CompressionSplittedInputStream(this.socketConnection.getMysqlInput(), new CompressorStreamsFactory(this.compressionAlgorithm))),
+                        this);
             } catch (IOException e) {
                 ExceptionFactory.createException(Messages.getString("Protocol.Compression.6"), e);
             }
@@ -575,7 +537,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
                     if (notice instanceof XSessionStateChanged) {
                         switch (((XSessionStateChanged) notice).getParamType()) {
                             case Notice.SessionStateChanged_CLIENT_ID_ASSIGNED:
-                                this.getServerSession().setThreadId(((XSessionStateChanged) notice).getValue().getVUnsignedInt());
+                                this.getServerSession().getCapabilities().setThreadId(((XSessionStateChanged) notice).getValue().getVUnsignedInt());
                                 break;
                             case Notice.SessionStateChanged_ACCOUNT_EXPIRED:
                                 // TODO
@@ -606,10 +568,9 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
 
     public boolean hasMoreResults() {
         try {
-            XMessageHeader header;
-            if ((header = this.reader.readHeader()).getMessageType() == ServerMessages.Type.RESULTSET_FETCH_DONE_MORE_RESULTSETS_VALUE) {
-                this.reader.readMessage(null, header);
-                if (this.reader.readHeader().getMessageType() == ServerMessages.Type.RESULTSET_FETCH_DONE_VALUE) {
+            if (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_FETCH_DONE_MORE_RESULTSETS_VALUE) {
+                this.reader.readMessage(null, ServerMessages.Type.RESULTSET_FETCH_DONE_MORE_RESULTSETS_VALUE);
+                if (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_FETCH_DONE_VALUE) {
                     // possibly bug in xplugin sending FetchDone immediately following FetchDoneMoreResultsets
                     return false;
                 }
@@ -659,7 +620,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
      */
     public boolean hasResults() {
         try {
-            return this.reader.readHeader().getMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE;
+            return ((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE;
         } catch (IOException e) {
             throw new XProtocolError(e.getMessage(), e);
         }
@@ -670,9 +631,8 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
      */
     public void drainRows() {
         try {
-            XMessageHeader header;
-            while ((header = this.reader.readHeader()).getMessageType() == ServerMessages.Type.RESULTSET_ROW_VALUE) {
-                this.reader.readMessage(null, header);
+            while (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_ROW_VALUE) {
+                this.reader.readMessage(null, ServerMessages.Type.RESULTSET_ROW_VALUE);
             }
         } catch (XProtocolError e) {
             this.currentResultStreamer = null;
@@ -683,22 +643,21 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
         }
     }
 
-    // TODO: put this in CharsetMapping..
-    public static Map<String, Integer> COLLATION_NAME_TO_COLLATION_INDEX = new java.util.HashMap<>();
-
-    static {
-        for (int i = 0; i < CharsetMapping.COLLATION_INDEX_TO_COLLATION_NAME.length; ++i) {
-            COLLATION_NAME_TO_COLLATION_INDEX.put(CharsetMapping.COLLATION_INDEX_TO_COLLATION_NAME[i], i);
-        }
+    public ColumnDefinition readMetadata() {
+        return readMetadata(null);
     }
 
-    public ColumnDefinition readMetadata() {
+    public ColumnDefinition readMetadata(Consumer<Notice> noticeConsumer) {
         try {
+            List<Notice> notices;
             List<ColumnMetaData> fromServer = new LinkedList<>();
             do { // use this construct to read at least one
-                fromServer.add((ColumnMetaData) this.reader.readMessage(null, ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE).getMessage());
-                // TODO put notices somewhere like it's done eg. in readStatementExecuteOk(): builder.addNotice(this.reader.read(Frame.class));
-            } while (this.reader.readHeader().getMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE);
+                XMessage mess = this.reader.readMessage(null, ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE);
+                if (noticeConsumer != null && (notices = mess.getNotices()) != null) {
+                    notices.stream().forEach(noticeConsumer::accept);
+                }
+                fromServer.add((ColumnMetaData) mess.getMessage());
+            } while (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE);
             ArrayList<Field> metadata = new ArrayList<>(fromServer.size());
             @SuppressWarnings("unchecked")
             ProtocolEntityFactory<Field, XMessage> fieldFactory = (ProtocolEntityFactory<Field, XMessage>) this.messageToProtocolEntityFactory
@@ -715,7 +674,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
         try {
             List<Notice> notices;
             List<ColumnMetaData> fromServer = new LinkedList<>();
-            while (this.reader.readHeader().getMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE) { // use this construct to read at least one
+            while (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE) { // use this construct to read at least one
                 XMessage mess = this.reader.readMessage(null, ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE);
                 if (noticeConsumer != null && (notices = mess.getNotices()) != null) {
                     notices.stream().forEach(noticeConsumer::accept);
@@ -738,9 +697,8 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
     public XProtocolRow readRowOrNull(ColumnDefinition metadata, Consumer<Notice> noticeConsumer) {
         try {
             List<Notice> notices;
-            XMessageHeader header;
-            if ((header = this.reader.readHeader()).getMessageType() == ServerMessages.Type.RESULTSET_ROW_VALUE) {
-                XMessage mess = this.reader.readMessage(null, header);
+            if (((SyncMessageReader) this.reader).getNextNonNoticeMessageType() == ServerMessages.Type.RESULTSET_ROW_VALUE) {
+                XMessage mess = this.reader.readMessage(null, ServerMessages.Type.RESULTSET_ROW_VALUE);
                 if (noticeConsumer != null && (notices = mess.getNotices()) != null) {
                     notices.stream().forEach(noticeConsumer::accept);
                 }
@@ -923,12 +881,11 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
 
     public boolean isSqlResultPending() {
         try {
-            XMessageHeader header;
-            switch ((header = this.reader.readHeader()).getMessageType()) {
+            switch (((SyncMessageReader) this.reader).getNextNonNoticeMessageType()) {
                 case ServerMessages.Type.RESULTSET_COLUMN_META_DATA_VALUE:
                     return true;
                 case ServerMessages.Type.RESULTSET_FETCH_DONE_MORE_RESULTSETS_VALUE:
-                    this.reader.readMessage(null, header);
+                    this.reader.readMessage(null, ServerMessages.Type.RESULTSET_FETCH_DONE_MORE_RESULTSETS_VALUE);
                     break;
                 default:
                     break;
@@ -977,7 +934,8 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
                 readQueryResult(new OkBuilder());
                 this.useSessionResetKeepOpen = true;
             } catch (XProtocolError e) {
-                if (e.getErrorCode() != 5168 && /* for MySQL 5.7 */ e.getErrorCode() != 5160) {
+                if (e.getErrorCode() != MysqlErrorNumbers.ER_X_EXPECT_FIELD_EXISTS_FAILED
+                        && /* for MySQL 5.7 */ e.getErrorCode() != MysqlErrorNumbers.ER_X_EXPECT_BAD_CONDITION) {
                     throw e;
                 }
                 this.useSessionResetKeepOpen = false;
@@ -1000,7 +958,7 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
                 }
             }
 
-            this.authProvider.changeUser(null, this.currUser, this.currPassword, this.currDatabase);
+            this.authProvider.changeUser(this.currUser, this.currPassword, this.currDatabase);
         }
 
         // No prepared statements survived to Mysqlx.Session.Reset. Reset all related control structures.
@@ -1020,10 +978,6 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
     public void changeDatabase(String database) {
         throw ExceptionFactory.createException(CJOperationNotSupportedException.class, "Not supported");
         // TODO: Figure out how this is relevant for X Protocol client Session
-    }
-
-    public String getPasswordCharacterEncoding() {
-        throw ExceptionFactory.createException(CJOperationNotSupportedException.class, "Not supported");
     }
 
     public boolean versionMeetsMinimum(int major, int minor, int subminor) {
@@ -1074,6 +1028,11 @@ public class XProtocol extends AbstractProtocol<XMessage> implements Protocol<XM
 
     @Override
     public void setQueryComment(String comment) {
+        throw ExceptionFactory.createException(CJOperationNotSupportedException.class, "Not supported");
+    }
+
+    @Override
+    public Supplier<ValueEncoder> getValueEncoderSupplier(Object obj) {
         throw ExceptionFactory.createException(CJOperationNotSupportedException.class, "Not supported");
     }
 }

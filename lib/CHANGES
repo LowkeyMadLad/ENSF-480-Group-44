@@ -1,6 +1,213 @@
 # Changelog
 # https://dev.mysql.com/doc/relnotes/connector-j/8.0/en/
 
+Version 8.0.31
+
+  - Fix for Bug#33637993, Loss of backslashes in data after modify api is used.
+
+  - Fix for Bug#34529014, JSonParser not accepting valid JSON string when converting to DbDoc.
+
+  - Fix for Bug#67828 (Bug#15967406), Crashing applets due to reading file.encoding system property.
+
+  - WL#15259, Review maven publishing process.
+
+  - Fix for Bug#107222 (Bug#34150112), ClientPreparedStatement.toString() no longer interpolates byte arrays.
+
+  - Fix for Bug#104753 (Bug#33286177), PreparedStatement.setFetchSize(0) causes ArrayIndexOutOfBoundsException.
+
+Version 8.0.30
+
+  - Fix for Bug#107510 (Bug#34259416), Empty string given to set() from Collection.modify() replaces full document.
+
+  - Fix for Bug#106758 (33973048), DatabaseMetaData.getTypeInfo returns AUTO_INCREMENT = false for all datatypes.
+
+  - Fix for Bug#34090350, Update mappings for utf8mb3 and utf8mb4 collations.
+
+  - Fix for Bug#106880 (34022110), Outdated description in connection property 'rewriteBatchedStatements'.
+
+  - Fix for Bug#34082503, CONTRIBUTING.md contains broken links.
+
+  - Fix for Bug#106779 (33976245), Contribution: Fix typo in PropertyDefinitions.
+    Thanks to Weijie Wu for his contribution.
+
+  - Fix for Bug#76623 (20856749), JDBC driver misinterprets "--" as a comment, instead of "-- ".
+
+Version 8.0.29
+
+  - Fix for Bug#21978230, COMMENT PARSING NOT PROPER IN PREPSTMT.EXECUTEBATCH().
+
+  - Fix for Bug#81468 (23312764), MySQL server fails to rewrite batch insert when column name contains word select.
+
+  - Fix for Bug#106435 (33850099), 8.0.28 Connector/J has regressive in setAutoCommit after Bug#104067 (33054827).
+
+  - Fix for Bug#106240 (33781440), StringIndexOutOfBoundsException when VALUE is at the end of the query.
+
+  - Fix for Bug#106397 (33893591), Contribution: fix: fix LocalizedErrorMessages.properties doc: less then -> ...
+    Thanks to Jianjian Song for his contribution.
+
+  - Fix for Bug#77924 (25710160), JDBC SOCKS SHOULD NOT PERFORM LOCAL DNS RESOLUTION.
+
+  - Fix for Bug#82084 (23743938), YEAR DATA TYPE RETURNS INCORRECT VALUE FOR JDBC GETCOLUMNTYPE().
+
+  - Fix for Bug#106441 (33850155), Add charset mapping for utf8mb3.
+
+  - WL#15048, Upgrade Protocol Buffers dependency to protobuf-java-3.19.4.
+
+  - Fix for Bug#106065 (33726184) Contribution: BigDecimal.toPlainString no need to check decimal exponent.
+    Thanks to Baoyi Chen for his contribution.
+
+  - Fix for Bug#106171 (33757217), Contribution: Remove unnecessary boxing in ResultSetImpl.
+    Thanks to Ningpp Ning for his contribution.
+
+  - Fix for Bug#25701740, STMT EXECUTION FAILS FOR REPLICATION CONNECTION WHEN USECURSORFETCH=TRUE.
+
+  - Fix for Bug#33723611, getDefaultTransactionIsolation must return repeatable read.
+
+  - Fix for Bug#38954 (11749415), DATA TRUNCATION WHILE USING BIT(1) IN STORED PROCEDURE WITH INOUT TYPE.
+
+  - Fix for Bug#85317 (25672958), EXECUTE BATCH WILL THROW NULL POINTER EXCEPTION WHERE THE COLUMN IS BLOB!
+
+  - Fix for Bug#105915 (33678490), Connector/J 8 server prepared statement precision loss in execute batch.
+
+  - Fix for Bug#104349 (33563548), com.mysql.cj NPE.
+
+  - Fix for Bug#62006 (16714956), JAVA.IO.NOTSERIALIZABLEEXCEPTION: JAVA.IO.STRINGREADER WHEN PROFILESQL=TRUE.
+
+  - WL#14750, Better unification of query bindings.
+
+  - WL#14834, Support for FIDO authentication.
+
+  - WL#14835, Align TLS option checking across connectors.
+
+Version 8.0.28
+
+  - Fix for Bug#99260 (31189960), statement.setQueryTimeout,creates a database connection and does not close.
+
+  - Fix for Bug#103324 (32770013), X DevAPI Collection.replaceOne() missing matching _id check.
+
+  - Fix for Bug#105197 (33461744), Statement.executeQuery() may return non-navigable ResultSet.
+
+  - Fix for Bug#105323 (33507321), README.md contains broken links.
+
+  - Fix for Bug#96900 (30355150), STATEMENT.CANCEL()CREATE A DATABASE CONNECTION BUT DOES NOT CLOSE THE CONNECTION.
+
+  - Fix for Bug#104067 (33054827), No reset autoCommit after unknown issue occurs.
+    Thanks to Tingyu Wei for his contribution.
+
+  - Fix for Bug#85223 (25656020), MYSQLSQLXML SETSTRING CRASH.
+
+  - Fix for Bug#84365 (33425867), INSERT..VALUE with VALUES function lead to a StringIndexOutOfBoundsException.
+
+  - Fix for Bug#105211 (33468860), class java.time.LocalDate cannot be cast to class java.sql.Date.
+
+  - Fix for Bug#101389 (32089018), GETWARNINGS SHOULD CHECK WARNING COUNT BEFORE SENDING SHOW.
+
+  - Fix for Bug#33488091, Remove all references to xdevapi.useAsyncProtocol from properties and code.
+
+  - WL#14805, Remove support for TLS 1.0 and 1.1.
+
+  - WL#14650, Support for MFA (multi factor authentication) authentication.
+
+Version 8.0.27
+
+  - Fix for Bug#103612 (32902019), Incorrectly identified WITH...SELECT as unsafe for read-only connections.
+
+  - Fix for Bug#71929 (18346501), Prefixing query with double comments cancels query DML validation.
+
+  - Fix for Bug#23204652, CURSOR POSITIONING API'S DOESNOT CHECK THE VALIDITY OF RESULTSET.
+
+  - Fix for Bug#28725534, MULTI HOST CONNECTION WOULD BLOCK IN CONNECTION POOLING.
+
+  - Fix for Bug#95139 (29807572), CACHESERVERCONFIGURATION APPEARS TO THWART CHARSET DETECTION.
+
+  - Fix for Bug#104641 (33237255), DatabaseMetaData.getImportedKeys can return duplicated foreign keys.
+
+  - Fix for Bug#33185116, Have method ResultSet.getBoolean() supporting conversion of 'T' and 'F' in a VARCHAR to True/False (boolean).
+
+  - Fix for Bug#31117686, PROTOCOL ALLOWLIST NOT COMPATIBLE WITH IBM JAVA.
+
+  - Fix for Bug#104559 (33232419), ResultSet.getObject(i, java.util.Date.class) throws NPE when the value is null.
+
+  - WL#14707, Support OCI IAM authentication.
+
+  - WL#14660, Testsuite with support for single MySQL server instance.
+
+  - Fix for Bug#103878 (32954449), CONNECTOR/J 8 : QUERY WITH 'SHOW XXX' WILL GET EXCEPTION WHEN USE CURSOR.
+
+  - Fix for Bug#103796 (32922715), CONNECTOR/J 8 STMT SETQUERYTIMEOUT CAN NOT WORK.
+    Thanks to Hong Wang for his contribution.
+
+  - Fix for Bug#104170 (33064455), CONTRIBUTION: CLIENTPREPAREDSTMT: LEAVE CALENDAR UNTOUCHED.
+    Thanks to Björn Michael for his contribution.
+
+  - Fix for Bug#95564 (29894324), createDatabaseIfNotExist is not working for databases with hyphen in name.
+    Thanks to Lukasz Sanek for his contribution.
+
+Version 8.0.26
+
+  - Fix for Bug#32954396, EXECUTEQUERY HANGS WITH USECURSORFETCH=TRUE & SETFETCHSIZE.
+
+  - Fix for Bug#102372 (32459408), v8.0.23 unusable in OSGi.
+
+  - Fix for Bug#25554464, CONNECT FAILS WITH NPE WHEN THE SERVER STARTED WITH CUSTOM COLLATION.
+
+  - Fix for Bug#100606 (31818423), UNECESARY CALL TO "SET NAMES 'UTF8' COLLATE 'UTF8_GENERAL_CI'".
+    Thanks to Marc Fletcher for his contribution.
+
+  - Fix for Bug#102404 (32435618), CONTRIBUTION: ADD TRACK SESSION STATE CHANGE.
+    Thanks to William Lee for his contribution.
+
+  - Fix for Bug#95280 (29757140), DATABASEMETADATA.GETIMPORTEDKEYS RETURNS DOUBLE THE ROWS.
+    Thanks to Miron Balcerzak for his contribution.
+
+  - Fix for Bug#97269 (30438500), POSSIBLE BUG IN COM.MYSQL.CJ.XDEVAPI.STREAMINGDOCRESULTBUILDER.
+
+  - Fix for Bug#103303 (32766143), JAVA.LANG.CLASSCASTEXCEPTION WHEN INSERTING BLOB WITH SERVER PREPARED STATEMENT.
+
+  - WL#14205, Support query attributes.
+
+  - WL#14411, Support for authentication_kerberos_client authentication plugin.
+
+  - WL#14559, Deprecate TLS 1.0 and 1.1.
+
+  - WL#14391, Migrate QA tests to main repo.
+
+Version 8.0.25
+
+  - This release contains no functional changes and is published to align the version number with the MySQL Server 8.0.25 release.
+
+Version 8.0.24
+
+  - Fix for Bug#102188 (32526663), AccessControlException with AuthenticationLdapSaslClientPlugin.
+
+  - Fix for Bug#22508715, SETSESSIONMAXROWS() CALL ON CLOSED CONNECTION RESULTS IN NPE.
+
+  - Fix for Bug#102131 (32338451), UPDATABLERESULTSET NPE WHEN USING DERIVED QUERIES OR VIEWS.
+
+  - Fix for Bug#101596 (32151143), GET THE 'HOST' PROPERTY ERROR AFTER CALLING TRANSFORMPROPERTIES() METHOD.
+
+  - Fix for Bug#20391832, SETOBJECT() FOR TYPES.TIME RESULTS IN EXCEPTION WHEN VALUE HAS FRACTIONAL PART.
+
+  - Fix for Bug#97730 (31699993), xdev api: ConcurrentModificationException at Session.close.
+
+  - Fix for Bug#99708 (31510398), mysql-connector-java 8.0.20 ASSERTION FAILED: Unknown message type: 57 s.close.
+
+  - Fix for Bug#32122553, EXTRA BYTE IN COM_STMT_EXECUTE.
+
+  - Fix for Bug#101558 (32141210), NULLPOINTEREXCEPTION WHEN EXECUTING INVALID QUERY WITH USEUSAGEADVISOR ENABLED.
+
+  - Fix for Bug#102076 (32329915), CONTRIBUTION: MYSQL JDBC DRIVER RESULTSET.GETLONG() THROWS NUMBEROUTOFRANGE.
+
+  - Fix for Bug#31747910, BUG 30474158 FIX IMPROVES JDBC COMPLIANCE BUT CHANGES DEFAULT RESULTSETTYPE HANDLING.
+
+  - Fix for Bug#102321 (32405590), CALLING RESULTSETMETADATA.GETCOLUMNCLASSNAME RETURNS WRONG VALUE FOR DATETIME.
+
+  - WL#14453, Pluggable authentication: new default behavior & user-less authentications.
+
+  - WL#14392, Improve timeout error messages [classic].
+
+  - WL#14202, XProtocol: Support connection close notification.
+
 Version 8.0.23
 
   - Fix for Bug#21789378, FORCED TO SET SERVER TIMEZONE IN CONNECT STRING.
