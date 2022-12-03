@@ -23,6 +23,7 @@ public class GUI extends JFrame implements ActionListener{
     private static JButton loginButton;
     private static JButton signUpButton;
     private static JButton cancelPaymentButton;
+    private static JButton seatMapbutton;
     private static JButton endProgram;
     //private static JComboBox<String> combo;
     private static JComboBox<String> theatreComboBox;
@@ -31,6 +32,14 @@ public class GUI extends JFrame implements ActionListener{
 
     private static JTextField usernameTextInput;
     private static JTextField passTextInput;
+
+    private static JTextField nameTextInput;
+    private static JTextField emailTextInput;
+    private static JTextField addressTextInput;
+    private static JTextField creditTextInput;
+    private static JTextField cvvTextInput;
+    
+
     private static JTextField seatNumInput;
     private static JTextField confirmationNumInput;
 
@@ -65,7 +74,7 @@ public class GUI extends JFrame implements ActionListener{
         Color textColor = new Color(198, 218, 191);
         Color buttonColor = new Color(136, 212, 152);
         Color buttonTextColor = new Color(26, 147, 111);
-        
+        String[] theatreToChoose = {};
         String[] moviesToChoose = {"any option", "movie1", "movie2", "movie3"};
         String[] showTimes = {"time1", "time2", "time3"};
 
@@ -128,28 +137,33 @@ public class GUI extends JFrame implements ActionListener{
         cancelPaymentButton.setBounds(460, 300, 200, 100);
         panel.add(cancelPaymentButton);
         
+        seatMapbutton = new JButton("Seat Map Display");
+        seatMapbutton.addActionListener(new GUI());
+        seatMapbutton.setFont(textFont);
+        seatMapbutton.setBounds(460, 190, 200, 100);
+        panel.add(seatMapbutton);
         
 
         
-        //theatreTextInput = new JTextField(16);
-        //theatreTextInput.setBounds(5, 80, 300, 25);
-        //panel.add(theatreTextInput);
-        // Dropdown menu:
+        // JTextField theatreTextInput = new JTextField(16);
+        // theatreTextInput.setBounds(5, 80, 300, 25);
+        // panel.add(theatreTextInput);
+        //Dropdown menu:
 
-        // try {
-        //     TheatreDatabase theatreDB = TheatreDatabase.getDB();
-        //     for(int i = 0; i < theatreDB.getTheatreList().size() ; i++)
-        //     {
-        //         theatresToChoose[i] = theatreDB.getTheatreList().get(i);
-        //     }
+        try {
+            TheatreDatabase theatreDB = TheatreDatabase.getDB();
+            for(int i = 0; i < theatreDB.getTheatreList().size() ; i++)
+            {
+                theatresToChoose[i] = theatreDB.getTheatreList().get(i);
+            }
 
-        // } catch (DBConnectException e1) {
-        //     // TODO Auto-generated catch block
-        //     e1.printStackTrace();
-        // } catch (SQLException e1) {
-        //     // TODO Auto-generated catch block
-        //     e1.printStackTrace();
-        // }
+        } catch (DBConnectException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 
         theatreComboBox = new JComboBox<>(theatresToChoose);
         theatreComboBox.setBounds(5, 80, 300, 25);
@@ -278,10 +292,34 @@ public class GUI extends JFrame implements ActionListener{
         //creating a label and input for order name
         JLabel password = new JLabel("Password");
         //password.setFont(secondHeader);
-        password.setBounds(20, 150, 600, 25);
+        password.setBounds(10, 150, 600, 25);
         panel1.add(password);
-        
 
+        JLabel name = new JLabel("Name");
+        name.setBounds(10, 220, 300, 25);
+        panel1.add(name);
+
+        //creating a label and input for order name
+        JLabel email = new JLabel("Email Address");
+        //password.setFont(secondHeader);
+        email.setBounds(10, 290, 600, 25);
+        panel1.add(email);
+
+        JLabel address = new JLabel("Address");
+        address.setBounds(10, 370, 300, 25);
+        panel1.add(address);
+
+        //creating a label and input for order name
+        JLabel creditCardInfo = new JLabel("Credit Card #");
+        //password.setFont(secondHeader);
+        creditCardInfo.setBounds(10, 440, 600, 25);
+        panel1.add(creditCardInfo);
+
+        JLabel CVV = new JLabel("CVV");
+        CVV.setBounds(10, 510, 300, 25);
+        panel1.add(CVV);
+
+        
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() 
         {
@@ -291,7 +329,7 @@ public class GUI extends JFrame implements ActionListener{
                 System.out.println("Password: " + passTextInput.getText());
             }
         });
-        submitButton.setBounds(5, 230, 200, 25);
+        submitButton.setBounds(5, 600, 200, 25);
         panel1.add(submitButton);
 
         
@@ -302,6 +340,28 @@ public class GUI extends JFrame implements ActionListener{
         passTextInput = new JTextField(16);
         passTextInput.setBounds(5, 180, 300, 25);
         panel1.add(passTextInput);
+
+        nameTextInput = new JTextField(16);
+        nameTextInput.setBounds(5, 250, 300, 25);
+        panel1.add(nameTextInput);
+
+        emailTextInput = new JTextField(16);
+        emailTextInput.setBounds(5, 320, 300, 25);
+        panel1.add(emailTextInput);
+
+        addressTextInput = new JTextField(16);
+        addressTextInput.setBounds(5, 390, 300, 25);
+        panel1.add(addressTextInput);
+
+        creditTextInput = new JTextField(16);
+        creditTextInput.setBounds(5, 460, 300, 25);
+        panel1.add(creditTextInput);
+
+        cvvTextInput = new JTextField(16);
+        cvvTextInput.setBounds(5, 530, 300, 25);
+        panel1.add(cvvTextInput);
+
+
 
         frame1.setVisible(true);
     }
@@ -359,6 +419,41 @@ public class GUI extends JFrame implements ActionListener{
         frame1.setVisible(true);
     }
 
+    public void seatMap()
+    {
+        int rows = 4;
+        int columns = 9;
+        int rowName = 'A';
+        
+        JPanel seatPanel = new JPanel(new GridLayout(rows , columns));
+        for (int row = 0; row < rows; row++) {
+            
+            for (int column = 1; column < columns; column++) {
+                JToggleButton button = new JToggleButton(Character.toString((char)rowName)+ column);
+                button.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
+                        boolean selected = abstractButton.getModel().isSelected();
+                        if (selected) {
+                            button.setBackground(Color.GREEN);;
+                        } else {
+                            button.setBackground(null);;
+                        }
+                    }
+                });
+                seatPanel.add(button);
+            }
+            rowName++;
+        }
+        final JFrame seatFrame = new JFrame("Seat Map");
+        seatFrame.setSize(700, 700);
+        seatFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        seatFrame.add(seatPanel);
+        seatFrame.setLocationRelativeTo(null);
+        seatFrame.setVisible(true);
+    }
     //main actionPerformed method that does various things based on the button pressed
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
@@ -390,6 +485,11 @@ public class GUI extends JFrame implements ActionListener{
         if(e.getActionCommand().equals("Cancel Payment"))
         {
             CancelPayment();
+        }
+
+        if(e.getActionCommand().equals("Seat Map Display"))
+        {
+            seatMap();
         }
 
         showTimesComboBox.addItemListener(new ItemListener(){
