@@ -82,5 +82,11 @@ public class LoginDatabase {
         
         myStmt.executeUpdate();
 
+        int rowCount = myStmt.executeUpdate();
+        if(rowCount == 0){
+            throw new SQLException("No rows were changed.");
+        }
+        myStmt.close();
+
     }
 }
