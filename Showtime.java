@@ -63,6 +63,9 @@ public class Showtime {
         return found;
     }
 
+    /**
+     * @return ArrayList<String> of every seat in order (for easier use).
+     */
     public ArrayList<String> organizeSeats(){
         ArrayList<String> list = new ArrayList<String>();
         // sort
@@ -73,14 +76,26 @@ public class Showtime {
         return list;
     }
 
+    /**
+     * Checks availability of a seat.
+     * @param seatNo
+     * @return true if available, false if not.
+     */
     public boolean isAvailable(String seatNo){
         return seats.get(seatNo);
     }
 
+    /**
+     * Toggles the availability boolean of a seat. 
+     * @param seatNo
+     */
     public void toggleAvailability(String seatNo){
         seats.replace(seatNo, !seats.get(seatNo));
     }
 
+    /**
+     * @return A percentage of how many seats are available in a showtime. 
+     */
     public double availableSeatPercentage(){
         if(seats.size() == 0) return 0;
         double available = 0;

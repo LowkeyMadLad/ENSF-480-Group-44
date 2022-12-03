@@ -41,6 +41,11 @@ public class TheatreDatabase {
         // refreshDatabase(); 
     }
 
+    /**
+     * @return ArrayList<String> of every theatre on the database.
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<String> getTheatreList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
 
@@ -60,6 +65,38 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * @param movie
+     * @return ArrayList<String> of every theatre that has the given movie. 
+     * @throws DBConnectException
+     * @throws SQLException
+     */
+    public ArrayList<String> findMovieTheatres(String movie) throws DBConnectException, SQLException{
+        ArrayList<String> list = new ArrayList<String>();
+
+        initializeConnection();
+        String query = "SELECT DISTINCT MovieTheatre FROM MOVIE_INFORMATION WHERE MovieName = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        ResultSet results = myStmt.executeQuery();
+        
+        while(results.next()){
+            list.add(results.getString("MovieTheatre"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return list;
+    }
+
+    /**
+     * @param theatre
+     * @return ArrayList<String> of every movie at a given theatre.
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<String> getMovieList(String theatre) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
 
@@ -80,6 +117,13 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * @param theatre
+     * @param movie
+     * @return ArrayList<Timestamp> of every showtime for a given movie at a given theatre. 
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<Timestamp> getShowtimeList(String theatre, String movie) throws DBConnectException, SQLException{
         ArrayList<Timestamp> list = new ArrayList<Timestamp>();
 
@@ -101,6 +145,12 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * @param movie
+     * @return Timestamp of when a given movie is being publicly announced. 
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public Timestamp getAnnouncementDate(String movie) throws DBConnectException, SQLException{
         initializeConnection();
         String query = "SELECT ReleaseDate FROM MovieReleaseDate WHERE MovieName = ?";
@@ -117,7 +167,11 @@ public class TheatreDatabase {
         return dt;
     }
 
-    // get the instance of the database singleton
+    /**
+     * Getter for the TheatreDatabase Singleton instance.
+     * @return TheatreDatabase single instance.
+     * @throws DBConnectException
+     */
     public static TheatreDatabase getDB() throws DBConnectException{
         if(database == null){
             database = new TheatreDatabase();

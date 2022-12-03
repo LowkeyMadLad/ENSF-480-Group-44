@@ -1,6 +1,13 @@
 import java.util.*;
 import java.sql.*;
 
+/**
+ * This Strategy is for when a user wants to browse the movies at
+ * a theatre. They will choose the theatre they want to browse at, 
+ * then will be presented with every movie available at that theatre. 
+ * After choosing a movie, they may choose a showtime followed by a seat. 
+ * The function will then create a Ticket and return it.
+ */
 public class SearchTheatre implements TheatreStrategy{
 
     @Override
@@ -57,6 +64,8 @@ public class SearchTheatre implements TheatreStrategy{
         }else{
             movie = movieList.get(Integer.parseInt(mchoice)-1);
         }
+
+
         // display showtimes
         System.out.println("When would you like to watch the movie?");
         ArrayList<Timestamp> showtimeList = db.getShowtimeList(theatre, movie);
@@ -79,7 +88,7 @@ public class SearchTheatre implements TheatreStrategy{
             System.out.println("Invalid Entry! Exiting... ");
             System.exit(1);
         }else{
-            dt = showtimeList.get(Integer.parseInt(mchoice)-1);
+            dt = showtimeList.get(Integer.parseInt(stchoice)-1);
         }
         // show available seats
         Showtime st = new Showtime(theatre, movie, dt);
