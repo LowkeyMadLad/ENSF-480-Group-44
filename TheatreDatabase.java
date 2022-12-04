@@ -352,6 +352,22 @@ public class TheatreDatabase {
     }
 
     /**
+     * @param movie
+     * @return true if the announcement date is in the past, false if not.
+     * @throws DBConnectException
+     * @throws SQLException
+     */
+    public boolean isAnnounced(String movie) throws DBConnectException, SQLException{
+        Timestamp ad = getAnnouncementDate(movie);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        boolean ret = false;
+        if(ad.compareTo(now) >= 0){
+            ret = true;
+        }
+        return ret;
+    }
+
+    /**
      * Getter for the TheatreDatabase Singleton instance.
      * @return TheatreDatabase single instance.
      * @throws DBConnectException
