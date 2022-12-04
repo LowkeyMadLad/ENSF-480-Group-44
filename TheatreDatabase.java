@@ -43,6 +43,51 @@ public class TheatreDatabase {
     }
 
     /**
+     * @return Void
+     * @throws DBConnectException
+     * @throws SQLException
+     * Removes Showtimes from database that have already passed
+     */
+    public void ctr() throws DBConnectException, SQLException{
+        ArrayList<Integer> idRemove = new ArrayList<Integer>();
+    
+        initializeConnection();
+        String query = "SELECT MovieTime FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
+
+        String query2 = "SELECT FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
+
+        while(results.next()){
+            Timestamp x = results.getTimestamp("MovieTime");
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            myStmt2.setString(1,results.getString("MovieName"));
+            ResultSet r2 = myStmt2.executeQuery();
+            Timestamp y = r2.getTimestamp("ReleaseDate");
+            if(x.compareTo(now) < 0){
+                idRemove.add(results.getInt("MovieID"));
+            } else if (x.compareTo(y)< 0) { // if the scheduled timestamp is before the release date
+                idRemove.add(results.getInt("MovieID"));
+            }
+        }
+
+        for (Integer integer : idRemove) {
+            query = "DROP FROM MOVIE_INFORMATION WHERE MovieID = ?";
+            myStmt = dbConnect.prepareStatement(query);
+            myStmt.setInt(1, integer);
+            int n = myStmt.executeUpdate();
+            if(n < 1){
+                throw new SQLException("Movie item doesn't exist in DB. Cannot Delete");
+            }
+        }
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+    }
+
+
+    /**
      * @return ArrayList<String> of every theatre on the database.
      * @throws DBConnectException
      * @throws SQLException
