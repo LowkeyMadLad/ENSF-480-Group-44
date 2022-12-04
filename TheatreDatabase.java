@@ -54,13 +54,23 @@ public class TheatreDatabase {
         String query = "SELECT MovieTime FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         ResultSet results = myStmt.executeQuery();
+
+        String query2 = "SELECT FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
+
+
     
     
     
         while(results.next()){
             Timestamp x = results.getTimestamp("MovieTime");
             Timestamp now = new Timestamp(System.currentTimeMillis());
+            myStmt2.setString(results.getString("MovieName"));
+            ResultsSet r2 = mtStmt2.executeQuery();
+            Timestamp y = r2.getTimestamp("ReleaseDate");
             if(x.compareTo(now) < 0){
+                idRemove.add(results.getInt("MovieID"));
+            } else if (x.compareTo(y)< 0) { // if the scheduled timestamp is before the release date
                 idRemove.add(results.getInt("MovieID"));
             }
         }
