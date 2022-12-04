@@ -59,17 +59,30 @@ public class TheatreDatabase {
         String query2 = "SELECT FROM MovieReleaseDate WHERE MovieName = ?";
         PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
 
+        String query3 = "DROP FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
+
         while(results.next()){
-            Timestamp x = results.getTimestamp("MovieTime");
+            Timestamp movieShowtime = results.getTimestamp("MovieTime");
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            myStmt2.setString(1,results.getString("MovieName"));
+            String movie = results.getString("MovieName");
+            myStmt2.setString(1, movie);
             ResultSet r2 = myStmt2.executeQuery();
-            Timestamp y = r2.getTimestamp("ReleaseDate");
-            if(x.compareTo(now) < 0){
+            Timestamp releaseDateTime = r2.getTimestamp("ReleaseDate");
+            if(movieShowtime.compareTo(now) < 0){
                 idRemove.add(results.getInt("MovieID"));
-            } else if (x.compareTo(y)< 0) { // if the scheduled timestamp is before the release date
+            } else if (movieShowtime.compareTo(releaseDateTime)< 0) { // if movie showtime is before the release date
                 idRemove.add(results.getInt("MovieID"));
             }
+
+            if(releaseDateTime.compareTo(now) < 0){ // releasedate is before now
+                myStmt3.setString(1, movie);
+                int n = myStmt3.executeUpdate();
+                if(n < 1){
+                    throw new SQLException("Announcement date doesn't exist in DB");
+                }
+            }
+            r2.close();
         }
 
         for (Integer integer : idRemove) {
@@ -83,6 +96,8 @@ public class TheatreDatabase {
         }
         myStmt.close();
         results.close();
+        myStmt2.close();
+        myStmt3.close();
         dbConnect.close();
     }
 
@@ -94,7 +109,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getTheatreList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-
+        ctr();
         initializeConnection();
         String query = "SELECT DISTINCT MovieTheatre FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -114,7 +129,7 @@ public class TheatreDatabase {
 
     public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-
+        ctr();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -164,7 +179,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getMovieList(String theatre) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-
+        ctr();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION WHERE MovieTheatre = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -184,7 +199,6 @@ public class TheatreDatabase {
 
     public ArrayList<String> getSeats(String movie, String theatre, String time) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-
         initializeConnection();
         String query = "SELECT DISTINCT Seat FROM MovieTickets WHERE MovieName = ? AND MovieTheatre = ? AND MovieTime = ? ";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -258,7 +272,7 @@ public class TheatreDatabase {
      */
     public ArrayList<Timestamp> getShowtimeList(String theatre, String movie) throws DBConnectException, SQLException{
         ArrayList<Timestamp> list = new ArrayList<Timestamp>();
-
+        ctr();
         initializeConnection();
         String query = "SELECT MovieTime FROM MOVIE_INFORMATION WHERE MovieTheatre = ? AND MovieName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -305,6 +319,7 @@ public class TheatreDatabase {
      * @throws DBConnectException
      */
     public static TheatreDatabase getDB() throws DBConnectException{
+        
         if(database == null){
             database = new TheatreDatabase();
         }
