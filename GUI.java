@@ -442,7 +442,7 @@ public class GUI extends JFrame implements ActionListener{
                             if(theatreDatabase.isAnnounced(x))
                                 specials += x + "\n";
                         }
-                        JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
+                       // JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
 
                         JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
@@ -455,11 +455,13 @@ public class GUI extends JFrame implements ActionListener{
                         frame1.dispose();
                     }
                     else{
-                        JLabel failText = new JLabel("Incorrect Login Information");
-                        failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
-                        failText.setForeground(Color.RED);
-                        failText.setBounds(5, 210, 600, 25);
-                        panel1.add(failText);
+                        JOptionPane.showMessageDialog(null, "Incorrect Login Information", "Login", JOptionPane.ERROR_MESSAGE);
+
+                        // JLabel failText = new JLabel("Incorrect Login Information");
+                        // failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
+                        // failText.setForeground(Color.RED);
+                        // failText.setBounds(5, 210, 600, 25);
+                        // panel1.add(failText);
                     }
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
