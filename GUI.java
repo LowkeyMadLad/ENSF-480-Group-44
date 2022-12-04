@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.sql.*;
 
 // Change
@@ -74,9 +76,9 @@ public class GUI extends JFrame implements ActionListener{
         Color textColor = new Color(198, 218, 191);
         Color buttonColor = new Color(136, 212, 152);
         Color buttonTextColor = new Color(26, 147, 111);
-        String[] theatreToChoose = {};
-        String[] moviesToChoose = {"any option", "movie1", "movie2", "movie3"};
-        String[] showTimes = {"time1", "time2", "time3"};
+        String[] theatreToChoose;
+        String[] moviesToChoose;
+        String[] showTimes;
 
         //creating the main frame and panel for the GUI and setting sizes
         //also setting a default close operation for the program when the user exits the menu
@@ -112,36 +114,30 @@ public class GUI extends JFrame implements ActionListener{
         panel.add(movieLabel);
         
 
-        searchButton = new JButton("Search");
-        GUI gui  = new GUI();
-        searchButton.addActionListener(gui);
-        searchButton.setFont(secondHeader);
-        searchButton.setBounds(5, 200, 200, 25);
-        panel.add(searchButton);
 
         loginButton = new JButton("Login");
         loginButton.addActionListener(new GUI());
         loginButton.setFont(textFont);
-        loginButton.setBounds(20, 300, 200, 100);
+        loginButton.setBounds(20, 350, 200, 100);
         panel.add(loginButton);
 
         signUpButton = new JButton("Sign Up");
         signUpButton.addActionListener(new GUI());
         signUpButton.setFont(textFont);
-        signUpButton.setBounds(240, 300, 200, 100);
+        signUpButton.setBounds(240, 350, 200, 100);
         panel.add(signUpButton);
 
         cancelPaymentButton = new JButton("Cancel Payment");
         cancelPaymentButton.addActionListener(new GUI());
         cancelPaymentButton.setFont(textFont);
-        cancelPaymentButton.setBounds(460, 300, 200, 100);
+        cancelPaymentButton.setBounds(460, 350, 200, 100);
         panel.add(cancelPaymentButton);
         
-        seatMapbutton = new JButton("Seat Map Display");
-        seatMapbutton.addActionListener(new GUI());
-        seatMapbutton.setFont(textFont);
-        seatMapbutton.setBounds(460, 190, 200, 100);
-        panel.add(seatMapbutton);
+        // seatMapbutton = new JButton("Seat Map Display");
+        // seatMapbutton.addActionListener(new GUI());
+        // seatMapbutton.setFont(textFont);
+        // seatMapbutton.setBounds(460, 190, 200, 100);
+        // panel.add(seatMapbutton);
         
 
         
@@ -152,10 +148,19 @@ public class GUI extends JFrame implements ActionListener{
 
         try {
             TheatreDatabase theatreDB = TheatreDatabase.getDB();
-            for(int i = 0; i < theatreDB.getTheatreList().size() ; i++)
+            ArrayList<String> theatreList = theatreDB.getTheatreList();
+            theatreToChoose = new String[theatreList.size()];
+            for(int i=0;i<theatreList.size();i++)
             {
-                theatresToChoose[i] = theatreDB.getTheatreList().get(i);
+                theatreToChoose[i] = theatreList.get(i);
             }
+
+            theatreComboBox = new JComboBox<>(theatreToChoose);
+            theatreComboBox.setBounds(5, 80, 300, 25);
+            JLabel tLabel = new JLabel();
+            tLabel.setBounds(90, 100, 400, 100);
+            panel.add(theatreComboBox);
+            panel.add(tLabel);
 
         } catch (DBConnectException e1) {
             // TODO Auto-generated catch block
@@ -165,33 +170,46 @@ public class GUI extends JFrame implements ActionListener{
             e1.printStackTrace();
         }
 
-        theatreComboBox = new JComboBox<>(theatresToChoose);
-        theatreComboBox.setBounds(5, 80, 300, 25);
-        JLabel tLabel = new JLabel();
-        tLabel.setBounds(90, 100, 400, 100);
-        panel.add(theatreComboBox);
-        panel.add(tLabel);
 
-        // movieTextInput = new JTextField(16);
-        // movieTextInput.setBounds(5, 150, 300, 25);
-        // panel.add(movieTextInput);
-        movieComboBox = new JComboBox<>(moviesToChoose);
-        movieComboBox.setBounds(5, 150, 300, 25);
-        JLabel mLabel = new JLabel();
-        mLabel.setBounds(90, 100, 400, 100);
-        panel.add(movieComboBox);
-        panel.add(mLabel);
+        try {
+            TheatreDatabase theatreDB = TheatreDatabase.getDB();
+            ArrayList<String> movieList = theatreDB.getMovieList();
+            moviesToChoose = new String[movieList.size()];
+            for(int i=0;i<movieList.size();i++)
+            {
+                moviesToChoose[i] = movieList.get(i);
+            }
+            for(String x: movieList)
+            {
+                System.out.println(x);
+            }
 
-        showTimesComboBox = new JComboBox<>(showTimes);
-        showTimesComboBox.setBounds(5, 250, 300, 25);
-        mLabel.setBounds(90, 100, 400, 100);
+            movieComboBox = new JComboBox<>(moviesToChoose);
+            movieComboBox.setBounds(5, 150, 300, 25);
+            JLabel mLabel = new JLabel();
+            mLabel.setBounds(90, 100, 400, 100);
+            panel.add(movieComboBox);
+            panel.add(mLabel);
+
+        } catch (DBConnectException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+
         
-        
-        //creating a text area to display the number of hampers in the order form
-        // textArea = new JTextArea();
-        // textArea.setEditable(false);
-        // textArea.setBounds(5, 500, 250, 75);
-        // panel.add(textArea);
+        searchButton = new JButton("Search");
+        GUI gui  = new GUI();
+        searchButton.addActionListener(gui);
+        searchButton.setFont(secondHeader);
+        searchButton.setBounds(5, 200, 200, 25);
+        panel.add(searchButton);
+
+
+
 
         //creating a scrollbar for the text area when number of hampers increases
         scrollBar = new JScrollPane(textArea);
@@ -212,6 +230,140 @@ public class GUI extends JFrame implements ActionListener{
 
         //setting the frame visibility to true
         frame.setVisible(true);
+    }
+
+    public void PaymentPage(String movie, String theatre, String time, ArrayList<String> seatsRequested)
+    {
+        JFrame frame1 = new JFrame("Payment Page");
+        frame1.setSize(700, 700);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel paymentPage = new JLabel("Payment Page");
+        //username.setFont(secondHeader);
+        paymentPage.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
+        paymentPage.setBounds(5, 10, 300, 50);
+        panel1.add(paymentPage);
+
+        JLabel movieInfo = new JLabel("Movie: " + movie);
+        movieInfo.setBounds(400,10, 300, 50);
+        panel1.add(movieInfo);
+
+        JLabel theatreInfo = new JLabel("Theatre: " + theatre);
+        theatreInfo.setBounds(400,70, 300, 50);
+        panel1.add(theatreInfo);
+
+        JLabel timeInfo = new JLabel("Time: " + time);
+        timeInfo.setBounds(400,140, 300, 50);
+        panel1.add(timeInfo);
+
+        String seats = "Seats Requested: ";
+        for(String x : seatsRequested)
+        {
+            seats += x + " ";
+        }
+
+        JLabel displaySeats = new JLabel(seats);
+        displaySeats.setBounds(400,210, 300, 50);
+        panel1.add(displaySeats);
+
+        JLabel username = new JLabel("Username");
+        username.setBounds(10, 90, 300, 25);
+        panel1.add(username);
+
+        //creating a label and input for order name
+        JLabel password = new JLabel("Password");
+        //password.setFont(secondHeader);
+        password.setBounds(10, 150, 600, 25);
+        panel1.add(password);
+
+        JLabel name = new JLabel("Name");
+        name.setBounds(10, 220, 300, 25);
+        panel1.add(name);
+
+        //creating a label and input for order name
+        JLabel email = new JLabel("Email Address");
+        //password.setFont(secondHeader);
+        email.setBounds(10, 290, 600, 25);
+        panel1.add(email);
+
+        JLabel address = new JLabel("Address");
+        address.setBounds(10, 370, 300, 25);
+        panel1.add(address);
+
+        //creating a label and input for order name
+        JLabel creditCardInfo = new JLabel("Credit Card #");
+        //password.setFont(secondHeader);
+        creditCardInfo.setBounds(10, 440, 600, 25);
+        panel1.add(creditCardInfo);
+
+        JLabel CVV = new JLabel("CVV");
+        CVV.setBounds(10, 510, 300, 25);
+        panel1.add(CVV);
+        
+        usernameTextInput = new JTextField(16);
+        usernameTextInput.setBounds(5, 110, 300, 25);
+        panel1.add(usernameTextInput);
+
+        passTextInput = new JTextField(16);
+        passTextInput.setBounds(5, 180, 300, 25);
+        panel1.add(passTextInput);
+
+        nameTextInput = new JTextField(16);
+        nameTextInput.setBounds(5, 250, 300, 25);
+        panel1.add(nameTextInput);
+
+        emailTextInput = new JTextField(16);
+        emailTextInput.setBounds(5, 320, 300, 25);
+        panel1.add(emailTextInput);
+
+        addressTextInput = new JTextField(16);
+        addressTextInput.setBounds(5, 390, 300, 25);
+        panel1.add(addressTextInput);
+
+        creditTextInput = new JTextField(16);
+        creditTextInput.setBounds(5, 460, 300, 25);
+        panel1.add(creditTextInput);
+
+        cvvTextInput = new JTextField(16);
+        cvvTextInput.setBounds(5, 530, 300, 25);
+        panel1.add(cvvTextInput);
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    TheatreDatabase database = TheatreDatabase.getDB();
+                    for(String x : seatsRequested)
+                        database.insertTicket(theatre, movie, time, x, nameTextInput.getText());
+                } catch (SQLException e1) {
+                    // TODO: handle exception
+                    e1.printStackTrace();
+                }
+                catch(DBConnectException e2)
+                {
+                    e2.printStackTrace();
+                }
+
+
+                
+                frame1.dispose();
+
+                // System.out.println("Username: " + usernameTextInput.getText());
+                // System.out.println("Password: " + passTextInput.getText());
+            }
+        });
+        submitButton.setBounds(5, 600, 200, 25);
+        panel1.add(submitButton);
+
+        frame1.setVisible(true);
+
     }
 
     public void LoginPage()
@@ -248,8 +400,24 @@ public class GUI extends JFrame implements ActionListener{
         {
             public void actionPerformed(ActionEvent e) 
             {
-                System.out.println("Username: " + usernameTextInput.getText());
-                System.out.println("Password: " + passTextInput.getText());
+                try {
+                    LoginDatabase loginDB = new LoginDatabase();
+                    boolean tmp = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
+                    System.out.println(tmp);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                    // TODO: handle exception
+                }
+                catch(DBConnectException e2)
+                {
+                    e2.printStackTrace();
+                }
+
+
+                // JLabel tmp1 = new JLabel(tmp);
+                // panel1.add(tmp1);
+                // System.out.println("Username: " + usernameTextInput.getText());
+                // System.out.println("Password: " + passTextInput.getText());
             }
         });
         submitButton.setBounds(5, 230, 200, 25);
@@ -318,20 +486,6 @@ public class GUI extends JFrame implements ActionListener{
         JLabel CVV = new JLabel("CVV");
         CVV.setBounds(10, 510, 300, 25);
         panel1.add(CVV);
-
-        
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-                System.out.println("Username: " + usernameTextInput.getText());
-                System.out.println("Password: " + passTextInput.getText());
-            }
-        });
-        submitButton.setBounds(5, 600, 200, 25);
-        panel1.add(submitButton);
-
         
         usernameTextInput = new JTextField(16);
         usernameTextInput.setBounds(5, 110, 300, 25);
@@ -361,7 +515,29 @@ public class GUI extends JFrame implements ActionListener{
         cvvTextInput.setBounds(5, 530, 300, 25);
         panel1.add(cvvTextInput);
 
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                try {
+                    LoginDatabase loginDB = LoginDatabase.getDB();
 
+                    loginDB.signUp(usernameTextInput.getText(), nameTextInput.getText(), emailTextInput.getText(), addressTextInput.getText(), passTextInput.getText(), creditTextInput.getText(), Integer.parseInt(cvvTextInput.getText()));
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                }
+                catch(SQLException e2)
+                {
+
+                }
+
+                // System.out.println("Username: " + usernameTextInput.getText());
+                // System.out.println("Password: " + passTextInput.getText());
+            }
+        });
+        submitButton.setBounds(5, 600, 200, 25);
+        panel1.add(submitButton);
 
         frame1.setVisible(true);
     }
@@ -419,27 +595,52 @@ public class GUI extends JFrame implements ActionListener{
         frame1.setVisible(true);
     }
 
-    public void seatMap()
+    public void seatMap(String movie, String theatre, String time, ArrayList<String> seatsTaken)
     {
         int rows = 4;
         int columns = 9;
         int rowName = 'A';
+        ArrayList<String> seats = new ArrayList<>();
+        // Image img = ImageIO.read(getClass().getResource("/seat.jpg"));
+        // ImageIcon icon = new ImageIcon("seat.jpg");
+        // Image image = icon.getImage();
+        // Image resize  = image.getScaledInstance(60, 100, java.awt.Image.SCALE_SMOOTH);
         
         JPanel seatPanel = new JPanel(new GridLayout(rows , columns));
+        
+        seatPanel.setSize(1400, 500);
         for (int row = 0; row < rows; row++) {
             
             for (int column = 1; column < columns; column++) {
-                JToggleButton button = new JToggleButton(Character.toString((char)rowName)+ column);
+                String seatName = (char)rowName + Integer.toString(column);
+                JToggleButton button = new JToggleButton(seatName);
+                for(String x : seatsTaken)
+                {
+                    if(seatName.equals(x))
+                    {
+                        button.setBackground(Color.RED);
+                    }
+                }
                 button.addActionListener(new ActionListener() {
-
+                
                     @Override
                     public void actionPerformed(ActionEvent actionEvent) {
                         AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
                         boolean selected = abstractButton.getModel().isSelected();
-                        if (selected) {
-                            button.setBackground(Color.GREEN);;
-                        } else {
-                            button.setBackground(null);;
+                        if (selected && button.getBackground() != Color.RED) {
+                            button.setBackground(Color.GREEN);
+                            seats.add(button.getText());
+                            //button.setIcon(new ImageIcon(resize));
+                        } else if(button.getBackground() != Color.RED){
+                            button.setBackground(null);
+                            for(int i =0; i<seats.size() ; i++) 
+                            {
+                                if(seats.get(i) == button.getText())
+                                {
+                                    seats.remove(i);
+                                    break;
+                                }
+                            }
                         }
                     }
                 });
@@ -447,10 +648,28 @@ public class GUI extends JFrame implements ActionListener{
             }
             rowName++;
         }
+
         final JFrame seatFrame = new JFrame("Seat Map");
-        seatFrame.setSize(700, 700);
+        //seatFrame.pack();
         seatFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         seatFrame.add(seatPanel);
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                seatFrame.dispose();
+                if(!seats.isEmpty())
+                    PaymentPage(movie, theatre, time, seats);
+            }
+            
+            
+        });
+        seatFrame.setSize(1400, 700);
+        submitButton.setBounds(700, 650, 20, 50);
+        seatFrame.add(submitButton);
+        
         seatFrame.setLocationRelativeTo(null);
         seatFrame.setVisible(true);
     }
@@ -460,16 +679,71 @@ public class GUI extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("Search"))
         {   
-
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
             movieSelection = movieComboBox.getItemAt(movieComboBox.getSelectedIndex());
-            System.out.println("Theatre: " + theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex()));
-            System.out.println("Movie: " + movieComboBox.getItemAt(movieComboBox.getSelectedIndex()));
-            panel.add(showTimesComboBox);
-            sLabel = new JLabel();
-            panel.add(sLabel);
-            panel.repaint();
+        
+            try {
+                
+                TheatreDatabase theatreDB = TheatreDatabase.getDB();
+                ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
+                String[] showTimes = new String[showTimeList.size()];
+                for(Timestamp x: showTimeList)
+                {
+                    System.out.println(x);
+                }   
+
+                for(int i=0;i<showTimeList.size();i++)
+                {
+                    showTimes[i] = showTimeList.get(i).toString();
+                }
+
+
+                showTimesComboBox = new JComboBox<>(showTimes);
+                showTimesComboBox.setBounds(5, 250, 300, 25);
+                panel.add(showTimesComboBox);
+                sLabel = new JLabel("ShowTimes");
+                sLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 13));
+                sLabel.setBounds(5,230, 300, 13);
+                panel.add(sLabel);
+                panel.repaint();
+
+                String timeSelection  = showTimesComboBox.getItemAt((showTimesComboBox.getSelectedIndex()));
+
+                JButton showTimeButton = new JButton("Search Seats");
+                GUI gui  = new GUI();
+                showTimeButton.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e) 
+                    {
+                        try {
+
+                            ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, timeSelection);
+                            for(String x : seats)
+                            {
+                                System.out.println(x);
+                            }
+                            seatMap(movieSelection, theatreSelection, timeSelection, seats);
+                        } catch (Exception e2) {
+                            // TODO: handle exception
+                        }
+
+
+                        //theatreDB.g
+                        //seatMap(movieSelection, theatreSelection);
+                    }
+                });
+
+                showTimeButton.setBounds(5, 280, 200, 25);
+                panel.add(showTimeButton);
+
+            } catch (Exception e1) {
+                // TODO: handle exception
+            }
+
             
+            
+
+
         }
 
         if(e.getActionCommand().equals("Login"))
@@ -489,7 +763,7 @@ public class GUI extends JFrame implements ActionListener{
 
         if(e.getActionCommand().equals("Seat Map Display"))
         {
-            seatMap();
+            //seatMap();
         }
 
         showTimesComboBox.addItemListener(new ItemListener(){

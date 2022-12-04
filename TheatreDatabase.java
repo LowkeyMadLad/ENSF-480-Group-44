@@ -65,6 +65,25 @@ public class TheatreDatabase {
         return list;
     }
 
+
+    public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
+        ArrayList<String> list = new ArrayList<String>();
+
+        initializeConnection();
+        String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
+
+        while(results.next()){
+            list.add(results.getString("MovieName"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return list;
+    }
     /**
      * @param movie
      * @return ArrayList<String> of every theatre that has the given movie. 
@@ -117,6 +136,50 @@ public class TheatreDatabase {
         return list;
     }
 
+    public ArrayList<String> getSeats(String movie, String theatre, String time) throws DBConnectException, SQLException{
+        ArrayList<String> list = new ArrayList<String>();
+
+        initializeConnection();
+        String query = "SELECT DISTINCT Seat FROM MovieTickets WHERE MovieName = ? AND MovieTheatre = ? AND MovieTime = ? ";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        myStmt.setString(2, theatre);
+        myStmt.setTimestamp(3, Timestamp.valueOf(time));
+        ResultSet results = myStmt.executeQuery();
+        
+        while(results.next()){
+            list.add(results.getString("Seat"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return list;
+    }
+
+    public void insertTicket(String theatre, String movie, String time, String seat, String name) throws SQLException, DBConnectException
+    {
+        initializeConnection();
+
+        String query = "INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName) VALUES (?,?,?,?,?)";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setTimestamp(3, Timestamp.valueOf(time));
+        myStmt.setString(4, seat);
+        myStmt.setString(5, name);
+        
+        myStmt.executeUpdate();
+
+        int rowCount = myStmt.executeUpdate();
+        if(rowCount == 0){
+            throw new SQLException("No rows were changed.");
+        }
+        
+        myStmt.close();
+
+    }
     /**
      * @param theatre
      * @param movie
@@ -228,8 +291,10 @@ public class TheatreDatabase {
         try {
             dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new DBConnectException("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
         }
+
         if (dbConnect == null) {
             throw new DBConnectException("Failed to connect to the Database. Check DBURL, USERNAME, PASSWORD.");
         }

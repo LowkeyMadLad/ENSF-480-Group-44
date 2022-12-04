@@ -3,9 +3,9 @@ import java.sql.*;
 // import com.mysql.cj.log.Log;
 
 public class LoginDatabase {
-    //private static LoginDatabase loginDatabase = null;
+    private static LoginDatabase loginDatabase = null;
 
-    private final String DBURL = "jdbc:mysql://localhost/MOVIE_DATABASE";
+    private final String DBURL = "jdbc:mysql://localhost:3306/MOVIE_DATABASE";
     private final String USERNAME = "student";
     private final String PASSWORD = "ensf";
     private Connection dbConnect;
@@ -26,7 +26,7 @@ public class LoginDatabase {
     {
         initializeConnection();
         
-        String query = "SELECT Pass FROM LoginServer WHERE EXISTS (Username = ?)";
+        String query = "SELECT Pass FROM LoginServer WHERE Username = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
@@ -45,7 +45,7 @@ public class LoginDatabase {
     public RegisteredUser getLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
-
+        
         String query = "SELECT * FROM LoginServer WHERE EXISTS (Username = ?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
@@ -59,8 +59,12 @@ public class LoginDatabase {
             String email = results.getString("Email");
             String address = results.getString("Address");
             int cvv =Integer.parseInt(results.getString("CVV"));
-
-            registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
+            try {
+                registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            
         }
 
         return registeredUser;
@@ -78,7 +82,7 @@ public class LoginDatabase {
         myStmt.setString(4, email);
         myStmt.setString(5, address);
         myStmt.setString(6, cardNumber);
-        myStmt.setString(7, Integer.toString(cvv));
+        myStmt.setInt(7, cvv);
         
         myStmt.executeUpdate();
 
@@ -86,8 +90,16 @@ public class LoginDatabase {
         if(rowCount == 0){
             throw new SQLException("No rows were changed.");
         }
+        
         myStmt.close();
 
+    }
+
+    public static LoginDatabase getDB() throws DBConnectException{
+        if(loginDatabase == null){
+            loginDatabase = new LoginDatabase();
+        }
+        return loginDatabase;
     }
 
     public static void main(String[] args) throws SQLException, DBConnectException{
