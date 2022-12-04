@@ -42,6 +42,45 @@ public class TheatreDatabase {
     }
 
     /**
+     * @return Void
+     * @throws DBConnectException
+     * @throws SQLException
+     * Removes Showtimes from database that have already passed
+     */
+    public void ctr() throws DBConnectException, SQLException{
+        ArrayList<Integer> idRemove = new ArrayList<Integer>();
+    
+        initializeConnection();
+        String query = "SELECT MovieTime FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
+    
+    
+    
+        while(results.next()){
+            Timestamp x = results.getTimestamp("MovieTime");
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            if(x.compareTo(now) < 0){
+                idRemove.add(results.getInt("MovieID"));
+            }
+        }
+
+        for (Integer integer : idRemove) {
+            query = "DROP FROM MOVIE_INFORMATION WHERE MovieID = ?";
+            myStmt = dbConnect.prepareStatement(query);
+            myStmt.setInt(1, integer);
+            int n = myStmt.executeUpdate();
+            if(n < 1){
+                throw new SQLException("Movie item doesn't exist in DB. Cannot Delete");
+            }
+        }
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+    }
+
+
+    /**
      * @return ArrayList<String> of every theatre on the database.
      * @throws DBConnectException
      * @throws SQLException
