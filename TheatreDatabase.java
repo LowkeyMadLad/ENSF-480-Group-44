@@ -47,59 +47,66 @@ public class TheatreDatabase {
      * @throws DBConnectException
      * @throws SQLException
      * Removes Showtimes from database that have already passed
+     * Removes 
      */
-    // public void validateDB() throws DBConnectException, SQLException{
-    //     ArrayList<Integer> idRemove = new ArrayList<Integer>();
+    public void validateDB() throws DBConnectException, SQLException{
+        ArrayList<Integer> idRemove = new ArrayList<Integer>();
     
-    //     initializeConnection();
-    //     String query = "SELECT MovieTime FROM MOVIE_INFORMATION";
-    //     PreparedStatement myStmt = dbConnect.prepareStatement(query);
-    //     ResultSet results = myStmt.executeQuery();
+        initializeConnection();
+        String query = "SELECT * FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
 
-    //     String query2 = "SELECT FROM MovieReleaseDate WHERE MovieName = ?";
-    //     PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
+        String query2 = "SELECT * FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
 
-    //     String query3 = "DROP FROM MovieReleaseDate WHERE MovieName = ?";
-    //     PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
+        String query3 = "DELETE FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
 
-    //     while(results.next()){
-    //         Timestamp movieShowtime = results.getTimestamp("MovieTime");
-    //         Timestamp now = new Timestamp(System.currentTimeMillis());
-    //         String movie = results.getString("MovieName");
-    //         myStmt2.setString(1, movie);
-    //         ResultSet r2 = myStmt2.executeQuery();
-    //         Timestamp releaseDateTime = r2.getTimestamp("ReleaseDate");
-    //         if(movieShowtime.compareTo(now) < 0){
-    //             idRemove.add(results.getInt("MovieID"));
-    //         } else if (movieShowtime.compareTo(releaseDateTime)< 0) { // if movie showtime is before the release date
-    //             idRemove.add(results.getInt("MovieID"));
-    //         }
+        while(results.next()){
+            int addCheck = 0;
+            Timestamp releaseDateTime;
+            Timestamp movieShowtime = results.getTimestamp("MovieTime");
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            String movie = results.getString("MovieName");
+            myStmt2.setString(1, movie);
+            ResultSet r2 = myStmt2.executeQuery();
+            if(movieShowtime.compareTo(now) < 0){
+                idRemove.add(results.getInt("MovieID"));
+                addCheck = 1; // Movie is gonna get deleted so no reason to add it on the next if
+            }
+            if(r2.next()){
+                releaseDateTime = r2.getTimestamp("ReleaseDate");
+                if (movieShowtime.compareTo(releaseDateTime)< 0 && addCheck == 0) { // if movie showtime is before the release date
+                    idRemove.add(results.getInt("MovieID"));
+                }
 
-    //         if(releaseDateTime.compareTo(now) < 0){ // releasedate is before now
-    //             myStmt3.setString(1, movie);
-    //             int n = myStmt3.executeUpdate();
-    //             if(n < 1){
-    //                 throw new SQLException("Announcement date doesn't exist in DB");
-    //             }
-    //         }
-    //         r2.close();
-    //     }
+                if(releaseDateTime.compareTo(now) < 0){ // releasedate is before now
+                    myStmt3.setString(1, movie);
+                    int n = myStmt3.executeUpdate();
+                    if(n < 1){
+                        throw new SQLException("Announcement date doesn't exist in DB");
+                    }
+                }
+            }
+            r2.close();
+        }
 
-    //     for (Integer integer : idRemove) {
-    //         query = "DROP FROM MOVIE_INFORMATION WHERE MovieID = ?";
-    //         myStmt = dbConnect.prepareStatement(query);
-    //         myStmt.setInt(1, integer);
-    //         int n = myStmt.executeUpdate();
-    //         if(n < 1){
-    //             throw new SQLException("Movie item doesn't exist in DB. Cannot Delete");
-    //         }
-    //     }
-    //     myStmt.close();
-    //     results.close();
-    //     myStmt2.close();
-    //     myStmt3.close();
-    //     dbConnect.close();
-    // }
+        for (Integer integer : idRemove) {
+            query = "DELETE FROM MOVIE_INFORMATION WHERE MovieID = ?";
+            myStmt = dbConnect.prepareStatement(query);
+            myStmt.setInt(1, integer);
+            int n = myStmt.executeUpdate();
+            if(n < 1){
+                throw new SQLException("Movie item doesn't exist in DB. Cannot Delete");
+            }
+        }
+        myStmt.close();
+        results.close();
+        myStmt2.close();
+        myStmt3.close();
+        dbConnect.close();
+    }
 
 
     /**
@@ -109,7 +116,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getTheatreList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        //validateDB();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieTheatre FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -129,7 +136,7 @@ public class TheatreDatabase {
 
     public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        //validateDB();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -179,7 +186,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getMovieList(String theatre) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        //validateDB();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION WHERE MovieTheatre = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
