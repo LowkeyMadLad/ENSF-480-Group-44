@@ -388,28 +388,20 @@ public class GUI extends JFrame implements ActionListener{
                         
                     }
                     confirmationPaymentPage(ticketTotal);
-                } catch (SQLException e1) {
+                } catch (DBConnectException e1) {
                     // TODO: handle exception
-                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
-                catch(DBConnectException e2)
+                catch(SQLException e2)
                 {
-                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
                 catch(Exception e1)
                 {
-                    JLabel failText = new JLabel("Please Enter All Information");
-                    failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
-                    failText.setForeground(Color.RED);
-                    failText.setBounds(5, 210, 600, 25);
-                    panel1.add(failText);
+                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Input", JOptionPane.WARNING_MESSAGE);
                 }
 
                 frame1.dispose();
-
-
-                // System.out.println("Username: " + usernameTextInput.getText());
-                // System.out.println("Password: " + passTextInput.getText());
             }
         });
         submitButton.setBounds(5, 600, 200, 25);
@@ -483,13 +475,13 @@ public class GUI extends JFrame implements ActionListener{
                         failText.setBounds(5, 210, 600, 25);
                         panel1.add(failText);
                     }
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                } catch (DBConnectException e1) {
                     // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
-                catch(DBConnectException e2)
+                catch(SQLException e2)
                 {
-                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
                 // catch(Exception e1)
                 // {
@@ -608,19 +600,21 @@ public class GUI extends JFrame implements ActionListener{
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
                 catch(SQLException e2)
                 {
-                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
                 catch(Exception e1)
                 {
-                    System.out.println("Fail");
-                    JLabel failText = new JLabel("Please Enter All Information");
-                    failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
-                    failText.setForeground(Color.RED);
-                    failText.setBounds(5, 560, 600, 25);
-                    panel1.add(failText);
+                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Information", JOptionPane.WARNING_MESSAGE);
+                    // System.out.println("Fail");
+                    // JLabel failText = new JLabel("Please Enter All Information");
+                    // failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+                    // failText.setForeground(Color.RED);
+                    // failText.setBounds(5, 560, 600, 25);
+                    // panel1.add(failText);
                 }
 
             }
@@ -669,13 +663,15 @@ public class GUI extends JFrame implements ActionListener{
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
                     theatreDB.cancelTicket(seatNumInput.getText(), confirmationNumInput.getText());
                     frame1.dispose();
-                } catch (SQLException e1) {
+                } catch (DBConnectException e1) {
                     // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
-                catch(DBConnectException e1)
+                catch(SQLException e2)
                 {
-
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
+                
                 
                 // System.out.println("Seat #: " + seatNumInput.getText());
                 // System.out.println("Confirmation #: " + confirmationNumInput.getText());
@@ -702,10 +698,6 @@ public class GUI extends JFrame implements ActionListener{
         int columns = 9;
         int rowName = 'A';
         ArrayList<String> seats = new ArrayList<>();
-        // Image img = ImageIO.read(getClass().getResource("/seat.jpg"));
-        // ImageIcon icon = new ImageIcon("seat.jpg");
-        // Image image = icon.getImage();
-        // Image resize  = image.getScaledInstance(60, 100, java.awt.Image.SCALE_SMOOTH);
         
         JPanel seatPanel = new JPanel(new GridLayout(rows , columns));
         
@@ -804,11 +796,7 @@ public class GUI extends JFrame implements ActionListener{
 
             if(theatreSelection.equals("any") && movieSelection.equals("any"))
             {
-                failText = new JLabel("Please Select Movie / Theatre");
-                failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
-                failText.setForeground(Color.RED);
-                failText.setBounds(5, 230, 600, 25);
-                panel.add(failText);
+                JOptionPane.showMessageDialog(null, "Please Enter either Movie / Theatre", "Invalid Input", JOptionPane.WARNING_MESSAGE);
             }
             else if(theatreSelection.equals("any") && !movieSelection.equals("any"))
             {
