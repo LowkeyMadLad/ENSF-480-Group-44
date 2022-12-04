@@ -812,7 +812,6 @@ public class GUI extends JFrame implements ActionListener{
             }
             else if(theatreSelection.equals("any") && !movieSelection.equals("any"))
             {
-                
                 if(failText != null)
                     panel.remove(failText);
                 System.out.println("Search Theatre Strategy Pttrn");
