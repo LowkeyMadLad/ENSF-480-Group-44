@@ -47,6 +47,7 @@ public class TheatreDatabase {
      * @throws DBConnectException
      * @throws SQLException
      * Removes Showtimes from database that have already passed
+     * Removes 
      */
     public void validateDB() throws DBConnectException, SQLException{
         ArrayList<Integer> idRemove = new ArrayList<Integer>();
@@ -63,17 +64,20 @@ public class TheatreDatabase {
         PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
 
         while(results.next()){
+            int addCheck = 0;
             Timestamp releaseDateTime;
             Timestamp movieShowtime = results.getTimestamp("MovieTime");
             Timestamp now = new Timestamp(System.currentTimeMillis());
             String movie = results.getString("MovieName");
             myStmt2.setString(1, movie);
             ResultSet r2 = myStmt2.executeQuery();
+            if(movieShowtime.compareTo(now) < 0){
+                idRemove.add(results.getInt("MovieID"));
+                addCheck = 1; // Movie is gonna get deleted so no reason to add it on the next if
+            }
             if(r2.next()){
                 releaseDateTime = r2.getTimestamp("ReleaseDate");
-                if(movieShowtime.compareTo(now) < 0){
-                    idRemove.add(results.getInt("MovieID"));
-                } else if (movieShowtime.compareTo(releaseDateTime)< 0) { // if movie showtime is before the release date
+                if (movieShowtime.compareTo(releaseDateTime)< 0 && addCheck == 0) { // if movie showtime is before the release date
                     idRemove.add(results.getInt("MovieID"));
                 }
 
