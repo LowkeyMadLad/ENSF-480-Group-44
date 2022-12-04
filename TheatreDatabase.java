@@ -47,7 +47,7 @@ public class TheatreDatabase {
      * @throws DBConnectException
      * @throws SQLException
      * Removes Showtimes from database that have already passed
-     * Removes 
+     * Removes ReleaseDates from the database if they have passed
      */
     public void validateDB() throws DBConnectException, SQLException{
         ArrayList<Integer> idRemove = new ArrayList<Integer>();
@@ -248,26 +248,45 @@ public class TheatreDatabase {
 
     }
 
-    public void cancelTicket(String ticketID, String name) throws SQLException, DBConnectException
+    public void cancelTicket(String ticketID, String name) throws SQLException, DBConnectException, UnderTimeException
     {
         initializeConnection();
-        System.out.println("in Loop");
-
-        String query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
+        
+        String query = "SELECT * FROM movietickets WHERE TicketID = ? AND FullName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticketID);
         myStmt.setString(2, name);
+        ResultSet results = myStmt.executeQuery();
 
-        
-        myStmt.executeUpdate();
 
-        int rowCount = myStmt.executeUpdate();
-        if(rowCount == 0){
-            throw new SQLException("No rows were changed.");
+        if(results.next()) {
+            Timestamp movieShowtime = results.getTimestamp("MovieTime");
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            if(movieShowtime.getTime() - now.getTime() < 259200000L){
+                // this is the case when it is under the time, fail to cancel because time 
+                // difference is less than 72 hours
+                myStmt.close();
+                throw new UnderTimeException("Under the 72 hour window to cancel. Cannot cancel");
+            }
+            // if the code gets here, it exists in the database and is more than 72 hours away
+        } else {
+            throw new SQLException("Entry does not exist in the database");
         }
-        
+
+        query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
+        myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, ticketID);
+        myStmt.setString(2, name);
+        int n = myStmt.executeUpdate();
+        if (n < 1) {
+            // this should never happen but if it does :eyes:
+            throw new SQLException("Entry was not deleted or does not exist");
+        }
+        results.close();
         myStmt.close();
+        dbConnect.close();
     }
+
     /**
      * @param theatre
      * @param movie
