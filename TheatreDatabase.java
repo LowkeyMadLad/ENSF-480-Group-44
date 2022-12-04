@@ -236,8 +236,6 @@ public class TheatreDatabase {
         myStmt.setTimestamp(3, ticket.getShowtime());
         myStmt.setString(4, ticket.getSeat());
         myStmt.setString(5, name);
-        
-        myStmt.executeUpdate();
 
         int rowCount = myStmt.executeUpdate();
         if(rowCount == 0){
@@ -365,6 +363,35 @@ public class TheatreDatabase {
             ret = true;
         }
         return ret;
+    }
+
+    public void addShowtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
+        initializeConnection();
+        String query = "INSERT IGNORE INTO MOVIE_INFORMATION (MovieTheatre, MovieName, MovieTime) VALUES (?,?,?)";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setTimestamp(3, showtime);
+
+        myStmt.executeUpdate();
+
+        myStmt.close();
+        dbConnect.close();
+        validateDB();
+    }
+
+    public void addMovie(String movie, Timestamp announcementDate) throws DBConnectException, SQLException{
+        initializeConnection();
+        String query = "INSERT IGNORE INTO MovieReleaseDate (MovieName, ReleaseDate) VALUES (?,?)";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        myStmt.setTimestamp(2, announcementDate);
+
+        myStmt.executeUpdate();
+
+        myStmt.close();
+        dbConnect.close();
+        validateDB();
     }
 
     /**
