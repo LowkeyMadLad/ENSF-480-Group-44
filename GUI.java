@@ -719,6 +719,7 @@ public class GUI extends JFrame implements ActionListener{
                 JToggleButton button = new JToggleButton(seatName);
                 for(String x : seatsTaken)
                 {
+                    System.out.println(x);
                     if(seatName.equals(x))
                     {
                         button.setBackground(Color.RED);
@@ -762,6 +763,7 @@ public class GUI extends JFrame implements ActionListener{
         {
             public void actionPerformed(ActionEvent e) 
             {
+                seatFrame.removeAll();
                 seatFrame.dispose();
                 if(!seats.isEmpty())
                     PaymentPage(movie, theatre, time, seats);
@@ -831,6 +833,8 @@ public class GUI extends JFrame implements ActionListener{
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
                     ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
                     String[] showTimes = new String[showTimeList.size()];
+
+
                     for(Timestamp x: showTimeList)
                     {
                         System.out.println(x);
@@ -855,8 +859,8 @@ public class GUI extends JFrame implements ActionListener{
                     panel.add(sLabel);
                     panel.repaint();
 
-                    Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
-
+                    //Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
+                    
                     JButton showTimeButton = new JButton("Search Seats");
                     GUI gui  = new GUI();
                     showTimeButton.addActionListener(new ActionListener()
@@ -864,12 +868,13 @@ public class GUI extends JFrame implements ActionListener{
                         public void actionPerformed(ActionEvent e) 
                         {
                             try {
-                                ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, timeSelection);
+                                String timeSelection = showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex());
+                                ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection));
                                 for(String x : seats)
                                 {
                                     System.out.println(x);
                                 }
-                                seatMap(movieSelection, theatreSelection, timeSelection, seats);
+                                seatMap(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection), seats);
                             } catch (Exception e2) {
                                 // TODO: handle exception
                             }
