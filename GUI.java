@@ -10,6 +10,7 @@ import java.sql.*;
 // Change
 //main ProjectGUI class to generate the GUI components and implement actions
 public class GUI extends JFrame implements ActionListener{
+    User user = new User();
 
     //declaring all required variables (frames, buttons, global vars etc.)
     //for the GUI, we are not using a pre-designed layout, we are designing a custom layout
@@ -163,10 +164,8 @@ public class GUI extends JFrame implements ActionListener{
             panel.add(tLabel);
 
         } catch (DBConnectException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         } catch (SQLException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 
@@ -192,10 +191,8 @@ public class GUI extends JFrame implements ActionListener{
             panel.add(mLabel);
 
         } catch (DBConnectException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         } catch (SQLException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 
@@ -232,7 +229,7 @@ public class GUI extends JFrame implements ActionListener{
         frame.setVisible(true);
     }
 
-    public void PaymentPage(String movie, String theatre, String time, ArrayList<String> seatsRequested)
+    public void PaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
     {
         JFrame frame1 = new JFrame("Payment Page");
         frame1.setSize(700, 700);
@@ -343,7 +340,7 @@ public class GUI extends JFrame implements ActionListener{
                     
                     for(String x : seatsRequested)
                     {
-                        database.insertTicket(theatre, movie, time, x, nameTextInput.getText());
+                        database.insertTicket(new Ticket(theatre, movie, time, x), nameTextInput.getText());
                     }
                 } catch (SQLException e1) {
                     // TODO: handle exception
@@ -614,7 +611,7 @@ public class GUI extends JFrame implements ActionListener{
         frame1.setVisible(true);
     }
 
-    public void seatMap(String movie, String theatre, String time, ArrayList<String> seatsTaken)
+    public void seatMap(String movie, String theatre, Timestamp time, ArrayList<String> seatsTaken)
     {
         int rows = 4;
         int columns = 9;
@@ -696,6 +693,21 @@ public class GUI extends JFrame implements ActionListener{
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
     public void actionPerformed(ActionEvent e) {
+        // something like this
+        if(e.getActionCommand().equals("Search Theatre"))
+        {
+            user.setStrategy(new SearchTheatre());
+        }
+        if(e.getActionCommand().equals("Search Movie"))
+        {
+            user.setStrategy(new SearchMovie());
+        }
+            // somewhere we need to include the search
+
+            // user.performSearch(panel);
+
+
+
         if(e.getActionCommand().equals("Search"))
         {   
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
@@ -726,7 +738,7 @@ public class GUI extends JFrame implements ActionListener{
                 panel.add(sLabel);
                 panel.repaint();
 
-                String timeSelection  = showTimesComboBox.getItemAt((showTimesComboBox.getSelectedIndex()));
+                Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
 
                 JButton showTimeButton = new JButton("Search Seats");
                 GUI gui  = new GUI();
@@ -735,7 +747,6 @@ public class GUI extends JFrame implements ActionListener{
                     public void actionPerformed(ActionEvent e) 
                     {
                         try {
-
                             ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, timeSelection);
                             for(String x : seats)
                             {

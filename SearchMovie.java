@@ -1,5 +1,6 @@
 import java.util.*;
 import java.sql.*;
+import javax.swing.*;
 
 /**
  * This Strategy is for when a user wants to watch a specific movie. 
@@ -12,7 +13,17 @@ import java.sql.*;
 public class SearchMovie implements TheatreStrategy{
 
     @Override
-    public Ticket search() throws DBConnectException, SQLException{
+    public String[] search(JPanel panel) throws DBConnectException, SQLException{
+        TheatreDatabase db = TheatreDatabase.getDB();
+
+        // temp
+        String[] test = null;
+        return test;
+    }
+
+    /*
+    @Override
+    public String[] search() throws DBConnectException, SQLException{
         TheatreDatabase db = TheatreDatabase.getDB();
 
         System.out.println("Please enter the movie you wish to see: ");
@@ -132,5 +143,6 @@ public class SearchMovie implements TheatreStrategy{
         scanner.close();
         return (new Ticket(theatre, movie, dt, seat));
     }
+     */
     
 }

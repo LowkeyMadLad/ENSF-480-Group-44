@@ -5,6 +5,7 @@ public class MockGUI {
     static TheatreDatabase db;
     static User user = new User();
     public static void main(String[] args) throws DBConnectException, SQLException {
+        /*
         db = TheatreDatabase.getDB();
         // fillDatabase();
         Timestamp testDate = new Timestamp(System.currentTimeMillis());
@@ -23,8 +24,8 @@ public class MockGUI {
             case "M":
                 user.setStrategy(new SearchMovie());
                 break;
-            case "B":
-                user.setStrategy(new SearchBoth());
+            // case "B":
+            //     user.setStrategy(new SearchBoth());
             default:
                 System.out.println("Invalid Entry! Exiting...");
                 System.exit(1);
@@ -35,5 +36,6 @@ public class MockGUI {
         System.out.println(ticket.toString());
 
         scanner.close();
+        */
     }
 }

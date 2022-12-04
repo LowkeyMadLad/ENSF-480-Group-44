@@ -1,5 +1,6 @@
 import java.util.*;
 import java.sql.*;
+import javax.swing.*;
 
 /**
  * This Strategy is for when a user wants to browse the movies at
@@ -10,6 +11,53 @@ import java.sql.*;
  */
 public class SearchTheatre implements TheatreStrategy{
 
+    @Override
+    public String[] search(JPanel panel) throws DBConnectException, SQLException {
+        TheatreDatabase theatreDB = TheatreDatabase.getDB();
+
+        ArrayList<String> theatreList = theatreDB.getTheatreList();
+        String[] theatreToChoose = new String[theatreList.size()];
+        for(int i=0;i<theatreList.size();i++)
+        {
+            theatreToChoose[i] = theatreList.get(i);
+        }
+
+        String theatre = (String) JOptionPane.showInputDialog(
+            null, "What theatre would you like to browse at?", "Search Theatre",
+            JOptionPane.QUESTION_MESSAGE, null, theatreToChoose, theatreToChoose[0]);
+
+        // JComboBox<String> theatreComboBox = new JComboBox<>(theatreToChoose);
+        // theatreComboBox.setBounds(5, 80, 300, 25);
+        // JLabel tLabel = new JLabel();
+        // tLabel.setBounds(90, 100, 400, 100);
+        // panel.add(theatreComboBox);
+        // panel.add(tLabel);
+
+        ArrayList<String> movieList = theatreDB.getMovieList();
+        String[] moviesToChoose = new String[movieList.size()];
+        for(int i=0;i<movieList.size();i++)
+        {
+            moviesToChoose[i] = movieList.get(i);
+        }
+        
+        String movie = (String) JOptionPane.showInputDialog(
+            null, "Which movie would you like to watch?", "Search Theatre",
+            JOptionPane.QUESTION_MESSAGE, null, moviesToChoose, moviesToChoose[0]);
+
+        // JComboBox<String> movieComboBox = new JComboBox<>(moviesToChoose);
+        // movieComboBox.setBounds(5, 150, 300, 25);
+        // JLabel mLabel = new JLabel();
+        // mLabel.setBounds(90, 100, 400, 100);
+        // panel.add(movieComboBox);
+        // panel.add(mLabel);
+
+        String[] ret = new String[2];
+        ret[0] = theatre;
+        ret[1] = movie;
+        return ret;
+    }
+
+    /*
     @Override
     public Ticket search() throws DBConnectException, SQLException {
         TheatreDatabase db = TheatreDatabase.getDB();
@@ -126,5 +174,6 @@ public class SearchTheatre implements TheatreStrategy{
         scanner.close();
         return (new Ticket(theatre, movie, dt, seat));
     }
+     */
     
 }

@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Random;
 // using sql date
 // import java.util.HashMap;
 import java.sql.*;
@@ -36,10 +35,11 @@ public class TheatreDatabase {
     // private ArrayList<Showtime> allShowtimes;
     // private HashMap<String, Date> announcementDates;
 
-    private TheatreDatabase() throws DBConnectException{
+    private TheatreDatabase() throws DBConnectException, SQLException{
         // allShowtimes = new ArrayList<Showtime>();
         // announcementDates = new HashMap<String, Date>();
         // refreshDatabase(); 
+        // validateDB();
     }
 
     /**
@@ -48,7 +48,7 @@ public class TheatreDatabase {
      * @throws SQLException
      * Removes Showtimes from database that have already passed
      */
-    public void ctr() throws DBConnectException, SQLException{
+    public void validateDB() throws DBConnectException, SQLException{
         ArrayList<Integer> idRemove = new ArrayList<Integer>();
     
         initializeConnection();
@@ -109,7 +109,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getTheatreList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        ctr();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieTheatre FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -129,7 +129,7 @@ public class TheatreDatabase {
 
     public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        ctr();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -179,7 +179,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getMovieList(String theatre) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        ctr();
+        validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION WHERE MovieTheatre = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -197,14 +197,14 @@ public class TheatreDatabase {
         return list;
     }
 
-    public ArrayList<String> getSeats(String movie, String theatre, String time) throws DBConnectException, SQLException{
+    public ArrayList<String> getSeats(String movie, String theatre, Timestamp time) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
         initializeConnection();
         String query = "SELECT DISTINCT Seat FROM MovieTickets WHERE MovieName = ? AND MovieTheatre = ? AND MovieTime = ? ";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, movie);
         myStmt.setString(2, theatre);
-        myStmt.setTimestamp(3, Timestamp.valueOf(time));
+        myStmt.setTimestamp(3, time);
         ResultSet results = myStmt.executeQuery();
         
         while(results.next()){
@@ -218,19 +218,17 @@ public class TheatreDatabase {
         return list;
     }
 
-    public void insertTicket(String theatre, String movie, String time, String seat, String name) throws SQLException, DBConnectException
+    public void insertTicket(Ticket ticket, String name) throws SQLException, DBConnectException
     {
         initializeConnection();
         System.out.println("in Loop");
-        Random random = new Random();
         String query = "INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, ConfirmationNumber) VALUES (?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
-        myStmt.setString(1, theatre);
-        myStmt.setString(2, movie);
-        myStmt.setTimestamp(3, Timestamp.valueOf(time));
-        myStmt.setString(4, seat);
+        myStmt.setString(1, ticket.getTheatre());
+        myStmt.setString(2, ticket.getMovie());
+        myStmt.setTimestamp(3, ticket.getShowtime());
+        myStmt.setString(4, ticket.getSeat());
         myStmt.setString(5, name);
-        myStmt.setInt(6, random.nextInt(1, 1000000));
         
         myStmt.executeUpdate();
 
@@ -272,7 +270,7 @@ public class TheatreDatabase {
      */
     public ArrayList<Timestamp> getShowtimeList(String theatre, String movie) throws DBConnectException, SQLException{
         ArrayList<Timestamp> list = new ArrayList<Timestamp>();
-        ctr();
+        validateDB();
         initializeConnection();
         String query = "SELECT MovieTime FROM MOVIE_INFORMATION WHERE MovieTheatre = ? AND MovieName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -317,8 +315,9 @@ public class TheatreDatabase {
      * Getter for the TheatreDatabase Singleton instance.
      * @return TheatreDatabase single instance.
      * @throws DBConnectException
+     * @throws SQLException
      */
-    public static TheatreDatabase getDB() throws DBConnectException{
+    public static TheatreDatabase getDB() throws DBConnectException, SQLException{
         
         if(database == null){
             database = new TheatreDatabase();

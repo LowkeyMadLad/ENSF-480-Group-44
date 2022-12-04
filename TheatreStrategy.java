@@ -1,5 +1,6 @@
 import java.sql.SQLException;
+import javax.swing.*;
 
 public interface TheatreStrategy {
-    public Ticket search() throws DBConnectException, SQLException;
+    public String[] search(JPanel panel) throws DBConnectException, SQLException;
 }

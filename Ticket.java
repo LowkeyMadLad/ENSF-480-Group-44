@@ -29,6 +29,9 @@ public class Ticket {
     public Timestamp getShowtime() {
         return this.showtime;
     }
+    public String getSeat() {
+        return this.seat;
+    }
 
     @Override
     public String toString(){
