@@ -258,20 +258,34 @@ public class TheatreDatabase {
         myStmt.setString(2, name);
         ResultSet results = myStmt.executeQuery();
 
-
-        if(results.next()) {
-            Timestamp movieShowtime = results.getTimestamp("MovieTime");
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            if(movieShowtime.getTime() - now.getTime() < 259200000L){
-                // this is the case when it is under the time, fail to cancel because time 
-                // difference is less than 72 hours
-                myStmt.close();
-                throw new UnderTimeException("Under the 72 hour window to cancel. Cannot cancel");
-            }
-            // if the code gets here, it exists in the database and is more than 72 hours away
+        if (results.next() == false) {
+            throw new SQLException();
         } else {
-            throw new SQLException("Entry does not exist in the database");
+            do{
+                Timestamp movieShowtime = results.getTimestamp("MovieTime");
+                Timestamp now = new Timestamp(System.currentTimeMillis());
+                if(movieShowtime.getTime() - now.getTime() < 259200000L){
+                    // this is the case when it is under the time, fail to cancel because time 
+                    // difference is less than 72 hours
+                    myStmt.close();
+                    throw new UnderTimeException("Under the 72 hour window to cancel. Cannot cancel");
+                }
+            }while(results.next());
         }
+
+        // if(results.next()) {
+        //     Timestamp movieShowtime = results.getTimestamp("MovieTime");
+        //     Timestamp now = new Timestamp(System.currentTimeMillis());
+        //     if(movieShowtime.getTime() - now.getTime() < 259200000L){
+        //         // this is the case when it is under the time, fail to cancel because time 
+        //         // difference is less than 72 hours
+        //         myStmt.close();
+        //         throw new UnderTimeException("Under the 72 hour window to cancel. Cannot cancel");
+        //     }
+        //     // if the code gets here, it exists in the database and is more than 72 hours away
+        // } else {
+        //     throw new SQLException("Entry does not exist in the database");
+        // }
 
         query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
         myStmt = dbConnect.prepareStatement(query);
