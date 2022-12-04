@@ -161,6 +161,7 @@ public class TheatreDatabase {
     public void insertTicket(String theatre, String movie, String time, String seat, String name) throws SQLException, DBConnectException
     {
         initializeConnection();
+        System.out.println("in Loop");
 
         String query = "INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName) VALUES (?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);

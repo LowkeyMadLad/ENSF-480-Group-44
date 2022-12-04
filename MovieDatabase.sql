@@ -59,9 +59,9 @@ DROP TABLE IF EXISTS LoginServer;
 CREATE TABLE LoginServer (
 	Username	varchar(100) NOT NULL,
     Pass		varchar(100) NOT NULL,
-    Name        varchar(200) NOT NULL,
+    FullName        varchar(200) NOT NULL,
     Email       varchar(200) NOT NULL,
-    Address     varchar(200) NOT NULL,
+    HomeAddress     varchar(200) NOT NULL,
     CardNumber  varchar(200) NOT NULL,
     CVV         int,
 --     LoginName		varchar(200),

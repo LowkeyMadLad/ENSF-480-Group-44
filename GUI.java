@@ -340,8 +340,11 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase database = TheatreDatabase.getDB();
+                    
                     for(String x : seatsRequested)
+                    {
                         database.insertTicket(theatre, movie, time, x, nameTextInput.getText());
+                    }
                 } catch (SQLException e1) {
                     // TODO: handle exception
                     e1.printStackTrace();
@@ -520,20 +523,24 @@ public class GUI extends JFrame implements ActionListener{
         {
             public void actionPerformed(ActionEvent e) 
             {
+                System.out.println("clicked");
                 try {
                     LoginDatabase loginDB = LoginDatabase.getDB();
 
                     loginDB.signUp(usernameTextInput.getText(), nameTextInput.getText(), emailTextInput.getText(), addressTextInput.getText(), passTextInput.getText(), creditTextInput.getText(), Integer.parseInt(cvvTextInput.getText()));
+                    frame1.dispose();
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                 }
                 catch(SQLException e2)
                 {
+                    e2.printStackTrace();
+                }
+                catch(Exception e1)
+                {
 
                 }
 
-                // System.out.println("Username: " + usernameTextInput.getText());
-                // System.out.println("Password: " + passTextInput.getText());
             }
         });
         submitButton.setBounds(5, 600, 200, 25);
@@ -766,13 +773,14 @@ public class GUI extends JFrame implements ActionListener{
             //seatMap();
         }
 
-        showTimesComboBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                System.out.println("Time: "+ showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex()));
+        if(showTimesComboBox != null)
+            showTimesComboBox.addItemListener(new ItemListener(){
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    System.out.println("Time: "+ showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex()));
+                }
             }
-        }
 
 
     });

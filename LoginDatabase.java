@@ -33,7 +33,7 @@ public class LoginDatabase {
 
         while(results.next())
         {
-            if(results.getString("Pass") == password)
+            if(results.getString("Pass").equals(password))
             {
                 return true;
             }
@@ -74,7 +74,7 @@ public class LoginDatabase {
     {
         initializeConnection();
 
-        String query = "INSERT INTO LoginServer (Username, Pass, Name, Email, Address, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
+        String query = "INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         myStmt.setString(2, password);
