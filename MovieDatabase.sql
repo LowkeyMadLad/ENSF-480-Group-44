@@ -94,6 +94,7 @@ CREATE TABLE MovieTickets (
     MovieTime		datetime,
     Seat            varchar(10),
     FullName        varchar(100),
+    ConfirmationNumber  int,
 
     primary key	(TicketID)
 );

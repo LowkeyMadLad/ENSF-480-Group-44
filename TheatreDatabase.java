@@ -184,15 +184,15 @@ public class TheatreDatabase {
 
     }
 
-    public void cancelTicket(String seatNumber, int confirmationNumber) throws SQLException, DBConnectException
+    public void cancelTicket(String ticketID, String name) throws SQLException, DBConnectException
     {
         initializeConnection();
         System.out.println("in Loop");
 
-        String query = "DELETE FROM movietickets WHERE Seat = ? AND ConfirmationNumber = ?";
+        String query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
-        myStmt.setString(1, seatNumber);
-        myStmt.setInt(2, confirmationNumber);
+        myStmt.setString(1, ticketID);
+        myStmt.setString(2, name);
 
         
         myStmt.executeUpdate();

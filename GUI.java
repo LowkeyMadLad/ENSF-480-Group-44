@@ -567,15 +567,15 @@ public class GUI extends JFrame implements ActionListener{
         panel1.add(signUp);
 
 
-        JLabel seatDispTxt = new JLabel("What is Your Seat #");
-        seatDispTxt.setBounds(10, 90, 300, 25);
-        panel1.add(seatDispTxt);
+        JLabel nameCancel = new JLabel("What is Your Name: ");
+        nameCancel.setBounds(10, 90, 300, 25);
+        panel1.add(nameCancel);
 
         //creating a label and input for order name
-        JLabel confirmationTxt = new JLabel("What is Your Confirmation #");
+        JLabel tktID = new JLabel("What is Your Ticket ID: ");
         //password.setFont(secondHeader);
-        confirmationTxt.setBounds(20, 150, 600, 25);
-        panel1.add(confirmationTxt);
+        tktID.setBounds(20, 150, 600, 25);
+        panel1.add(tktID);
         
 
         JButton submitButton = new JButton("Submit");
@@ -583,8 +583,20 @@ public class GUI extends JFrame implements ActionListener{
         {
             public void actionPerformed(ActionEvent e) 
             {
-                System.out.println("Seat #: " + seatNumInput.getText());
-                System.out.println("Confirmation #: " + confirmationNumInput.getText());
+                try {
+                    TheatreDatabase theatreDB = TheatreDatabase.getDB();
+                    theatreDB.cancelTicket(seatNumInput.getText(), confirmationNumInput.getText());
+                    frame1.dispose();
+                } catch (SQLException e1) {
+                    // TODO: handle exception
+                }
+                catch(DBConnectException e1)
+                {
+
+                }
+                
+                // System.out.println("Seat #: " + seatNumInput.getText());
+                // System.out.println("Confirmation #: " + confirmationNumInput.getText());
             }
         });
         submitButton.setBounds(5, 230, 200, 25);
