@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 // using sql date
 // import java.util.HashMap;
 import java.sql.*;
@@ -162,14 +163,15 @@ public class TheatreDatabase {
     {
         initializeConnection();
         System.out.println("in Loop");
-
-        String query = "INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName) VALUES (?,?,?,?,?)";
+        Random random = new Random();
+        String query = "INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, ConfirmationNumber) VALUES (?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, theatre);
         myStmt.setString(2, movie);
         myStmt.setTimestamp(3, Timestamp.valueOf(time));
         myStmt.setString(4, seat);
         myStmt.setString(5, name);
+        myStmt.setInt(6, random.nextInt(1, 1000000));
         
         myStmt.executeUpdate();
 
@@ -180,6 +182,27 @@ public class TheatreDatabase {
         
         myStmt.close();
 
+    }
+
+    public void cancelTicket(String seatNumber, int confirmationNumber) throws SQLException, DBConnectException
+    {
+        initializeConnection();
+        System.out.println("in Loop");
+
+        String query = "DELETE FROM movietickets WHERE Seat = ? AND ConfirmationNumber = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, seatNumber);
+        myStmt.setInt(2, confirmationNumber);
+
+        
+        myStmt.executeUpdate();
+
+        int rowCount = myStmt.executeUpdate();
+        if(rowCount == 0){
+            throw new SQLException("No rows were changed.");
+        }
+        
+        myStmt.close();
     }
     /**
      * @param theatre
