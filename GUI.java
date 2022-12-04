@@ -54,7 +54,9 @@ public class GUI extends JFrame implements ActionListener{
 
 
     private static String[] theatresToChoose = {};
-
+    private static String[] theatreToChoose;
+    private static String[] moviesToChoose;
+    private static String[] showTimes;
     private RegisteredUser RU = null;
 
     public GUI(){}
@@ -78,9 +80,7 @@ public class GUI extends JFrame implements ActionListener{
         Color textColor = new Color(198, 218, 191);
         Color buttonColor = new Color(136, 212, 152);
         Color buttonTextColor = new Color(26, 147, 111);
-        String[] theatreToChoose;
-        String[] moviesToChoose;
-        String[] showTimes;
+
 
         //creating the main frame and panel for the GUI and setting sizes
         //also setting a default close operation for the program when the user exits the menu
@@ -428,6 +428,7 @@ public class GUI extends JFrame implements ActionListener{
             public void actionPerformed(ActionEvent e) 
             {
                 try {
+                    TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
                     LoginDatabase loginDB = new LoginDatabase();
                     boolean verify = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                     
@@ -435,6 +436,13 @@ public class GUI extends JFrame implements ActionListener{
                     {
                         RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                         System.out.println(verify);
+                        String specials = "";
+                        for(String x : moviesToChoose)
+                        {
+                            if(theatreDatabase.isAnnounced(x))
+                                specials += x + "\n";
+                        }
+                        JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
 
                         JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
