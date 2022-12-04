@@ -1,14 +1,15 @@
-import java.util.Date;
+import java.sql.*;
+import java.util.*;
 
 public class Ticket {
     private static long ticketID = 0; 
 
     private String movie;
     private String theatre;
-    private Date showtime;
+    private Timestamp showtime;
     private String seat;
 
-    public Ticket(String theatre, String movie, Date showtime, String seat){
+    public Ticket(String theatre, String movie, Timestamp showtime, String seat){
         this.theatre = theatre;
         this.movie = movie;
         this.showtime = showtime;
@@ -25,7 +26,7 @@ public class Ticket {
     public String getTheatre() {
         return this.theatre;
     }
-    public Date getShowtime() {
+    public Timestamp getShowtime() {
         return this.showtime;
     }
 
