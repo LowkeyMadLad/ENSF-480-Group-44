@@ -310,66 +310,48 @@ public class GUI extends JFrame implements ActionListener{
         displaySeats.setBounds(400,210, 300, 50);
         panel1.add(displaySeats);
 
-        JLabel username = new JLabel("Username");
-        username.setBounds(10, 90, 300, 25);
-        panel1.add(username);
-
-        //creating a label and input for order name
-        JLabel password = new JLabel("Password");
-        //password.setFont(secondHeader);
-        password.setBounds(10, 150, 600, 25);
-        panel1.add(password);
-
         JLabel name = new JLabel("Name");
-        name.setBounds(10, 220, 300, 25);
+        name.setBounds(10, 60, 300, 25);
         panel1.add(name);
 
         //creating a label and input for order name
         JLabel email = new JLabel("Email Address");
         //password.setFont(secondHeader);
-        email.setBounds(10, 290, 600, 25);
+        email.setBounds(10, 130, 600, 25);
         panel1.add(email);
 
         JLabel address = new JLabel("Address");
-        address.setBounds(10, 370, 300, 25);
+        address.setBounds(10, 200, 300, 25);
         panel1.add(address);
 
         //creating a label and input for order name
         JLabel creditCardInfo = new JLabel("Credit Card #");
         //password.setFont(secondHeader);
-        creditCardInfo.setBounds(10, 440, 600, 25);
+        creditCardInfo.setBounds(10, 270, 600, 25);
         panel1.add(creditCardInfo);
 
         JLabel CVV = new JLabel("CVV");
-        CVV.setBounds(10, 510, 300, 25);
+        CVV.setBounds(10, 340, 300, 25);
         panel1.add(CVV);
-        
-        usernameTextInput = new JTextField(16);
-        usernameTextInput.setBounds(5, 110, 300, 25);
-        panel1.add(usernameTextInput);
-
-        passTextInput = new JTextField(16);
-        passTextInput.setBounds(5, 180, 300, 25);
-        panel1.add(passTextInput);
-
+    
         nameTextInput = new JTextField(16);
-        nameTextInput.setBounds(5, 250, 300, 25);
+        nameTextInput.setBounds(5, 80, 300, 25);
         panel1.add(nameTextInput);
 
         emailTextInput = new JTextField(16);
-        emailTextInput.setBounds(5, 320, 300, 25);
+        emailTextInput.setBounds(5, 150, 300, 25);
         panel1.add(emailTextInput);
 
         addressTextInput = new JTextField(16);
-        addressTextInput.setBounds(5, 390, 300, 25);
+        addressTextInput.setBounds(5, 220, 300, 25);
         panel1.add(addressTextInput);
 
         creditTextInput = new JTextField(16);
-        creditTextInput.setBounds(5, 460, 300, 25);
+        creditTextInput.setBounds(5, 290, 300, 25);
         panel1.add(creditTextInput);
 
         cvvTextInput = new JTextField(16);
-        cvvTextInput.setBounds(5, 530, 300, 25);
+        cvvTextInput.setBounds(5, 360, 300, 25);
         panel1.add(cvvTextInput);
 
         JButton submitButton = new JButton("Submit");
@@ -390,15 +372,15 @@ public class GUI extends JFrame implements ActionListener{
                     confirmationPaymentPage(ticketTotal);
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(SQLException e2)
                 {
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(Exception e1)
                 {
-                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Input", JOptionPane.ERROR_MESSAGE);
                 }
 
                 frame1.dispose();
@@ -454,11 +436,7 @@ public class GUI extends JFrame implements ActionListener{
                         RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                         System.out.println(verify);
 
-                        JLabel successText = new JLabel("Successful Login");
-                        successText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
-                        successText.setForeground(Color.RED);
-                        successText.setBounds(5, 210, 600, 25);
-                        panel1.add(successText);
+                        JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
                         if(RU == null)
                             System.out.println("Still null");
@@ -477,11 +455,11 @@ public class GUI extends JFrame implements ActionListener{
                     }
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(SQLException e2)
                 {
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 // catch(Exception e1)
                 // {
@@ -758,8 +736,7 @@ public class GUI extends JFrame implements ActionListener{
                 if(!seats.isEmpty())
                     PaymentPage(movie, theatre, time, seats);
             }
-            
-            
+
         });
         seatFrame.setSize(1400, 700);
         submitButton.setBounds(700, 650, 20, 50);
@@ -896,10 +873,10 @@ public class GUI extends JFrame implements ActionListener{
             CancelPayment();
         }
 
-        if(e.getActionCommand().equals("Seat Map Display"))
-        {
-            //seatMap();
-        }
+        // if(e.getActionCommand().equals("Seat Map Display"))
+        // {
+        //     //seatMap();
+        // }
 
         if(showTimesComboBox != null)
             showTimesComboBox.addItemListener(new ItemListener(){
