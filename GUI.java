@@ -11,7 +11,6 @@ import java.sql.*;
 //main ProjectGUI class to generate the GUI components and implement actions
 public class GUI extends JFrame implements ActionListener{
     User user = new User();
-
     //declaring all required variables (frames, buttons, global vars etc.)
     //for the GUI, we are not using a pre-designed layout, we are designing a custom layout
 
@@ -56,9 +55,11 @@ public class GUI extends JFrame implements ActionListener{
 
     private static String[] theatresToChoose = {};
 
+    private RegisteredUser RU = null;
+
     public GUI(){}
 
-    //main function for the ProjectGUI class
+    //main function for the GU class
     public static void main(String[] args) throws IOException {
 
         //setting the look and feel of the GUI to a predefined look and feel
@@ -150,12 +151,12 @@ public class GUI extends JFrame implements ActionListener{
         try {
             TheatreDatabase theatreDB = TheatreDatabase.getDB();
             ArrayList<String> theatreList = theatreDB.getTheatreList();
-            theatreToChoose = new String[theatreList.size()];
+            theatreToChoose = new String[theatreList.size() +1];
             for(int i=0;i<theatreList.size();i++)
             {
                 theatreToChoose[i] = theatreList.get(i);
             }
-
+            theatreToChoose[theatreList.size()] = "any";
             theatreComboBox = new JComboBox<>(theatreToChoose);
             theatreComboBox.setBounds(5, 80, 300, 25);
             JLabel tLabel = new JLabel();
@@ -173,7 +174,7 @@ public class GUI extends JFrame implements ActionListener{
         try {
             TheatreDatabase theatreDB = TheatreDatabase.getDB();
             ArrayList<String> movieList = theatreDB.getMovieList();
-            moviesToChoose = new String[movieList.size()];
+            moviesToChoose = new String[movieList.size() +1 ];
             for(int i=0;i<movieList.size();i++)
             {
                 moviesToChoose[i] = movieList.get(i);
@@ -183,6 +184,7 @@ public class GUI extends JFrame implements ActionListener{
                 System.out.println(x);
             }
 
+            moviesToChoose[movieList.size()] = "any";
             movieComboBox = new JComboBox<>(moviesToChoose);
             movieComboBox.setBounds(5, 150, 300, 25);
             JLabel mLabel = new JLabel();
@@ -208,12 +210,12 @@ public class GUI extends JFrame implements ActionListener{
 
 
 
-        //creating a scrollbar for the text area when number of hampers increases
-        scrollBar = new JScrollPane(textArea);
-        scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollBar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollBar.setBounds(5, 500, 200, 95);
-        panel.add(scrollBar);
+        // //creating a scrollbar for the text area when number of hampers increases
+        // scrollBar = new JScrollPane(textArea);
+        // scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        // scrollBar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        // scrollBar.setBounds(5, 500, 200, 95);
+        // panel.add(scrollBar);
 
 
         //creating a button to end the program and exit the GUI
@@ -227,6 +229,48 @@ public class GUI extends JFrame implements ActionListener{
 
         //setting the frame visibility to true
         frame.setVisible(true);
+    }
+
+    public void confirmationPaymentPage(ArrayList<Ticket> ticket)
+    {
+        JFrame frame1 = new JFrame("Confirmation Page");
+        frame1.setSize(350, 350);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel confirmPaymentPage = new JLabel("Confirmation Of Your Payment");
+        //username.setFont(secondHeader);
+        confirmPaymentPage.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+        confirmPaymentPage.setBounds(5, 10, 300, 50);
+        panel1.add(confirmPaymentPage);
+
+        JLabel movieInfo = new JLabel("Movie: " + ticket.get(0).getMovie());
+        movieInfo.setBounds(5,70, 300, 50);
+        panel1.add(movieInfo);
+
+        JLabel theatreInfo = new JLabel("Theatre: " + ticket.get(0).getTheatre());
+        theatreInfo.setBounds(5,130, 300, 50);
+        panel1.add(theatreInfo);
+
+        JLabel timeInfo = new JLabel("Time: " + ticket.get(0).getShowtime().toString());
+        timeInfo.setBounds(5,190, 300, 50);
+        panel1.add(timeInfo);
+
+        String seats = "Seats Requested: ";
+        for(Ticket x : ticket)
+        {
+            seats += x.getSeat() + " ";
+        }
+
+        JLabel displaySeats = new JLabel(seats);
+        displaySeats.setBounds(5,250, 300, 50);
+        panel1.add(displaySeats);
+
+        frame1.setVisible(true);
     }
 
     public void PaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
@@ -337,11 +381,15 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase database = TheatreDatabase.getDB();
-                    
+                    ArrayList<Ticket> ticketTotal = new ArrayList<Ticket>();
                     for(String x : seatsRequested)
                     {
-                        database.insertTicket(new Ticket(theatre, movie, time, x), nameTextInput.getText());
+                        Ticket ticket = new Ticket(theatre, movie, time, x);
+                        database.insertTicket(ticket , nameTextInput.getText());
+                        ticketTotal.add(ticket);
+                        
                     }
+                    confirmationPaymentPage(ticketTotal);
                 } catch (SQLException e1) {
                     // TODO: handle exception
                     e1.printStackTrace();
@@ -350,10 +398,17 @@ public class GUI extends JFrame implements ActionListener{
                 {
                     e2.printStackTrace();
                 }
+                catch(Exception e1)
+                {
+                    JLabel failText = new JLabel("Please Enter All Information");
+                    failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
+                    failText.setForeground(Color.RED);
+                    failText.setBounds(5, 210, 600, 25);
+                    panel1.add(failText);
+                }
 
-
-                
                 frame1.dispose();
+
 
                 // System.out.println("Username: " + usernameTextInput.getText());
                 // System.out.println("Password: " + passTextInput.getText());
@@ -402,8 +457,34 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     LoginDatabase loginDB = new LoginDatabase();
-                    boolean tmp = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
-                    System.out.println(tmp);
+                    boolean verify = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
+                    
+                    if(verify == true)
+                    {
+                        RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
+                        System.out.println(verify);
+
+                        JLabel successText = new JLabel("Successful Login");
+                        successText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
+                        successText.setForeground(Color.RED);
+                        successText.setBounds(5, 210, 600, 25);
+                        panel1.add(successText);
+
+                        if(RU == null)
+                            System.out.println("Still null");
+                        // JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
+                        // usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 10));
+                        // usernameHomePg.setBounds(500, 10, 100, 25);
+                        // panel.add(usernameHomePg);
+                        frame1.dispose();
+                    }
+                    else{
+                        JLabel failText = new JLabel("Incorrect Login Information");
+                        failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
+                        failText.setForeground(Color.RED);
+                        failText.setBounds(5, 210, 600, 25);
+                        panel1.add(failText);
+                    }
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                     // TODO: handle exception
@@ -412,18 +493,19 @@ public class GUI extends JFrame implements ActionListener{
                 {
                     e2.printStackTrace();
                 }
-
-
-                // JLabel tmp1 = new JLabel(tmp);
-                // panel1.add(tmp1);
-                // System.out.println("Username: " + usernameTextInput.getText());
-                // System.out.println("Password: " + passTextInput.getText());
+                // catch(Exception e1)
+                // {
+                //     JLabel failText = new JLabel("Please Enter All Information");
+                //     failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
+                //     failText.setForeground(Color.RED);
+                //     failText.setBounds(5, 210, 600, 25);
+                //     panel1.add(failText);
+                // }
             }
         });
         submitButton.setBounds(5, 230, 200, 25);
         panel1.add(submitButton);
 
-        
         usernameTextInput = new JTextField(16);
         usernameTextInput.setBounds(5, 120, 300, 25);
         panel1.add(usernameTextInput);
@@ -535,7 +617,12 @@ public class GUI extends JFrame implements ActionListener{
                 }
                 catch(Exception e1)
                 {
-
+                    System.out.println("Fail");
+                    JLabel failText = new JLabel("Please Enter All Information");
+                    failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+                    failText.setForeground(Color.RED);
+                    failText.setBounds(5, 560, 600, 25);
+                    panel1.add(failText);
                 }
 
             }
@@ -689,6 +776,7 @@ public class GUI extends JFrame implements ActionListener{
         seatFrame.setLocationRelativeTo(null);
         seatFrame.setVisible(true);
     }
+    
     //main actionPerformed method that does various things based on the button pressed
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
@@ -712,67 +800,93 @@ public class GUI extends JFrame implements ActionListener{
         {   
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
             movieSelection = movieComboBox.getItemAt(movieComboBox.getSelectedIndex());
-        
-            try {
-                
-                TheatreDatabase theatreDB = TheatreDatabase.getDB();
-                ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
-                String[] showTimes = new String[showTimeList.size()];
-                for(Timestamp x: showTimeList)
-                {
-                    System.out.println(x);
-                }   
+            JLabel failText = null;
 
-                for(int i=0;i<showTimeList.size();i++)
-                {
-                    showTimes[i] = showTimeList.get(i).toString();
-                }
-
-
-                showTimesComboBox = new JComboBox<>(showTimes);
-                showTimesComboBox.setBounds(5, 250, 300, 25);
-                panel.add(showTimesComboBox);
-                sLabel = new JLabel("ShowTimes");
-                sLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 13));
-                sLabel.setBounds(5,230, 300, 13);
-                panel.add(sLabel);
-                panel.repaint();
-
-                Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
-
-                JButton showTimeButton = new JButton("Search Seats");
-                GUI gui  = new GUI();
-                showTimeButton.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e) 
-                    {
-                        try {
-                            ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, timeSelection);
-                            for(String x : seats)
-                            {
-                                System.out.println(x);
-                            }
-                            seatMap(movieSelection, theatreSelection, timeSelection, seats);
-                        } catch (Exception e2) {
-                            // TODO: handle exception
-                        }
-
-
-                        //theatreDB.g
-                        //seatMap(movieSelection, theatreSelection);
-                    }
-                });
-
-                showTimeButton.setBounds(5, 280, 200, 25);
-                panel.add(showTimeButton);
-
-            } catch (Exception e1) {
-                // TODO: handle exception
+            if(theatreSelection.equals("any") && movieSelection.equals("any"))
+            {
+                failText = new JLabel("Please Select Movie / Theatre");
+                failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+                failText.setForeground(Color.RED);
+                failText.setBounds(5, 230, 600, 25);
+                panel.add(failText);
             }
+            else if(theatreSelection.equals("any") && !movieSelection.equals("any"))
+            {
+                if(failText != null)
+                    panel.remove(failText);
+                System.out.println("Search Theatre Strategy Pttrn");
+            }
+            else if(!theatreSelection.equals("any") && movieSelection.equals("any"))
+            {
+                if(failText != null)
+                    panel.remove(failText);
+                System.out.println("Search Movie Strategy Pttrn");
+            }
+            else if(!theatreSelection.equals("any") && !movieSelection.equals("any"))
+            {
+                if(failText != null)
+                    panel.remove(failText);
 
-            
-            
+                try {
+                    TheatreDatabase theatreDB = TheatreDatabase.getDB();
+                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
+                    String[] showTimes = new String[showTimeList.size()];
+                    for(Timestamp x: showTimeList)
+                    {
+                        System.out.println(x);
+                    }   
 
+
+                    for(int i=0;i<showTimeList.size();i++)
+                    {
+                        showTimes[i] = showTimeList.get(i).toString();
+                    }
+
+
+                    if(showTimesComboBox != null)
+                        panel.remove(showTimesComboBox);
+
+                    showTimesComboBox = new JComboBox<>(showTimes);
+                    showTimesComboBox.setBounds(5, 250, 300, 25);
+                    panel.add(showTimesComboBox);
+                    sLabel = new JLabel("ShowTimes");
+                    sLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 13));
+                    sLabel.setBounds(5,230, 300, 13);
+                    panel.add(sLabel);
+                    panel.repaint();
+
+                    Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
+
+                    JButton showTimeButton = new JButton("Search Seats");
+                    GUI gui  = new GUI();
+                    showTimeButton.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e) 
+                        {
+                            try {
+                                ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, timeSelection);
+                                for(String x : seats)
+                                {
+                                    System.out.println(x);
+                                }
+                                seatMap(movieSelection, theatreSelection, timeSelection, seats);
+                            } catch (Exception e2) {
+                                // TODO: handle exception
+                            }
+
+
+                            //theatreDB.g
+                            //seatMap(movieSelection, theatreSelection);
+                        }
+                    });
+
+                    showTimeButton.setBounds(5, 280, 200, 25);
+                    panel.add(showTimeButton);
+
+                } catch (Exception e1) {
+                    // TODO: handle exception
+                }
+            }
 
         }
 
@@ -804,8 +918,6 @@ public class GUI extends JFrame implements ActionListener{
                     System.out.println("Time: "+ showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex()));
                 }
             }
-
-
     });
 
         //code for ending the program if endProgram button clicked

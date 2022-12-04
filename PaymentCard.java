@@ -7,7 +7,8 @@ public class PaymentCard {
     private int cvv;
 
     public PaymentCard(String cn, String co, int cvv) throws Exception{
-        cardNumber = cn.replaceAll("\\s","");
+        //cardNumber = cn.replaceAll("\\s","");
+        cardNumber = cn;
         cardOwner = co;
         this.cvv = cvv;
         validate();

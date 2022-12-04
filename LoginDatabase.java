@@ -46,35 +46,40 @@ public class LoginDatabase {
     {
         initializeConnection();
         
-        String query = "SELECT * FROM LoginServer WHERE EXISTS (Username = ?)";
+        String query = "SELECT * FROM LoginServer WHERE Username = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
-        RegisteredUser registeredUser = null;
+        // RegisteredUser registeredUser;
 
         while(results.next())
         {
-            String name = results.getString("Name");
+            String name = results.getString("FullName");
             String creditCardInfo = results.getString("CardNumber");
             String email = results.getString("Email");
-            String address = results.getString("Address");
+            String address = results.getString("HomeAddress");
             int cvv =Integer.parseInt(results.getString("CVV"));
+            System.out.println(name + " " + creditCardInfo + " " + email + " " + address + " " + cvv);
             try {
-                registeredUser = new RegisteredUser(name, email, address, password, creditCardInfo, cvv);
+                RegisteredUser registeredUser = new RegisteredUser(name, email, address , password, creditCardInfo, cvv);
+                return registeredUser;
             } catch (Exception e) {
+                e.printStackTrace();
                 // TODO: handle exception
             }
-            
+
         }
 
-        return registeredUser;
+        
+       
+        return null;
     }
 
     public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv) throws DBConnectException, SQLException
     {
         initializeConnection();
 
-        String query = "INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
+        String query = "INSERT IGNORE INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         myStmt.setString(2, password);
