@@ -12,28 +12,10 @@ import javax.swing.*;
 public class SearchTheatre implements TheatreStrategy{
 
     @Override
-    public String[] search(JPanel panel) throws DBConnectException, SQLException {
-        TheatreDatabase theatreDB = TheatreDatabase.getDB();
+    public String[] search(String choice) throws DBConnectException, SQLException {
+        TheatreDatabase db = TheatreDatabase.getDB();
 
-        ArrayList<String> theatreList = theatreDB.getTheatreList();
-        String[] theatreToChoose = new String[theatreList.size()];
-        for(int i=0;i<theatreList.size();i++)
-        {
-            theatreToChoose[i] = theatreList.get(i);
-        }
-
-        String theatre = (String) JOptionPane.showInputDialog(
-            null, "What theatre would you like to browse at?", "Search Theatre",
-            JOptionPane.QUESTION_MESSAGE, null, theatreToChoose, theatreToChoose[0]);
-
-        // JComboBox<String> theatreComboBox = new JComboBox<>(theatreToChoose);
-        // theatreComboBox.setBounds(5, 80, 300, 25);
-        // JLabel tLabel = new JLabel();
-        // tLabel.setBounds(90, 100, 400, 100);
-        // panel.add(theatreComboBox);
-        // panel.add(tLabel);
-
-        ArrayList<String> movieList = theatreDB.getMovieList();
+        ArrayList<String> movieList = db.getMovieList(choice);
         String[] moviesToChoose = new String[movieList.size()];
         for(int i=0;i<movieList.size();i++)
         {
@@ -41,18 +23,16 @@ public class SearchTheatre implements TheatreStrategy{
         }
         
         String movie = (String) JOptionPane.showInputDialog(
-            null, "Which movie would you like to watch?", "Search Theatre",
+            null, "Which movie would you like to watch?", "Available Movies at " + choice,
             JOptionPane.QUESTION_MESSAGE, null, moviesToChoose, moviesToChoose[0]);
 
-        // JComboBox<String> movieComboBox = new JComboBox<>(moviesToChoose);
-        // movieComboBox.setBounds(5, 150, 300, 25);
-        // JLabel mLabel = new JLabel();
-        // mLabel.setBounds(90, 100, 400, 100);
-        // panel.add(movieComboBox);
-        // panel.add(mLabel);
+        // verify validity of input
+        if(movie.equals("") || movie == null){
+            throw new IllegalArgumentException("No movie chosen.");
+        }
 
         String[] ret = new String[2];
-        ret[0] = theatre;
+        ret[0] = choice;
         ret[1] = movie;
         return ret;
     }

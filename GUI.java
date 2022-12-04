@@ -642,12 +642,15 @@ public class GUI extends JFrame implements ActionListener{
                     theatreDB.cancelTicket(seatNumInput.getText(), confirmationNumInput.getText());
                     frame1.dispose();
                 } catch (DBConnectException e1) {
-                    // TODO: handle exception
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                    System.exit(ABORT);
                 }
                 catch(SQLException e2)
                 {
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                    System.exit(ABORT);
+                } catch (UnderTimeException e1) {
+                    JOptionPane.showMessageDialog(null, "You cannot cancel a ticket within 72 hours of the showtime!", "WARNING!", JOptionPane.WARNING_MESSAGE);
                 }
                 
                 
@@ -769,31 +772,35 @@ public class GUI extends JFrame implements ActionListener{
         {   
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
             movieSelection = movieComboBox.getItemAt(movieComboBox.getSelectedIndex());
-            JLabel failText = null;
+            String searchchoice = "";
+            boolean valid = true;
 
             if(theatreSelection.equals("any") && movieSelection.equals("any"))
             {
                 JOptionPane.showMessageDialog(null, "Please Enter either Movie / Theatre", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                valid = false;
             }
             else if(theatreSelection.equals("any") && !movieSelection.equals("any"))
             {
-                if(failText != null)
-                    panel.remove(failText);
-                System.out.println("Search Theatre Strategy Pttrn");
+                searchchoice = movieSelection;
+                user.setStrategy(new SearchMovie());
+                System.out.println("Search Movie Strategy Pattern");
             }
             else if(!theatreSelection.equals("any") && movieSelection.equals("any"))
             {
-                if(failText != null)
-                    panel.remove(failText);
-                System.out.println("Search Movie Strategy Pttrn");
+                searchchoice = theatreSelection;
+                user.setStrategy(new SearchTheatre());
+                System.out.println("Search Theatre Strategy Pattern");
             }
-            else if(!theatreSelection.equals("any") && !movieSelection.equals("any"))
+            if(valid)
             {
-                if(failText != null)
-                    panel.remove(failText);
-
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
+                    if(!searchchoice.equals("")){
+                        String[] searchReturn = user.performSearch(searchchoice);
+                        theatreSelection = searchReturn[0];
+                        movieSelection = searchReturn[1];
+                    }
                     ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
                     String[] showTimes = new String[showTimeList.size()];
 

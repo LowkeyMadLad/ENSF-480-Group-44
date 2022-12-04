@@ -1,5 +1,4 @@
 import java.sql.SQLException;
-import javax.swing.*;
 
 public class User {
     private TheatreStrategy searchStrat;
@@ -12,8 +11,15 @@ public class User {
         searchStrat = strat;
     }
 
-    public String[] performSearch(JPanel panel) throws DBConnectException, SQLException{
-        return searchStrat.search(panel);
+    /**
+     * Performs a strategy pattern to either search movie or theatre. 
+     * @param choice
+     * @return A two-index string containing [String theatre, String movie]
+     * @throws DBConnectException
+     * @throws SQLException
+     */
+    public String[] performSearch(String choice) throws DBConnectException, SQLException{
+        return searchStrat.search(choice);
     }
 
     // public void removeTicket(String ticketNo) throws TicketErrorException{

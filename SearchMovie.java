@@ -13,12 +13,48 @@ import javax.swing.*;
 public class SearchMovie implements TheatreStrategy{
 
     @Override
-    public String[] search(JPanel panel) throws DBConnectException, SQLException{
+    public String[] search(String choice) throws DBConnectException, SQLException{
         TheatreDatabase db = TheatreDatabase.getDB();
 
-        // temp
-        String[] test = null;
-        return test;
+        ArrayList<String> fullTheatreList = db.getTheatreList();
+        String[] theatreToChoose = new String[fullTheatreList.size()];
+        for(int i=0;i<fullTheatreList.size();i++)
+        {
+            theatreToChoose[i] = fullTheatreList.get(i);
+        }
+        // attempt to find the movie
+        ArrayList<String> theatreList = db.findMovieTheatres(choice);
+        if(theatreList.isEmpty()){
+            String msg = "Sorry, that movie is not available anywhere!\nExiting the program...";
+            JOptionPane.showMessageDialog(null, msg, "ERROR", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        // display theatres
+        String theatre = "";
+        if(theatreList.size() == 1){
+            theatre = theatreList.get(0);
+            String msg = "It seems that " + theatre + " is the only theatre currently playing " + choice + 
+                        ".\nWould you like to choose this theatre?";
+            int reply = JOptionPane.showConfirmDialog(null, msg, "NOTICE", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.NO_OPTION) {
+                String goodbye = "Goodbye!";
+                JOptionPane.showMessageDialog(null, goodbye, "GOODBYE", JOptionPane.CLOSED_OPTION);
+                System.exit(0);
+            } 
+        } else{
+            theatre = (String) JOptionPane.showInputDialog(
+                null, "What theatre would you like to watch " + choice + " at?", "Theatres playing " + choice,
+                JOptionPane.QUESTION_MESSAGE, null, theatreToChoose, theatreToChoose[0]);
+            // verify validity of input
+            if(theatre.equals("") || theatre == null){
+                throw new IllegalArgumentException("No theatre chosen.");
+            }
+        }
+
+        String[] ret = new String[2];
+        ret[0] = theatre;
+        ret[1] = choice;
+        return ret;
     }
 
     /*
