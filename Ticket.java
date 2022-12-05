@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.*;
 
 public class Ticket {
-    private static long ticketID = 0; 
+    private static int ticketID = 0; 
 
     private String movie;
     private String theatre;
@@ -17,7 +17,7 @@ public class Ticket {
         ticketID++;
     }
 
-    public long getTicketNum() {
+    public int getTicketNum() {
         return Ticket.ticketID;
     }
     public String getMovie() {

@@ -144,7 +144,7 @@ public class TheatreDatabase {
      */
     public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
-        validateDB();
+        //validateDB();
         initializeConnection();
         String query = "SELECT DISTINCT MovieName FROM MovieReleaseDate";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
@@ -237,13 +237,14 @@ public class TheatreDatabase {
     {
         initializeConnection();
         System.out.println("in Loop");
-        String query = "INSERT IGNORE INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName) VALUES (?,?,?,?,?)";
+        String query = "INSERT IGNORE INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, TicketID) VALUES (?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticket.getTheatre());
         myStmt.setString(2, ticket.getMovie());
         myStmt.setTimestamp(3, ticket.getShowtime());
         myStmt.setString(4, ticket.getSeat());
         myStmt.setString(5, name);
+        myStmt.setInt(6,ticket.getTicketNum());
 
         int rowCount = myStmt.executeUpdate();
         if(rowCount == 0){
@@ -251,6 +252,26 @@ public class TheatreDatabase {
         }
         
         myStmt.close();
+
+        // String tktQuery = "SELECT TicketID WHERE FullName = ? AND Seat = ? AND MovieTime = ? AND MovieName = ? AND MovieTheatre = ?";
+        // PreparedStatement myStmt1 = dbConnect.prepareStatement(tktQuery);
+        // myStmt1.setString(1, name);
+        // myStmt1.setString(2, ticket.getSeat());
+        // myStmt1.setTimestamp(3, ticket.getShowtime());
+        // myStmt1.setString(4, ticket.getMovie());
+        // myStmt1.setString(5, ticket.getTheatre());
+        // ResultSet results = myStmt.executeQuery();
+
+        // int tktNumb = 0;
+        // while(results.next()){
+        //     tktNumb  = (results.getString("TicketID"));
+        // }
+
+        // myStmt1.close();
+        // results.close();
+        // dbConnect.close();
+        
+        // return tktNumb;
 
     }
 

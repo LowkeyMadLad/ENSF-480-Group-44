@@ -228,6 +228,46 @@ public class GUI extends JFrame implements ActionListener{
         //setting the frame visibility to true
         frame.setVisible(true);
     }
+    public void cancelConfirmationPage()
+    {
+        JFrame frame1 = new JFrame("Confirmation Page");
+        frame1.setSize(350, 350);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel confirmPaymentPage = new JLabel("Confirmation Of Your Payment");
+        //username.setFont(secondHeader);
+        confirmPaymentPage.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+        confirmPaymentPage.setBounds(5, 10, 300, 50);
+        panel1.add(confirmPaymentPage);
+
+        // JLabel movieInfo = new JLabel("Movie: " + ticket.getMovie());
+        // movieInfo.setBounds(5,70, 300, 50);
+        // panel1.add(movieInfo);
+
+        // JLabel theatreInfo = new JLabel("Theatre: " + ticket.getTheatre());
+        // theatreInfo.setBounds(5,130, 300, 50);
+        // panel1.add(theatreInfo);
+
+        // JLabel timeInfo = new JLabel("Time: " + ticket.getShowtime().toString());
+        // timeInfo.setBounds(5,190, 300, 50);
+        // panel1.add(timeInfo);
+
+        // JLabel displaySeats = new JLabel(ticket.getSeat());
+        // displaySeats.setBounds(5,250, 300, 50);
+        // panel1.add(displaySeats);
+
+        
+        // JLabel voucher = new JLabel(seats);
+        // displaySeats.setBounds(5,250, 300, 50);
+        // panel1.add(displaySeats);
+
+        frame1.setVisible(true);
+    }
 
     public void confirmationPaymentPage(ArrayList<Ticket> ticket)
     {
@@ -261,7 +301,7 @@ public class GUI extends JFrame implements ActionListener{
         String seats = "Seats Requested: ";
         for(Ticket x : ticket)
         {
-            seats += x.getSeat() + " ";
+            seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\n";
         }
 
         JLabel displaySeats = new JLabel(seats);
@@ -309,6 +349,12 @@ public class GUI extends JFrame implements ActionListener{
         JLabel displaySeats = new JLabel(seats);
         displaySeats.setBounds(400,210, 300, 50);
         panel1.add(displaySeats);
+
+        int price = seatsRequested.size() * 10;
+        JLabel totalPrice = new JLabel("Total: " + Integer.toString(price) + "$");
+        totalPrice.setBounds(400,250, 300, 50);
+        panel1.add(totalPrice);
+
 
         JLabel name = new JLabel("Name");
         name.setBounds(10, 60, 300, 25);
@@ -431,6 +477,11 @@ public class GUI extends JFrame implements ActionListener{
         JLabel displaySeats = new JLabel(seats);
         displaySeats.setBounds(400,210, 300, 50);
         panel1.add(displaySeats);
+
+        int price = seatsRequested.size() * 10;
+        JLabel totalPrice = new JLabel("Total: " + Integer.toString(price));
+        totalPrice.setBounds(400,250, 300, 50);
+        panel1.add(totalPrice);
 
         JLabel name = new JLabel("Name: " + RU.getName());
         name.setBounds(10, 60, 300, 25);
@@ -555,7 +606,7 @@ public class GUI extends JFrame implements ActionListener{
                         System.out.println(verify);
                         // System.out.println(verify);
 
-                        JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
 
 
@@ -566,10 +617,12 @@ public class GUI extends JFrame implements ActionListener{
                         panel.add(usernameHomePg);
                         panel.repaint();
 
+                        ArrayList<String> movies = theatreDatabase.getMovieList();
                         String specials = "";
-                        for(String x : moviesToChoose)
+                        for(String x : movies)
                         {
-                            if(theatreDatabase.isAnnounced(x) == true)
+                             System.out.println(x);
+                            if(theatreDatabase.isAnnounced(x) == false)
                             {
                                 specials += x + "\n";
                             }
@@ -788,6 +841,7 @@ public class GUI extends JFrame implements ActionListener{
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
                     theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);
+                    cancelConfirmationPage();
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);

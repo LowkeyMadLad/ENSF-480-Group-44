@@ -43,5 +43,11 @@ public class Email {
         }
 
     }
+
+    public static void main(String[] args) {
+        Email email = new Email("kirtan.kakadiya@gmail.com", "kirtan.kakadiya@gmail.com");
+
+        email.sendEmail();
+    }
     
 }
