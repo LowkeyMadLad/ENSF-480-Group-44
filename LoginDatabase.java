@@ -45,6 +45,26 @@ public class LoginDatabase {
         return false;
     }
 
+    public boolean checkAdminInformation(String username, String password) throws DBConnectException, SQLException
+    {
+        initializeConnection();
+        
+        String query = "SELECT * FROM Admins WHERE AdminUsername = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, username);
+        ResultSet results = myStmt.executeQuery();
+        while(results.next())
+        {
+            System.out.println(results.getString("AdminPass"));
+            if(results.getString("AdminPass").equals(password))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public RegisteredUser getLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();

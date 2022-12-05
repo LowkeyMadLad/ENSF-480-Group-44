@@ -483,10 +483,10 @@ public class TheatreDatabase {
         myStmt.setString(2, movie);
         myStmt.setTimestamp(3, showtime);
         n = myStmt.executeUpdate();
-        if (n < 1) {
-            // this should never happen but if it does :eyes:
-            throw new SQLException("Entry was not deleted or does not exist");
-        }
+        // if (n < 1) {
+        //     // this should never happen but if it does :eyes:
+        //     throw new SQLException("Entry was not deleted or does not exist");
+        // }
         
         myStmt.close();
         dbConnect.close();
@@ -499,7 +499,7 @@ public class TheatreDatabase {
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, movie);
         int n = myStmt.executeUpdate();
-        if (n < 1) {
+        if (n == 0) {
             // this should never happen but if it does :eyes:
             throw new SQLException("Entry was not deleted or does not exist");
         }

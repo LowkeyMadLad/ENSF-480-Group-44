@@ -678,75 +678,63 @@ public class GUI extends JFrame implements ActionListener{
                 try {
                     LoginDatabase loginDB = new LoginDatabase();
                     TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
-                    boolean verify = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
-                    
-                    if(verify == true)
+                    boolean verifyAdmin = loginDB.checkAdminInformation(usernameTextInput.getText(), passTextInput.getText());
+                    System.out.println(verifyAdmin);
+                    if(verifyAdmin == true)
                     {
-                        RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
+                        adminPage();
+                    }
 
-                        JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
-
-                        // String rDate= RU.getPaymentDate().toString(); // your received String date
-                        // DateFormat df = new DateFormat();
-                        // Date date=df.parse(rDate);// parse String to date
-                        // Calendar calendar=Calendar.getInstance();
-                        // calendar.setTime(date); // set calender instance to date value
-                        // calendar.add(Calendar.YEAR,1); // add one year to current
-
-                        // date = calendar.getTime();
-                        // Date currDate = new Date(System.currentTimeMillis());
-                        // if(currDate.isAfter(date))
-                        // {
-                        //     JOptionPane.showMessageDialog(null, "Your annual Payment of 20$ has gone through", "Annual Payment", JOptionPane.PLAIN_MESSAGE);
-                        // }
-
-
-
-                        JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
-                        usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
-                        usernameHomePg.setBounds(500, 10, 200, 25);
+                    else{
+                        boolean verify = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                         
-                        panel.add(usernameHomePg);
-                        panel.repaint();
-
-                        ArrayList<String> movies = theatreDatabase.getMovieList();
-                        String specials = "Movies you have early access to buy: \n";
-                        for(String x : movies)
+                        if(verify == true)
                         {
-                             System.out.println(x);
-                            if(theatreDatabase.isAnnounced(x) == false)
+                            RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
+
+                            JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
+
+
+                            JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
+                            usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+                            usernameHomePg.setBounds(500, 10, 200, 25);
+                            
+                            panel.add(usernameHomePg);
+                            panel.repaint();
+
+                            ArrayList<String> movies = theatreDatabase.getMovieList();
+                            String specials = "Movies you have early access to buy: \n";
+                            for(String x : movies)
                             {
-                                specials += x + "\n";
+                                System.out.println(x);
+                                if(theatreDatabase.isAnnounced(x) == false)
+                                {
+                                    specials += x + "\n";
+                                }
                             }
+
+                            JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
+
+
+                            frame1.dispose();
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Incorrect Login Information", "Login Message", JOptionPane.ERROR_MESSAGE);
+
                         }
 
-                        JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
-
-
-                        frame1.dispose();
                     }
-                    else{
-                        JOptionPane.showMessageDialog(null, "Incorrect Login Information", "Login Message", JOptionPane.ERROR_MESSAGE);
+                    } catch (DBConnectException e1) {
 
+                        // TODO: handle exception
+                        JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (DBConnectException e1) {
+                    catch(SQLException e2)
+                    {
+                        e2.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                    }
 
-                    // TODO: handle exception
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
-                }
-                catch(SQLException e2)
-                {
-                    e2.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
-                }
-                // catch(Exception e1)
-                // {
-                //     JLabel failText = new JLabel("Please Enter All Information");
-                //     failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
-                //     failText.setForeground(Color.RED);
-                //     failText.setBounds(5, 210, 600, 25);
-                //     panel1.add(failText);
-                // }
             }
         });
         submitButton.setBounds(5, 230, 200, 25);
@@ -1066,6 +1054,113 @@ public class GUI extends JFrame implements ActionListener{
         seatFrame.setVisible(true);
     }
     
+    public void adminPage()
+    {
+        JFrame frame1 = new JFrame("Admin Page");
+        frame1.setSize(700, 700);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel loginPage = new JLabel("Admin Page");
+        //username.setFont(secondHeader);
+        loginPage.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
+        loginPage.setBounds(5, 40, 300, 50);
+        panel1.add(loginPage);
+
+        JLabel movieSelected = new JLabel("What Movie Would You Like To Remove");
+        movieSelected.setBounds(5, 90, 300, 20);
+        panel1.add(movieSelected);
+
+        JComboBox<String> adminMovieComboBox = new JComboBox<>(moviesToChoose);
+        adminMovieComboBox.setBounds(5, 120, 300, 25);
+        JLabel mLabel = new JLabel();
+        mLabel.setBounds(90, 150, 400, 20);
+        panel1.add(adminMovieComboBox);
+        panel1.add(mLabel);
+
+        JButton selectedMovie = new JButton("Delete Movie");
+        GUI gui  = new GUI();
+        selectedMovie.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                try {
+                    TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
+                    String movie = adminMovieComboBox.getItemAt(adminMovieComboBox.getSelectedIndex());
+                    
+                    theatreDatabase.deleteMovie(movie);
+                    panel.repaint();
+                    panel1.repaint();
+                    JOptionPane.showMessageDialog(null, "Succesful Deletion", "Admin", JOptionPane.PLAIN_MESSAGE);
+
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                }
+
+            }
+        });
+
+        
+
+        selectedMovie.setBounds(5, 150, 200, 25);
+        panel1.add(selectedMovie);
+
+        JLabel addLabel = new JLabel("Add Movie");
+        addLabel.setBounds(5, 210, 300, 30);
+        panel1.add(addLabel);
+
+        JTextField addMovie = new JTextField();
+        addMovie.setBounds(5,240,300,30);
+        panel1.add(addMovie);
+
+        JTextField addTime = new JTextField();
+        addTime.setBounds(5, 270, 300, 30);
+        panel1.add(addTime);
+
+        JButton addedMovie = new JButton("Add Movie");
+        addedMovie.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                try {
+                    TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
+            
+                    theatreDatabase.addMovie(addMovie.getText(), Timestamp.valueOf(addTime.getText()));
+                    panel.repaint();
+                    panel1.repaint();
+                    JOptionPane.showMessageDialog(null, "Succesful Insertion", "Admin", JOptionPane.PLAIN_MESSAGE);
+
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                }
+
+            }
+        });
+
+        
+
+        addedMovie.setBounds(5, 300, 200, 25);
+        panel1.add(addedMovie);
+
+        frame1.setVisible(true);
+
+    }
     //main actionPerformed method that does various things based on the button pressed
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
@@ -1087,6 +1182,7 @@ public class GUI extends JFrame implements ActionListener{
 
         if(e.getActionCommand().equals("Search"))
         {   
+            adminPage();
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
             movieSelection = movieComboBox.getItemAt(movieComboBox.getSelectedIndex());
             String searchchoice = "";
