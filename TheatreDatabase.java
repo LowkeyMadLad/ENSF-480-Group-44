@@ -133,12 +133,17 @@ public class TheatreDatabase {
         return list;
     }
 
-
+    /**
+     * Unlike the getMovieList(String movie), this one searches through MovieReleaseDate to get all movies.
+     * @return ArrayList<String> of all movies
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<String> getMovieList() throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
         validateDB();
         initializeConnection();
-        String query = "SELECT DISTINCT MovieName FROM MOVIE_INFORMATION";
+        String query = "SELECT DISTINCT MovieName FROM MovieReleaseDate";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         ResultSet results = myStmt.executeQuery();
 
@@ -250,7 +255,7 @@ public class TheatreDatabase {
     {
         initializeConnection();
         
-        String query = "SELECT * FROM movietickets WHERE TicketID = ? AND FullName = ?";
+        String query = "SELECT * FROM MovieTickets WHERE TicketID = ? AND FullName = ?";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticketID);
         myStmt.setString(2, name);
@@ -285,7 +290,7 @@ public class TheatreDatabase {
         //     throw new SQLException("Entry does not exist in the database");
         // }
 
-        query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
+        query = "DELETE FROM MovieTickets WHERE TicketID = ? AND FullName = ?";
         myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticketID);
         myStmt.setString(2, name);
@@ -392,6 +397,81 @@ public class TheatreDatabase {
         myStmt.close();
         dbConnect.close();
         validateDB();
+    }
+
+    public ArrayList<Showtime> getAllShowtimes() throws DBConnectException, SQLException{
+        ArrayList<Showtime> list = new ArrayList<Showtime>();
+        //validateDB();
+        initializeConnection();
+        String query = "SELECT * FROM MOVIE_INFORMATION";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        ResultSet results = myStmt.executeQuery();
+        
+        while(results.next()){
+            String theatre = results.getString("MovieTheatre");
+            String movie = results.getString("MovieName");
+            Timestamp time = results.getTimestamp("MovieTime");
+            Showtime st = new Showtime(theatre, movie, time);
+            list.add(st);
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        return list;
+    }
+
+    public void removeShowtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
+        initializeConnection();
+        
+        String query = "DELETE FROM MOVIE_INFORMATION WHERE MovieTheatre = ? AND MovieName = ? AND MovieTime = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setTimestamp(3, showtime);
+        int n = myStmt.executeUpdate();
+        if (n < 1) {
+            // this should never happen but if it does :eyes:
+            throw new SQLException("Entry was not deleted or does not exist");
+        }
+
+        query = "DELETE FROM MovieTickets WHERE MovieTheatre = ? AND MovieName = ? AND MovieTime = ?";
+        myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setTimestamp(3, showtime);
+        n = myStmt.executeUpdate();
+        if (n < 1) {
+            // this should never happen but if it does :eyes:
+            throw new SQLException("Entry was not deleted or does not exist");
+        }
+        
+        myStmt.close();
+        dbConnect.close();
+    }
+
+    public void deleteMovie(String movie) throws DBConnectException, SQLException{
+        initializeConnection();
+        
+        String query = "DELETE FROM MovieReleaseDate WHERE MovieName = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        int n = myStmt.executeUpdate();
+        if (n < 1) {
+            // this should never happen but if it does :eyes:
+            throw new SQLException("Entry was not deleted or does not exist");
+        }
+
+        ArrayList<Showtime> stList = getAllShowtimes();
+        for(Showtime s : stList){
+            if(s.getMovie().equals(movie)){
+                removeShowtime(s.getTheatre(), movie, s.getShowtime());
+            }
+        }
+        
+        myStmt.close();
+        dbConnect.close();
     }
 
     /**

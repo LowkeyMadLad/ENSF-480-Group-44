@@ -1,15 +1,15 @@
 import java.util.*;
 import java.sql.*;
 
-public class Admin extends RegisteredUser{
+public class Admin extends User{
+    private String username;
+    private String password;
 
-    public Admin(String name, String email, String address, String password, String cardNumber, int cvv)
-            throws Exception {
-        super(name, email, address, password, cardNumber, cvv);
-        //TODO Auto-generated constructor stub
+    public Admin(String username, String password){
+        this.username = username;
+        this.password = password;
     }
+
     
-    public void addShowtime(String theatre, String movie, Timestamp showtime){
-        
-    }
+    
 }
