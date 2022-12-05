@@ -4,7 +4,7 @@ public class PaymentCard {
     private String cardOwner;
     private int cvv;
 
-    public PaymentCard(String cn, String co, int cvv) throws Exception{
+    public PaymentCard(String cn, String co, int cvv) throws IllegalArgumentException{
         //cardNumber = cn.replaceAll("\\s","");
         cardNumber = cn;
         cardOwner = co;
@@ -37,9 +37,9 @@ public class PaymentCard {
         this.cvv = cvv;
     }
 
-    private void validate() throws Exception{
+    private void validate() throws IllegalArgumentException{
         if(cardNumber.length() != 12 || Integer.toString(cvv).length() != 3){
-            throw new Exception("Invalid Card");
+            throw new IllegalArgumentException("Invalid Card");
         }
     }
     // private void validate() throws Exception{

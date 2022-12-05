@@ -11,7 +11,7 @@ public class RegisteredUser extends User{
     // tickets bought by an RU will be saved to their account
     private ArrayList<Ticket> tickets;
 
-    public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) throws Exception {
+    public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) throws IllegalArgumentException {
         this.name = name;
         this.email = email;
         this.address = address;

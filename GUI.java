@@ -463,6 +463,10 @@ public class GUI extends JFrame implements ActionListener{
                 {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
+                catch(IllegalArgumentException e1)
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid Card Information", "Input Error", JOptionPane.WARNING_MESSAGE);
+                }
                 catch(Exception e1)
                 {
                     JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Input", JOptionPane.ERROR_MESSAGE);
@@ -868,16 +872,9 @@ public class GUI extends JFrame implements ActionListener{
                 {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
                 }
-                catch(Exception e1)
+                catch(IllegalArgumentException e1)
                 {
                     JOptionPane.showMessageDialog(null, "Invalid Card Information", "Input Error", JOptionPane.WARNING_MESSAGE);
-
-                    // System.out.println("Fail");
-                    // JLabel failText = new JLabel("Please Enter All Information");
-                    // failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
-                    // failText.setForeground(Color.RED);
-                    // failText.setBounds(5, 560, 600, 25);
-                    // panel1.add(failText);
                 }
 
             }
