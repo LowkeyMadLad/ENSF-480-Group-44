@@ -1,6 +1,3 @@
-import java.util.*;
-import java.sql.*;
-
 public class Admin extends User{
     private String username;
     private String password;
@@ -10,6 +7,5 @@ public class Admin extends User{
         this.password = password;
     }
 
-    
     
 }
