@@ -89,7 +89,7 @@ public class LoginDatabase {
         myStmt.setString(6, cardNumber);
         myStmt.setInt(7, cvv);
         
-        myStmt.executeUpdate();
+        //myStmt.executeUpdate();
 
         int rowCount = myStmt.executeUpdate();
         if(rowCount == 0){

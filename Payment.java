@@ -1,5 +1,3 @@
-
-
 public class Payment {
     private float amount;
     private PaymentCard card;
@@ -8,8 +6,12 @@ public class Payment {
         this.amount = amount;
         this.card = card;
         //validate();
+        validate();
     }
     
+    private void validate(){
+        // do we just pretend it works lmfao
+    }
     // private void validate(){
     //     // do we just pretend it works lmfao
     // }

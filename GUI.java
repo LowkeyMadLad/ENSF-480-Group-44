@@ -57,7 +57,7 @@ public class GUI extends JFrame implements ActionListener{
     private static String[] theatreToChoose;
     private static String[] moviesToChoose;
     private static String[] showTimes;
-    private RegisteredUser RU = null;
+    public static RegisteredUser RU;
 
     public GUI(){}
 
@@ -393,6 +393,123 @@ public class GUI extends JFrame implements ActionListener{
 
     }
 
+    public void RUPaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
+    {
+        JFrame frame1 = new JFrame("Payment Page");
+        frame1.setSize(700, 700);
+        frame1.setLocationRelativeTo(null);
+        JPanel panel1 = new JPanel();
+        frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        panel1.setLayout(null);
+        frame1.add(panel1);
+
+        JLabel paymentPage = new JLabel("Payment Page");
+        //username.setFont(secondHeader);
+        paymentPage.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
+        paymentPage.setBounds(5, 10, 300, 50);
+        panel1.add(paymentPage);
+
+        JLabel movieInfo = new JLabel("Movie: " + movie);
+        movieInfo.setBounds(400,10, 300, 50);
+        panel1.add(movieInfo);
+
+        JLabel theatreInfo = new JLabel("Theatre: " + theatre);
+        theatreInfo.setBounds(400,70, 300, 50);
+        panel1.add(theatreInfo);
+
+        JLabel timeInfo = new JLabel("Time: " + time);
+        timeInfo.setBounds(400,140, 300, 50);
+        panel1.add(timeInfo);
+
+        String seats = "Seats Requested: ";
+        for(String x : seatsRequested)
+        {
+            seats += x + " ";
+        }
+
+        JLabel displaySeats = new JLabel(seats);
+        displaySeats.setBounds(400,210, 300, 50);
+        panel1.add(displaySeats);
+
+        JLabel name = new JLabel("Name: " + RU.getName());
+        name.setBounds(10, 60, 300, 25);
+        panel1.add(name);
+
+        //creating a label and input for order name
+        JLabel email = new JLabel("Email Address: " + RU.getEmail());
+        //password.setFont(secondHeader);
+        email.setBounds(10, 90, 600, 25);
+        panel1.add(email);
+
+        JLabel address = new JLabel("Address: " + RU.getAddress());
+        address.setBounds(10, 120, 300, 25);
+        panel1.add(address);
+
+        //creating a label and input for order name
+        JLabel creditCardInfo = new JLabel("Credit Card #: " + RU.getCard().getCardNumber());
+        //password.setFont(secondHeader);
+        creditCardInfo.setBounds(10, 150, 600, 25);
+        panel1.add(creditCardInfo);
+
+        JLabel CVV = new JLabel("CVV: " + RU.getCard().getCvv());
+        CVV.setBounds(10, 180, 300, 25);
+        panel1.add(CVV);
+    
+        // nameTextInput = new JTextField(16);
+        // nameTextInput.setBounds(5, 80, 300, 25);
+        // panel1.add(nameTextInput);
+
+        // emailTextInput = new JTextField(16);
+        // emailTextInput.setBounds(5, 150, 300, 25);
+        // panel1.add(emailTextInput);
+
+        // addressTextInput = new JTextField(16);
+        // addressTextInput.setBounds(5, 220, 300, 25);
+        // panel1.add(addressTextInput);
+
+        // creditTextInput = new JTextField(16);
+        // creditTextInput.setBounds(5, 290, 300, 25);
+        // panel1.add(creditTextInput);
+
+        // cvvTextInput = new JTextField(16);
+        // cvvTextInput.setBounds(5, 360, 300, 25);
+        // panel1.add(cvvTextInput);
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    TheatreDatabase database = TheatreDatabase.getDB();
+                    ArrayList<Ticket> ticketTotal = new ArrayList<Ticket>();
+                    for(String x : seatsRequested)
+                    {
+                        Ticket ticket = new Ticket(theatre, movie, time, x);
+                        database.insertTicket(ticket , RU.getName());
+                        ticketTotal.add(ticket);
+                        
+                    }
+                    confirmationPaymentPage(ticketTotal);
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                frame1.dispose();
+            }
+        });
+        submitButton.setBounds(5, 600, 200, 25);
+        panel1.add(submitButton);
+
+        frame1.setVisible(true);
+
+    }
+
     public void LoginPage()
     {
         JFrame frame1 = new JFrame("Login Page");
@@ -428,47 +545,53 @@ public class GUI extends JFrame implements ActionListener{
             public void actionPerformed(ActionEvent e) 
             {
                 try {
-                    TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
                     LoginDatabase loginDB = new LoginDatabase();
+                    TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
                     boolean verify = loginDB.checkLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                     
                     if(verify == true)
                     {
                         RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
                         System.out.println(verify);
-                        String specials = "";
-                        for(String x : moviesToChoose)
-                        {
-                            if(theatreDatabase.isAnnounced(x))
-                                specials += x + "\n";
-                        }
-                       // JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
+                        // System.out.println(verify);
 
                         JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
-                        if(RU == null)
-                            System.out.println("Still null");
-                        // JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
-                        // usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 10));
-                        // usernameHomePg.setBounds(500, 10, 100, 25);
-                        // panel.add(usernameHomePg);
+
+
+                        JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
+                        usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+                        usernameHomePg.setBounds(500, 10, 100, 25);
+                        
+                        panel.add(usernameHomePg);
+                        panel.repaint();
+
+                        String specials = "";
+                        for(String x : moviesToChoose)
+                        {
+                            if(theatreDatabase.isAnnounced(x) == true)
+                            {
+                                specials += x + "\n";
+                            }
+                        }
+
+                        JOptionPane.showMessageDialog(null, specials, "Specials!!!", JOptionPane.PLAIN_MESSAGE);
+
+
                         frame1.dispose();
                     }
                     else{
-                        JOptionPane.showMessageDialog(null, "Incorrect Login Information", "Login", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Incorrect Login Information", "Login Message", JOptionPane.ERROR_MESSAGE);
 
-                        // JLabel failText = new JLabel("Incorrect Login Information");
-                        // failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 10));
-                        // failText.setForeground(Color.RED);
-                        // failText.setBounds(5, 210, 600, 25);
-                        // panel1.add(failText);
                     }
                 } catch (DBConnectException e1) {
+
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(SQLException e2)
                 {
+                    e2.printStackTrace();
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 // catch(Exception e1)
@@ -580,7 +703,12 @@ public class GUI extends JFrame implements ActionListener{
         {
             public void actionPerformed(ActionEvent e) 
             {
-                System.out.println("clicked");
+                if(usernameTextInput.getText().isEmpty() || nameTextInput.getText().isEmpty() || emailTextInput.getText().isEmpty() || address.getText().isEmpty() || 
+                    passTextInput.getText().isEmpty() || creditTextInput.getText().isEmpty() || cvvTextInput.getText().isEmpty())
+                {
+                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Information", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 try {
                     LoginDatabase loginDB = LoginDatabase.getDB();
 
@@ -596,7 +724,8 @@ public class GUI extends JFrame implements ActionListener{
                 }
                 catch(Exception e1)
                 {
-                    JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Information", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Invalid Card Information", "Input Error", JOptionPane.WARNING_MESSAGE);
+
                     // System.out.println("Fail");
                     // JLabel failText = new JLabel("Please Enter All Information");
                     // failText.setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
@@ -640,6 +769,15 @@ public class GUI extends JFrame implements ActionListener{
         //password.setFont(secondHeader);
         tktID.setBounds(20, 150, 600, 25);
         panel1.add(tktID);
+
+        JTextField nameInput = new JTextField(16);
+        nameInput.setBounds(5, 110, 300, 25);
+        panel1.add(nameInput);
+
+        JTextField tktInput= new JTextField(16);
+        tktInput.setBounds(5, 180, 300, 25);
+        panel1.add(tktInput);
+
         
 
         JButton submitButton = new JButton("Submit");
@@ -649,7 +787,7 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
-                    theatreDB.cancelTicket(seatNumInput.getText(), confirmationNumInput.getText());
+                    theatreDB.cancelTicket(tktInput.getText(), nameInput.getText());
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
@@ -672,13 +810,6 @@ public class GUI extends JFrame implements ActionListener{
         panel1.add(submitButton);
 
         
-        seatNumInput = new JTextField(16);
-        seatNumInput.setBounds(5, 110, 300, 25);
-        panel1.add(seatNumInput);
-
-        confirmationNumInput = new JTextField(16);
-        confirmationNumInput.setBounds(5, 180, 300, 25);
-        panel1.add(confirmationNumInput);
 
         frame1.setVisible(true);
     }
@@ -747,7 +878,16 @@ public class GUI extends JFrame implements ActionListener{
                 seatFrame.removeAll();
                 seatFrame.dispose();
                 if(!seats.isEmpty())
-                    PaymentPage(movie, theatre, time, seats);
+                {
+                    if(RU == null)
+                        PaymentPage(movie, theatre, time, seats);
+                    else
+                    {
+                        RUPaymentPage(movie, theatre, time, seats);
+                    }
+
+                }
+                    
             }
 
         });
@@ -811,7 +951,17 @@ public class GUI extends JFrame implements ActionListener{
                         theatreSelection = searchReturn[0];
                         movieSelection = searchReturn[1];
                     }
-                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
+
+                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, false);
+                    // ArrayList<Timestamp> showTimeList;
+                    // if(RU == null)
+                    // {
+                    //     showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, false);
+                    // }
+                    // else
+                    // {
+                    //     showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, true);
+                    // }
                     String[] showTimes = new String[showTimeList.size()];
 
 
@@ -842,6 +992,10 @@ public class GUI extends JFrame implements ActionListener{
                     //Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
                     
                     JButton showTimeButton = new JButton("Search Seats");
+                    if(RU == null)
+                    {
+                        System.out.println("Still null");
+                    }
                     GUI gui  = new GUI();
                     showTimeButton.addActionListener(new ActionListener()
                     {
