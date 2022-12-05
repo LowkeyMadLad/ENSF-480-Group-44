@@ -28,9 +28,7 @@ public class GUI extends JFrame implements ActionListener{
     private static JButton loginButton;
     private static JButton signUpButton;
     private static JButton cancelPaymentButton;
-    private static JButton seatMapbutton;
     private static JButton endProgram;
-    //private static JComboBox<String> combo;
     private static JComboBox<String> theatreComboBox;
     private static JComboBox<String> movieComboBox;
     private static JComboBox<String> showTimesComboBox;
@@ -43,23 +41,12 @@ public class GUI extends JFrame implements ActionListener{
     private static JTextField addressTextInput;
     private static JTextField creditTextInput;
     private static JTextField cvvTextInput;
-    
-
-    private static JTextField seatNumInput;
-    private static JTextField confirmationNumInput;
-
-    private static JTextArea textArea;
-    private static JScrollPane scrollBar;
 
     private static String movieSelection = "";
     private static String theatreSelection = "";
-    private static String showTimeSelection = "";
 
-
-    private static String[] theatresToChoose = {};
     private static String[] theatreToChoose;
     private static String[] moviesToChoose;
-    private static String[] showTimes;
     public static RegisteredUser RU;
 
     public GUI(){}
@@ -118,8 +105,6 @@ public class GUI extends JFrame implements ActionListener{
         movieLabel.setBounds(5, 120, 600, 25);
         panel.add(movieLabel);
         
-
-
         loginButton = new JButton("Login");
         loginButton.addActionListener(new GUI());
         loginButton.setFont(textFont);
@@ -138,19 +123,6 @@ public class GUI extends JFrame implements ActionListener{
         cancelPaymentButton.setBounds(460, 350, 200, 100);
         panel.add(cancelPaymentButton);
         
-        // seatMapbutton = new JButton("Seat Map Display");
-        // seatMapbutton.addActionListener(new GUI());
-        // seatMapbutton.setFont(textFont);
-        // seatMapbutton.setBounds(460, 190, 200, 100);
-        // panel.add(seatMapbutton);
-        
-
-        
-        // JTextField theatreTextInput = new JTextField(16);
-        // theatreTextInput.setBounds(5, 80, 300, 25);
-        // panel.add(theatreTextInput);
-        //Dropdown menu:
-
         try {
             TheatreDatabase theatreDB = TheatreDatabase.getDB();
             ArrayList<String> theatreList = theatreDB.getTheatreList();
@@ -207,17 +179,6 @@ public class GUI extends JFrame implements ActionListener{
         searchButton.setFont(secondHeader);
         searchButton.setBounds(5, 200, 200, 25);
         panel.add(searchButton);
-
-
-
-
-        // //creating a scrollbar for the text area when number of hampers increases
-        // scrollBar = new JScrollPane(textArea);
-        // scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        // scrollBar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        // scrollBar.setBounds(5, 500, 200, 95);
-        // panel.add(scrollBar);
-
 
         //creating a button to end the program and exit the GUI
         endProgram = new JButton("End Program");
@@ -1165,20 +1126,6 @@ public class GUI extends JFrame implements ActionListener{
     //to use all buttons with one actionPerformed method, we use the e.getSource() method
     @Override
     public void actionPerformed(ActionEvent e) {
-        // something like this
-        // if(e.getActionCommand().equals("Search Theatre"))
-        // {
-        //     user.setStrategy(new SearchTheatre());
-        // }
-        // if(e.getActionCommand().equals("Search Movie"))
-        // {
-        //     user.setStrategy(new SearchMovie());
-        // }
-        //     // somewhere we need to include the search
-
-        //     // user.performSearch(panel);
-
-
 
         if(e.getActionCommand().equals("Search"))
         {   
@@ -1222,22 +1169,9 @@ public class GUI extends JFrame implements ActionListener{
                         JOptionPane.showMessageDialog(null, msg, "ERROR", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    // ArrayList<Timestamp> showTimeList;
-                    // if(RU == null)
-                    // {
-                    //     showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, false);
-                    // }
-                    // else
-                    // {
-                    //     showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, true);
-                    // }
+
                     String[] showTimes = new String[showTimeList.size()];
 
-
-                    // for(Timestamp x: showTimeList)
-                    // {
-                    //     System.out.println(x);
-                    // }   
                     System.out.println(theatreDB.isAnnounced(movieSelection));
                     
                     if(theatreDB.isAnnounced(movieSelection) || RU != null)
@@ -1265,7 +1199,6 @@ public class GUI extends JFrame implements ActionListener{
                     panel.add(sLabel);
                     panel.repaint();
 
-                    //Timestamp timeSelection = showTimeList.get((showTimesComboBox.getSelectedIndex()));
                     
                     JButton showTimeButton = new JButton("Search Seats");
                     if(RU == null)
@@ -1289,9 +1222,6 @@ public class GUI extends JFrame implements ActionListener{
                                 // TODO: handle exception
                             }
 
-
-                            //theatreDB.g
-                            //seatMap(movieSelection, theatreSelection);
                         }
                     });
 
@@ -1320,10 +1250,6 @@ public class GUI extends JFrame implements ActionListener{
             CancelPayment();
         }
 
-        // if(e.getActionCommand().equals("Seat Map Display"))
-        // {
-        //     //seatMap();
-        // }
 
         if(showTimesComboBox != null)
             showTimesComboBox.addItemListener(new ItemListener(){
