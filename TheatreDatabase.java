@@ -253,26 +253,6 @@ public class TheatreDatabase {
         
         myStmt.close();
 
-        // String tktQuery = "SELECT TicketID WHERE FullName = ? AND Seat = ? AND MovieTime = ? AND MovieName = ? AND MovieTheatre = ?";
-        // PreparedStatement myStmt1 = dbConnect.prepareStatement(tktQuery);
-        // myStmt1.setString(1, name);
-        // myStmt1.setString(2, ticket.getSeat());
-        // myStmt1.setTimestamp(3, ticket.getShowtime());
-        // myStmt1.setString(4, ticket.getMovie());
-        // myStmt1.setString(5, ticket.getTheatre());
-        // ResultSet results = myStmt.executeQuery();
-
-        // int tktNumb = 0;
-        // while(results.next()){
-        //     tktNumb  = (results.getString("TicketID"));
-        // }
-
-        // myStmt1.close();
-        // results.close();
-        // dbConnect.close();
-        
-        // return tktNumb;
-
     }
 
     public void cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
