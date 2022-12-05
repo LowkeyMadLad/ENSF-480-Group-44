@@ -103,3 +103,14 @@ INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName)
 VALUES
 ('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'A7', 'Larry David'),
 ('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'B3', 'Britney Spears');
+
+DROP TABLE IF EXISTS MovieCredit;
+CREATE TABLE MovieCredit (
+    CreditID    int,
+    Amount      float,
+    
+
+    primary key	(CreditID)
+);
+
+
