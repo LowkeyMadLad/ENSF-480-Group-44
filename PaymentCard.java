@@ -1,6 +1,4 @@
 
-
-
 public class PaymentCard {
     private String cardNumber;
     private String cardOwner;
@@ -11,6 +9,7 @@ public class PaymentCard {
         cardNumber = cn;
         cardOwner = co;
         this.cvv = cvv;
+        //validate();
         validate();
     }
 
@@ -43,5 +42,10 @@ public class PaymentCard {
             throw new Exception("Invalid Card");
         }
     }
+    // private void validate() throws Exception{
+    //     if(cardNumber.length() != 12 || Integer.toString(cvv).length() != 3){
+    //         throw new Exception("Invalid Card");
+    //     }
+    // }
 
 }

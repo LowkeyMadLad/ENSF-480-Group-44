@@ -2,6 +2,8 @@ import java.util.ArrayList;
 // using sql date
 // import java.util.HashMap;
 import java.sql.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /* danny's note:
  * i am trying to remove the need for classes
@@ -30,6 +32,7 @@ public class TheatreDatabase {
     private final String USERNAME = "student";
     private final String PASSWORD = "ensf";
     private Connection dbConnect;
+    private final Float defaultPrice = 10.00f;
 
     // converting db entries into objects
     // private ArrayList<Showtime> allShowtimes;
@@ -251,7 +254,7 @@ public class TheatreDatabase {
 
     }
 
-    public void cancelTicket(String ticketID, String name) throws SQLException, DBConnectException, UnderTimeException
+    public void cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
     {
         initializeConnection();
         
@@ -299,7 +302,41 @@ public class TheatreDatabase {
             // this should never happen but if it does :eyes:
             throw new SQLException("Entry was not deleted or does not exist");
         }
+        // send an email to person with a credit token, or have it auto apply if RU
         results.close();
+        
+
+        if (RU != null) {
+            // do registered user thing
+        } else {
+            // do ordindary user thing
+            // Send email with Token
+            int token;
+            while (true) { // Loop until you find a token that is not taken
+                token = (int)(Math.random()*10000000);
+                query = "SELECT * FROM MovieCredit WHERE CreditID = ?";
+                myStmt = dbConnect.prepareStatement(query);
+                myStmt.setInt(1, token);
+                ResultSet res = myStmt.executeQuery();
+                if(res.next() == true){
+                    continue;
+                } else {
+                    res.close();
+                    break;
+                }
+            }
+            Float cred = (defaultPrice * 0.85f);
+            Float roundedCred = BigDecimal.valueOf(cred).setScale(2, RoundingMode.DOWN).floatValue();
+            query = "INSERT INTO MovieCredit (CreditID, Amount) VALUES (?,?)";
+            myStmt = dbConnect.prepareStatement(query);
+            myStmt.setInt(1, token);
+            myStmt.setFloat(2, roundedCred);
+            int w = myStmt.executeUpdate();
+            if(w < 1){
+                throw new SQLException();
+            }
+
+        }
         myStmt.close();
         dbConnect.close();
     }

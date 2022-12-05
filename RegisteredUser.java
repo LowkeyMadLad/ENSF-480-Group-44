@@ -15,7 +15,7 @@ public class RegisteredUser extends User{
         this.email = email;
         this.address = address;
         this.password = password;
-        this.card = new PaymentCard(password, cardNumber, cvv);
+        this.card = new PaymentCard(cardNumber, name , cvv);
         this.tickets = new ArrayList<Ticket>();
     }
 
