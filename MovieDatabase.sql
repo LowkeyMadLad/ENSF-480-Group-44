@@ -68,6 +68,21 @@ CREATE TABLE LoginServer (
     
     primary key	(Username)
 );
+INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV)
+VALUES
+('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '111122223333', 888);
+
+DROP TABLE IF EXISTS Admins;
+CREATE TABLE Admins (
+	Username	varchar(100) NOT NULL,
+    Pass		varchar(100) NOT NULL,
+    primary key	(Username)
+);
+-- admin is the head admin and cannot be deleted
+INSERT INTO Admins (Username, Pass)
+VALUES
+('admin', 'pass'),
+('danny', 'picazo');
 
 DROP TABLE IF EXISTS MovieReleaseDate;
 CREATE TABLE MovieReleaseDate (
