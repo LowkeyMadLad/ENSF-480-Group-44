@@ -384,8 +384,9 @@ public class TheatreDatabase {
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, movie);
         ResultSet results = myStmt.executeQuery();
-
-        Timestamp dt = results.getTimestamp("ReleaseDate");
+        Timestamp dt = null;
+        while(results.next())
+             dt = results.getTimestamp("ReleaseDate");
 
         myStmt.close();
         results.close();
@@ -404,7 +405,7 @@ public class TheatreDatabase {
         Timestamp ad = getAnnouncementDate(movie);
         Timestamp now = new Timestamp(System.currentTimeMillis());
         boolean ret = false;
-        if(ad.compareTo(now) >= 0){
+        if(ad.compareTo(now) < 0){
             ret = true;
         }
         return ret;

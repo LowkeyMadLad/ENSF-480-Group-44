@@ -679,19 +679,19 @@ public class GUI extends JFrame implements ActionListener{
                         System.out.println(verify);
                         // System.out.println(verify);
 
-                        //JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
 
 
 
                         JLabel usernameHomePg = new JLabel("Hello " + RU.getName());
                         usernameHomePg.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
-                        usernameHomePg.setBounds(500, 10, 100, 25);
+                        usernameHomePg.setBounds(500, 10, 200, 25);
                         
                         panel.add(usernameHomePg);
                         panel.repaint();
 
                         ArrayList<String> movies = theatreDatabase.getMovieList();
-                        String specials = "";
+                        String specials = "Movies you have early access to buy: \n";
                         for(String x : movies)
                         {
                              System.out.println(x);
@@ -701,7 +701,7 @@ public class GUI extends JFrame implements ActionListener{
                             }
                         }
 
-                        JOptionPane.showMessageDialog(null, specials, "Specials!!!", JOptionPane.PLAIN_MESSAGE);
+                        JOptionPane.showMessageDialog(null, specials, "Specials", JOptionPane.PLAIN_MESSAGE);
 
 
                         frame1.dispose();
@@ -738,7 +738,7 @@ public class GUI extends JFrame implements ActionListener{
         panel1.add(usernameTextInput);
 
         passTextInput = new JTextField(16);
-        passTextInput.setBounds(5, 180, 300, 25);
+        passTextInput.setBounds(5, 180, 300, 30);
         panel1.add(passTextInput);
 
         frame1.setVisible(true);
@@ -761,6 +761,10 @@ public class GUI extends JFrame implements ActionListener{
         signUp.setBounds(5, 10, 300, 50);
         panel1.add(signUp);
 
+        JLabel paymentFee = new JLabel("Payment Fee: 20$");
+        paymentFee.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
+        paymentFee.setBounds(400,10, 300, 50);
+        panel1.add(paymentFee);
 
         JLabel username = new JLabel("Username");
         username.setBounds(10, 90, 300, 25);
@@ -839,6 +843,7 @@ public class GUI extends JFrame implements ActionListener{
                     LoginDatabase loginDB = LoginDatabase.getDB();
 
                     loginDB.signUp(usernameTextInput.getText(), nameTextInput.getText(), emailTextInput.getText(), addressTextInput.getText(), passTextInput.getText(), creditTextInput.getText(), Integer.parseInt(cvvTextInput.getText()));
+                    JOptionPane.showMessageDialog(null, "Signup was succesful and account is valid for 1 year", "Sign Up", JOptionPane.PLAIN_MESSAGE);
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
@@ -949,6 +954,9 @@ public class GUI extends JFrame implements ActionListener{
         ArrayList<String> seats = new ArrayList<>();
         
         JPanel seatPanel = new JPanel(new GridLayout(rows , columns));
+
+        int numberOfCurrSeatTaken = seatsTaken.size();
+        System.out.println("Number of Seats: " + numberOfCurrSeatTaken);
         
         seatPanel.setSize(1400, 500);
         for (int row = 0; row < rows; row++) {
@@ -970,7 +978,21 @@ public class GUI extends JFrame implements ActionListener{
                     public void actionPerformed(ActionEvent actionEvent) {
                         AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
                         boolean selected = abstractButton.getModel().isSelected();
-                        if (selected && button.getBackground() != Color.RED) {
+                        int reserved = numberOfCurrSeatTaken + seats.size();
+                        
+                        if (RU != null && selected && button.getBackground() != Color.RED && reserved != 3) 
+                        {
+                            button.setBackground(Color.GREEN);
+                            seats.add(button.getText());
+                            
+                        }
+                        else if(RU != null && selected && button.getBackground() != Color.RED && reserved == 3)
+                        {
+                            button.setBackground(null);
+                            JOptionPane.showMessageDialog(null, "Sorry it seems that number of reserved seats has filled up, please buy when open to the public", "Reserved Seats", JOptionPane.WARNING_MESSAGE);
+                        }
+
+                        else if (selected && button.getBackground() != Color.RED) {
                             button.setBackground(Color.GREEN);
                             seats.add(button.getText());
                             //button.setIcon(new ImageIcon(resize));
@@ -1031,17 +1053,17 @@ public class GUI extends JFrame implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         // something like this
-        if(e.getActionCommand().equals("Search Theatre"))
-        {
-            user.setStrategy(new SearchTheatre());
-        }
-        if(e.getActionCommand().equals("Search Movie"))
-        {
-            user.setStrategy(new SearchMovie());
-        }
-            // somewhere we need to include the search
+        // if(e.getActionCommand().equals("Search Theatre"))
+        // {
+        //     user.setStrategy(new SearchTheatre());
+        // }
+        // if(e.getActionCommand().equals("Search Movie"))
+        // {
+        //     user.setStrategy(new SearchMovie());
+        // }
+        //     // somewhere we need to include the search
 
-            // user.performSearch(panel);
+        //     // user.performSearch(panel);
 
 
 
@@ -1098,15 +1120,22 @@ public class GUI extends JFrame implements ActionListener{
                     String[] showTimes = new String[showTimeList.size()];
 
 
-                    for(Timestamp x: showTimeList)
+                    // for(Timestamp x: showTimeList)
+                    // {
+                    //     System.out.println(x);
+                    // }   
+                    System.out.println(theatreDB.isAnnounced(movieSelection));
+                    
+                    if(theatreDB.isAnnounced(movieSelection) || RU != null)
                     {
-                        System.out.println(x);
-                    }   
+                        for(int i=0;i<showTimeList.size();i++)
+                        {
+                            showTimes[i] = showTimeList.get(i).toString();
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Sorry this movie hasn't been released to the public yet", "Showtime Error", JOptionPane.ERROR_MESSAGE);
 
-
-                    for(int i=0;i<showTimeList.size();i++)
-                    {
-                        showTimes[i] = showTimeList.get(i).toString();
                     }
 
 
