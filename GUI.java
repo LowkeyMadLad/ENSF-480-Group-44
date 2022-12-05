@@ -228,7 +228,7 @@ public class GUI extends JFrame implements ActionListener{
         //setting the frame visibility to true
         frame.setVisible(true);
     }
-    public void cancelConfirmationPage()
+    public void cancelConfirmationPage(int token)
     {
         JFrame frame1 = new JFrame("Confirmation Page");
         frame1.setSize(350, 350);
@@ -245,9 +245,9 @@ public class GUI extends JFrame implements ActionListener{
         confirmPaymentPage.setBounds(5, 10, 300, 50);
         panel1.add(confirmPaymentPage);
 
-        // JLabel movieInfo = new JLabel("Movie: " + ticket.getMovie());
-        // movieInfo.setBounds(5,70, 300, 50);
-        // panel1.add(movieInfo);
+        JLabel tokenInfo = new JLabel("Voucher (Valid Only for One Year): " + token);
+        tokenInfo.setBounds(5,70, 300, 50);
+        panel1.add(tokenInfo);
 
         // JLabel theatreInfo = new JLabel("Theatre: " + ticket.getTheatre());
         // theatreInfo.setBounds(5,130, 300, 50);
@@ -352,9 +352,45 @@ public class GUI extends JFrame implements ActionListener{
 
         int price = seatsRequested.size() * 10;
         JLabel totalPrice = new JLabel("Total: " + Integer.toString(price) + "$");
-        totalPrice.setBounds(400,250, 300, 50);
+        totalPrice.setBounds(400,250, 300, 20);
         panel1.add(totalPrice);
 
+        JLabel voucher = new JLabel("Voucher");
+        voucher.setBounds(400,300, 300, 20);
+        panel1.add(voucher);
+
+        JTextField voucherText = new JTextField(16);
+        voucherText.setBounds(400,340, 200, 30);
+        panel1.add(voucherText);
+
+        JButton submitVoucher = new JButton("Submit Voucher");
+        submitVoucher.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    TheatreDatabase theatreDB= TheatreDatabase.getDB();
+                    float amount = theatreDB.retrieveVoucher(Integer.parseInt(voucherText.getText()));
+
+                    float newPrice = price - amount;
+                    JLabel newTotal = new JLabel("Total: " + Float.toString(newPrice) + "$");
+                    newTotal.setBounds(400,270, 300, 20);
+                    panel1.add(newTotal);
+                    panel1.repaint();
+
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+
+            }
+        });
+        submitVoucher.setBounds(400, 370, 200, 25);
+        panel1.add(submitVoucher);
 
         JLabel name = new JLabel("Name");
         name.setBounds(10, 60, 300, 25);
@@ -482,6 +518,43 @@ public class GUI extends JFrame implements ActionListener{
         JLabel totalPrice = new JLabel("Total: " + Integer.toString(price));
         totalPrice.setBounds(400,250, 300, 50);
         panel1.add(totalPrice);
+
+        JLabel voucher = new JLabel("Voucher");
+        voucher.setBounds(400,300, 300, 20);
+        panel1.add(voucher);
+
+        JTextField voucherText = new JTextField(16);
+        voucherText.setBounds(400,340, 200, 30);
+        panel1.add(voucherText);
+
+        JButton submitVoucher = new JButton("Submit Voucher");
+        submitVoucher.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    TheatreDatabase theatreDB= TheatreDatabase.getDB();
+                    float amount = theatreDB.retrieveVoucher(Integer.parseInt(voucherText.getText()));
+
+                    float newPrice = price - amount;
+                    JLabel newTotal = new JLabel("Total: " + Float.toString(newPrice) + "$");
+                    newTotal.setBounds(400,270, 300, 20);
+                    panel1.add(newTotal);
+                    panel1.repaint();
+
+                } catch (DBConnectException e1) {
+                    // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+
+            }
+        });
+        submitVoucher.setBounds(400, 370, 200, 25);
+        panel1.add(submitVoucher);
 
         JLabel name = new JLabel("Name: " + RU.getName());
         name.setBounds(10, 60, 300, 25);
@@ -840,8 +913,8 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
-                    theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);
-                    cancelConfirmationPage();
+                    int token = theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);
+                    cancelConfirmationPage(token);
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);

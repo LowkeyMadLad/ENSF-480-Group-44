@@ -255,7 +255,7 @@ public class TheatreDatabase {
 
     }
 
-    public void cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
+    public int cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
     {
         initializeConnection();
         
@@ -306,13 +306,13 @@ public class TheatreDatabase {
         // send an email to person with a credit token, or have it auto apply if RU
         results.close();
         
-
+        int token = 0;
         if (RU != null) {
             // do registered user thing
         } else {
             // do ordindary user thing
             // Send email with Token
-            int token;
+            
             while (true) { // Loop until you find a token that is not taken
                 token = (int)(Math.random()*10000000);
                 query = "SELECT * FROM MovieCredit WHERE CreditID = ?";
@@ -340,6 +340,8 @@ public class TheatreDatabase {
         }
         myStmt.close();
         dbConnect.close();
+
+        return token;
     }
 
     /**
@@ -508,6 +510,43 @@ public class TheatreDatabase {
             }
         }
         
+        myStmt.close();
+        dbConnect.close();
+    }
+
+    public float retrieveVoucher(int voucherCode) throws SQLException, DBConnectException
+    {
+        initializeConnection();
+        String query = "SELECT Amount FROM MovieCredit WHERE CreditID = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setInt(1,voucherCode);
+        ResultSet results = myStmt.executeQuery();
+        float amount = 0; 
+        while(results.next()){
+            amount = Float.valueOf(results.getString("Amount"));
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+
+        removeVoucher(voucherCode);
+        return amount;
+    }
+
+    public void removeVoucher(int voucherCode) throws SQLException, DBConnectException
+    {
+        initializeConnection();
+        
+        String query = "DELETE FROM MovieCredit WHERE CreditID = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setInt(1, voucherCode);
+        int n = myStmt.executeUpdate();
+        if (n < 1) {
+            // this should never happen but if it does :eyes:
+            throw new SQLException("Entry was not deleted or does not exist");
+        }
+
         myStmt.close();
         dbConnect.close();
     }
