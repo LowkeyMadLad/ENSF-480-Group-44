@@ -2,6 +2,8 @@ import java.util.ArrayList;
 // using sql date
 // import java.util.HashMap;
 import java.sql.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /* danny's note:
  * i am trying to remove the need for classes
@@ -30,6 +32,7 @@ public class TheatreDatabase {
     private final String USERNAME = "student";
     private final String PASSWORD = "ensf";
     private Connection dbConnect;
+    private final Float defaultPrice = 10.00f;
 
     // converting db entries into objects
     // private ArrayList<Showtime> allShowtimes;
@@ -236,8 +239,6 @@ public class TheatreDatabase {
         myStmt.setTimestamp(3, ticket.getShowtime());
         myStmt.setString(4, ticket.getSeat());
         myStmt.setString(5, name);
-        
-        myStmt.executeUpdate();
 
         int rowCount = myStmt.executeUpdate();
         if(rowCount == 0){
@@ -248,7 +249,7 @@ public class TheatreDatabase {
 
     }
 
-    public void cancelTicket(String ticketID, String name) throws SQLException, DBConnectException, UnderTimeException
+    public void cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
     {
         initializeConnection();
         
@@ -273,20 +274,6 @@ public class TheatreDatabase {
             }while(results.next());
         }
 
-        // if(results.next()) {
-        //     Timestamp movieShowtime = results.getTimestamp("MovieTime");
-        //     Timestamp now = new Timestamp(System.currentTimeMillis());
-        //     if(movieShowtime.getTime() - now.getTime() < 259200000L){
-        //         // this is the case when it is under the time, fail to cancel because time 
-        //         // difference is less than 72 hours
-        //         myStmt.close();
-        //         throw new UnderTimeException("Under the 72 hour window to cancel. Cannot cancel");
-        //     }
-        //     // if the code gets here, it exists in the database and is more than 72 hours away
-        // } else {
-        //     throw new SQLException("Entry does not exist in the database");
-        // }
-
         query = "DELETE FROM movietickets WHERE TicketID = ? AND FullName = ?";
         myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticketID);
@@ -296,7 +283,41 @@ public class TheatreDatabase {
             // this should never happen but if it does :eyes:
             throw new SQLException("Entry was not deleted or does not exist");
         }
+        // send an email to person with a credit token, or have it auto apply if RU
         results.close();
+        
+
+        if (RU != null) {
+            // do registered user thing
+        } else {
+            // do ordindary user thing
+            // Send email with Token
+            int token;
+            while (true) { // Loop until you find a token that is not taken
+                token = (int)(Math.random()*10000000);
+                query = "SELECT * FROM MovieCredit WHERE CreditID = ?";
+                myStmt = dbConnect.prepareStatement(query);
+                myStmt.setInt(1, token);
+                ResultSet res = myStmt.executeQuery();
+                if(res.next() == true){
+                    continue;
+                } else {
+                    res.close();
+                    break;
+                }
+            }
+            Float cred = (defaultPrice * 0.85f);
+            Float roundedCred = BigDecimal.valueOf(cred).setScale(2, RoundingMode.DOWN).floatValue();
+            query = "INSERT INTO MovieCredit (CreditID, Amount) VALUES (?,?)";
+            myStmt = dbConnect.prepareStatement(query);
+            myStmt.setInt(1, token);
+            myStmt.setFloat(2, roundedCred);
+            int w = myStmt.executeUpdate();
+            if(w < 1){
+                throw new SQLException();
+            }
+
+        }
         myStmt.close();
         dbConnect.close();
     }
@@ -365,6 +386,35 @@ public class TheatreDatabase {
             ret = true;
         }
         return ret;
+    }
+
+    public void addShowtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
+        initializeConnection();
+        String query = "INSERT IGNORE INTO MOVIE_INFORMATION (MovieTheatre, MovieName, MovieTime) VALUES (?,?,?)";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, theatre);
+        myStmt.setString(2, movie);
+        myStmt.setTimestamp(3, showtime);
+
+        myStmt.executeUpdate();
+
+        myStmt.close();
+        dbConnect.close();
+        validateDB();
+    }
+
+    public void addMovie(String movie, Timestamp announcementDate) throws DBConnectException, SQLException{
+        initializeConnection();
+        String query = "INSERT IGNORE INTO MovieReleaseDate (MovieName, ReleaseDate) VALUES (?,?)";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        myStmt.setTimestamp(2, announcementDate);
+
+        myStmt.executeUpdate();
+
+        myStmt.close();
+        dbConnect.close();
+        validateDB();
     }
 
     /**
