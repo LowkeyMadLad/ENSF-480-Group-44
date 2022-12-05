@@ -14,10 +14,10 @@ CREATE TABLE MOVIE_INFORMATION (
 
 INSERT INTO MOVIE_INFORMATION (MovieTheatre, MovieName, MovieTime)
 VALUES
-('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00'),
-('LandMark Cinemas', 'AVATAR' , '2022-12-30 18:00:00'),
-('LandMark Cinemas', 'AVATAR' , '2022-12-31 12:00:00'),
-('LandMark Cinemas', 'AVATAR' , '2022-12-31 18:00:00'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 12:00:00'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 18:00:00'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-26 12:00:00'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-26 18:00:00'),
 ('LandMark Cinemas', 'Black Adam' , '2022-12-30 12:00:00'),
 ('LandMark Cinemas', 'Black Adam' , '2022-12-30 18:00:00'),
 ('LandMark Cinemas', 'Black Adam' , '2022-12-31 12:00:00'),
@@ -28,19 +28,19 @@ VALUES
 ('LandMark Cinemas', 'Schulich Ohms' , '2025-12-31 12:00:00'),
 ('LandMark Cinemas', 'Schulich Ohms' , '2025-12-31 15:00:00'),
 ('LandMark Cinemas', 'Schulich Ohms' , '2025-12-31 18:00:00'),
+('LandMark Cinemas', 'Black Punther' , '2022-12-29 12:00:00'),
+('LandMark Cinemas', 'Black Punther' , '2022-12-29 18:00:00'),
 ('LandMark Cinemas', 'Black Punther' , '2022-12-30 12:00:00'),
 ('LandMark Cinemas', 'Black Punther' , '2022-12-30 18:00:00'),
-('LandMark Cinemas', 'Black Punther' , '2022-12-31 12:00:00'),
-('LandMark Cinemas', 'Black Punther' , '2022-12-31 18:00:00'),
 
-('Scotiabank Theatres', 'AVATAR' , '2022-12-28 12:00:00'),
-('Scotiabank Theatres', 'AVATAR' , '2022-12-28 18:00:00'),
-('Scotiabank Theatres', 'AVATAR' , '2022-12-29 12:00:00'),
-('Scotiabank Theatres', 'AVATAR' , '2022-12-29 18:00:00'),
-('Scotiabank Theatres', 'Black Adam' , '2022-12-28 12:00:00'),
-('Scotiabank Theatres', 'Black Adam' , '2022-12-28 18:00:00'),
-('Scotiabank Theatres', 'Black Adam' , '2022-12-29 12:00:00'),
-('Scotiabank Theatres', 'Black Adam' , '2022-12-29 18:00:00'),
+('Scotiabank Theatres', 'AVATAR' , '2022-12-16 12:00:00'),
+('Scotiabank Theatres', 'AVATAR' , '2022-12-16 18:00:00'),
+('Scotiabank Theatres', 'AVATAR' , '2022-12-17 12:00:00'),
+('Scotiabank Theatres', 'AVATAR' , '2022-12-17 18:00:00'),
+('Scotiabank Theatres', 'Black Adam' , '2022-12-24 12:00:00'),
+('Scotiabank Theatres', 'Black Adam' , '2022-12-24 18:00:00'),
+('Scotiabank Theatres', 'Black Adam' , '2022-12-25 12:00:00'),
+('Scotiabank Theatres', 'Black Adam' , '2022-12-25 18:00:00'),
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-28 12:00:00'),
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-28 18:00:00'),
 ('Scotiabank Theatres', 'Black Punther' , '2022-12-29 12:00:00'),
@@ -54,6 +54,7 @@ VALUES
 -- but one valid showtime. the invalid showtime should be removed.
 -- 1984 will have showtimes from the past, which should all be removed
 -- since 1984 wont have any valid showtimes, the movie should not appear
+-- nvm it can appear just no showtimes
 
 DROP TABLE IF EXISTS LoginServer;
 CREATE TABLE LoginServer (

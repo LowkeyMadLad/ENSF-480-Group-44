@@ -787,7 +787,7 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
-                    theatreDB.cancelTicket(tktInput.getText(), nameInput.getText());
+                    theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
@@ -942,6 +942,7 @@ public class GUI extends JFrame implements ActionListener{
                 user.setStrategy(new SearchTheatre());
                 System.out.println("Search Theatre Strategy Pattern");
             }
+            if(searchchoice == null) valid = false;
             if(valid)
             {
                 try {
@@ -952,7 +953,12 @@ public class GUI extends JFrame implements ActionListener{
                         movieSelection = searchReturn[1];
                     }
 
-                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection, false);
+                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
+                    if(showTimeList.isEmpty()){
+                        String msg = "Sorry, " + movieSelection + " is not available at " + theatreSelection + "!";
+                        JOptionPane.showMessageDialog(null, msg, "ERROR", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     // ArrayList<Timestamp> showTimeList;
                     // if(RU == null)
                     // {

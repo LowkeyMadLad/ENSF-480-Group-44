@@ -63,8 +63,8 @@ public class TheatreDatabase {
         String query2 = "SELECT * FROM MovieReleaseDate WHERE MovieName = ?";
         PreparedStatement myStmt2 = dbConnect.prepareStatement(query2);
 
-        String query3 = "DELETE FROM MovieReleaseDate WHERE MovieName = ?";
-        PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
+        // String query3 = "DELETE FROM MovieReleaseDate WHERE MovieName = ?";
+        // PreparedStatement myStmt3 = dbConnect.prepareStatement(query3);
 
         while(results.next()){
             int addCheck = 0;
@@ -84,13 +84,13 @@ public class TheatreDatabase {
                     idRemove.add(results.getInt("MovieID"));
                 }
 
-                if(releaseDateTime.compareTo(now) < 0){ // releasedate is before now
-                    myStmt3.setString(1, movie);
-                    int n = myStmt3.executeUpdate();
-                    if(n < 1){
-                        throw new SQLException("Announcement date doesn't exist in DB");
-                    }
-                }
+                // if(releaseDateTime.compareTo(now) < 0){ // releasedate is before now
+                //     myStmt3.setString(1, movie);
+                //     int n = myStmt3.executeUpdate();
+                //     if(n < 1){
+                //         throw new SQLException("Announcement date doesn't exist in DB");
+                //     }
+                // }
             }
             r2.close();
         }
@@ -107,7 +107,7 @@ public class TheatreDatabase {
         myStmt.close();
         results.close();
         myStmt2.close();
-        myStmt3.close();
+        // myStmt3.close();
         dbConnect.close();
     }
 

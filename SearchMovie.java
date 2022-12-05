@@ -25,9 +25,10 @@ public class SearchMovie implements TheatreStrategy{
         // attempt to find the movie
         ArrayList<String> theatreList = db.findMovieTheatres(choice);
         if(theatreList.isEmpty()){
-            String msg = "Sorry, that movie is not available anywhere!\nExiting the program...";
+            String msg = "Sorry, that movie is not available anywhere!";
             JOptionPane.showMessageDialog(null, msg, "ERROR", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            // System.exit(1);
+            return null;
         }
         // display theatres
         String theatre = "";
