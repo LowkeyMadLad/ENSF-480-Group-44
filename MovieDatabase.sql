@@ -58,20 +58,21 @@ VALUES
 
 DROP TABLE IF EXISTS LoginServer;
 CREATE TABLE LoginServer (
-	Username	varchar(100) NOT NULL,
-    Pass		varchar(100) NOT NULL,
+	Username	    varchar(100) NOT NULL,
+    Pass		    varchar(100) NOT NULL,
     FullName        varchar(200) NOT NULL,
-    Email       varchar(200) NOT NULL,
+    Email           varchar(200) NOT NULL,
     HomeAddress     varchar(200) NOT NULL,
-    CardNumber  varchar(200) NOT NULL,
-    CVV         int,
+    CardNumber      varchar(200) NOT NULL,
+    CVV             int,
+    AnnualFee       datetime,
 --     LoginName		varchar(200),
     
     primary key	(Username)
 );
-INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV)
+INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV , AnnualFee)
 VALUES
-('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '111122223333', 888);
+('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '111122223333', 888, "2022-11-30 12:00:00");
 
 DROP TABLE IF EXISTS Admins;
 CREATE TABLE Admins (

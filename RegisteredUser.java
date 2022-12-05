@@ -1,3 +1,4 @@
+import java.security.Timestamp;
 import java.util.*;
 
 public class RegisteredUser extends User{
@@ -65,6 +66,8 @@ public class RegisteredUser extends User{
     public void setCard(PaymentCard card) {
         this.card = card;
     }
+
+
 
 
 }

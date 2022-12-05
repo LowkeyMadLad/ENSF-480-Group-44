@@ -62,6 +62,7 @@ public class LoginDatabase {
             String email = results.getString("Email");
             String address = results.getString("HomeAddress");
             int cvv =Integer.parseInt(results.getString("CVV"));
+            Timestamp payTimestamp = Timestamp.valueOf(results.getString("AnnualFee"));
             System.out.println(name + " " + creditCardInfo + " " + email + " " + address + " " + cvv);
             try {
                 RegisteredUser registeredUser = new RegisteredUser(name, email, address , password, creditCardInfo, cvv);
@@ -81,8 +82,8 @@ public class LoginDatabase {
     public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv) throws DBConnectException, SQLException
     {
         initializeConnection();
-
-        String query = "INSERT IGNORE INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV) VALUES (?,?,?,?,?,?,?)";
+        Timestamp currTimestamp =  new Timestamp(System.currentTimeMillis());
+        String query = "INSERT IGNORE INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV, AnnualFee) VALUES (?,?,?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         myStmt.setString(2, password);
@@ -91,6 +92,7 @@ public class LoginDatabase {
         myStmt.setString(5, address);
         myStmt.setString(6, cardNumber);
         myStmt.setInt(7, cvv);
+        myStmt.setTimestamp(8,currTimestamp);
         
         //myStmt.executeUpdate();
 
@@ -219,10 +221,4 @@ public class LoginDatabase {
         return list;
     }
 
-    public static void main(String[] args) throws SQLException, DBConnectException{
-        LoginDatabase db = new LoginDatabase();
-        String k = "Hell0";
-        db.initializeConnection();
-        db.signUp(k, k, k, k, k, "453", 0123);
-    }
 }

@@ -3,7 +3,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.sql.*;
 
@@ -676,10 +679,22 @@ public class GUI extends JFrame implements ActionListener{
                     if(verify == true)
                     {
                         RU  = loginDB.getLoginInformation(usernameTextInput.getText(), passTextInput.getText());
-                        System.out.println(verify);
-                        // System.out.println(verify);
 
                         JOptionPane.showMessageDialog(null, "Successful Login", "Login", JOptionPane.PLAIN_MESSAGE);
+
+                        // String rDate= RU.getPaymentDate().toString(); // your received String date
+                        // DateFormat df = new DateFormat();
+                        // Date date=df.parse(rDate);// parse String to date
+                        // Calendar calendar=Calendar.getInstance();
+                        // calendar.setTime(date); // set calender instance to date value
+                        // calendar.add(Calendar.YEAR,1); // add one year to current
+
+                        // date = calendar.getTime();
+                        // Date currDate = new Date(System.currentTimeMillis());
+                        // if(currDate.isAfter(date))
+                        // {
+                        //     JOptionPane.showMessageDialog(null, "Your annual Payment of 20$ has gone through", "Annual Payment", JOptionPane.PLAIN_MESSAGE);
+                        // }
 
 
 
