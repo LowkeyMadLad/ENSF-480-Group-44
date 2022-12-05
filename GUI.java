@@ -858,25 +858,31 @@ public class GUI extends JFrame implements ActionListener{
                     JOptionPane.showMessageDialog(null, "Enter All Information", "Invalid Information", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                try {
-                    LoginDatabase loginDB = LoginDatabase.getDB();
-
-                    loginDB.signUp(usernameTextInput.getText(), nameTextInput.getText(), emailTextInput.getText(), addressTextInput.getText(), passTextInput.getText(), creditTextInput.getText(), Integer.parseInt(cvvTextInput.getText()));
-                    JOptionPane.showMessageDialog(null, "Signup was succesful and account is valid for 1 year", "Sign Up", JOptionPane.PLAIN_MESSAGE);
-                    frame1.dispose();
-                } catch (DBConnectException e1) {
-                    // TODO: handle exception
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
-                }
-                catch(SQLException e2)
-                {
-                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
-                }
-                catch(IllegalArgumentException e1)
+                else if(creditTextInput.getText().length() != 16 || cvvTextInput.getText().length() != 3)
                 {
                     JOptionPane.showMessageDialog(null, "Invalid Card Information", "Input Error", JOptionPane.WARNING_MESSAGE);
                 }
+                else{
+                    try {
+                        LoginDatabase loginDB = LoginDatabase.getDB();
 
+                        loginDB.signUp(usernameTextInput.getText(), nameTextInput.getText(), emailTextInput.getText(), addressTextInput.getText(), passTextInput.getText(), creditTextInput.getText(), Integer.parseInt(cvvTextInput.getText()));
+                        JOptionPane.showMessageDialog(null, "Signup was succesful and account is valid for 1 year", "Sign Up", JOptionPane.PLAIN_MESSAGE);
+                        frame1.dispose();
+                    } catch (DBConnectException e1) {
+                        // TODO: handle exception
+                        JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    }
+                    catch(SQLException e2)
+                    {
+                        JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.WARNING_MESSAGE);
+                    }
+                    catch(IllegalArgumentException e1)
+                    {
+                        JOptionPane.showMessageDialog(null, "Invalid Card Information", "Input Error", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            
             }
         });
         submitButton.setBounds(5, 600, 200, 25);
