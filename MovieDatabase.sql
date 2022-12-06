@@ -66,7 +66,6 @@ CREATE TABLE LoginServer (
     CardNumber      varchar(200) NOT NULL,
     CVV             int,
     AnnualFee       datetime,
---     LoginName		varchar(200),
     
     primary key	(Username)
 );
