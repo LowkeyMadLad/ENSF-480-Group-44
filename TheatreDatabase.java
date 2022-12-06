@@ -237,7 +237,7 @@ public class TheatreDatabase {
     {
         initializeConnection();
         System.out.println("in Loop");
-        String query = "INSERT IGNORE INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, TicketID) VALUES (?,?,?,?,?,?)";
+        String query = "INSERT MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, TicketID) VALUES (?,?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticket.getTheatre());
         myStmt.setString(2, ticket.getMovie());
