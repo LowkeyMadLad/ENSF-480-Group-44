@@ -72,7 +72,7 @@ CREATE TABLE LoginServer (
 );
 INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV , AnnualFee)
 VALUES
-('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '111122223333', 888, "2022-11-30 12:00:00");
+('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '1111222233334444', 888, "2022-11-30 12:00:00");
 
 DROP TABLE IF EXISTS Admins;
 CREATE TABLE Admins (
@@ -83,8 +83,7 @@ CREATE TABLE Admins (
 -- admin is the head admin and cannot be deleted
 INSERT INTO Admins (AdminUsername, AdminPass)
 VALUES
-('admin', 'pass'),
-('danny', 'picazo');
+('admin', 'pass');
 
 DROP TABLE IF EXISTS MovieReleaseDate;
 CREATE TABLE MovieReleaseDate (
