@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 // import com.mysql.cj.log.Log;
 
 public class LoginDatabase {
+    //Singelton pattern, so we only have one logindatabase
     private static LoginDatabase loginDatabase = null;
 
     private final String DBURL = "jdbc:mysql://localhost:3306/MOVIE_DATABASE";
@@ -25,18 +26,20 @@ public class LoginDatabase {
         }
     }
 
+
+    //This function checks the login information if it is correct and return a boolean
     public boolean checkLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
         
-        String query = "SELECT Pass FROM LoginServer WHERE Username = ?";
+        String query = "SELECT Pass FROM LoginServer WHERE Username = ?";           //extracts teh password
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
 
         while(results.next())
         {
-            if(results.getString("Pass").equals(password))
+            if(results.getString("Pass").equals(password))          //if the password equals to the password given
             {
                 return true;
             }
@@ -45,6 +48,7 @@ public class LoginDatabase {
         return false;
     }
 
+    //This function checks the admin login information
     public boolean checkAdminInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
@@ -55,8 +59,7 @@ public class LoginDatabase {
         ResultSet results = myStmt.executeQuery();
         while(results.next())
         {
-            System.out.println(results.getString("AdminPass"));
-            if(results.getString("AdminPass").equals(password))
+            if(results.getString("AdminPass").equals(password))         //checks the admin password with password given
             {
                 return true;
             }
@@ -65,11 +68,12 @@ public class LoginDatabase {
         return false;
     }
 
+    //This returns the login information as Registered User object
     public RegisteredUser getLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
         
-        String query = "SELECT * FROM LoginServer WHERE Username = ?";
+        String query = "SELECT * FROM LoginServer WHERE Username = ?";          //extracts all the user info
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         ResultSet results = myStmt.executeQuery();
@@ -99,11 +103,13 @@ public class LoginDatabase {
         return null;
     }
 
+
+    //Signs up the user into the database
     public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv) throws DBConnectException, SQLException
     {
         initializeConnection();
         Timestamp currTimestamp =  new Timestamp(System.currentTimeMillis());
-        String query = "INSERT IGNORE INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV, AnnualFee) VALUES (?,?,?,?,?,?,?,?)";
+        String query = "INSERT IGNORE INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV, AnnualFee) VALUES (?,?,?,?,?,?,?,?)";        //inserts the values in the database
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, username);
         myStmt.setString(2, password);
@@ -117,6 +123,8 @@ public class LoginDatabase {
         //myStmt.executeUpdate();
 
         int rowCount = myStmt.executeUpdate();
+
+        //if no changes happened meant the database didnt change
         if(rowCount == 0){
             throw new SQLException("No rows were changed.");
         }
