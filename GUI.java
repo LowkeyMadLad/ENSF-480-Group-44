@@ -577,7 +577,7 @@ public class GUI extends JFrame implements ActionListener{
                         ticketTotal.add(ticket);
                         
                     }
-                    confirmationPaymentPage(ticketTotal);       //user gets a confirmation with their tkt number for each seat
+                    confirmationPaymentPage(ticketTotal, emailTextInput.getText());       //user gets a confirmation with their tkt number for each seat
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
