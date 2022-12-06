@@ -233,17 +233,43 @@ public class TheatreDatabase {
         return list;
     }
 
+    public int getTicketID(String theatre, String movie, Timestamp showtime, String seat) throws SQLException, DBConnectException{
+        initializeConnection();
+        String query = "SELECT TicketID FROM MovieTickets WHERE MovieName = ? AND MovieTheatre = ? AND MovieTime = ? AND Seat = ?";
+        PreparedStatement myStmt = dbConnect.prepareStatement(query);
+        myStmt.setString(1, movie);
+        myStmt.setString(2, theatre);
+        myStmt.setTimestamp(3, showtime);
+        myStmt.setString(4, seat);
+        ResultSet results = myStmt.executeQuery();
+        
+        int id = -1;
+        while(results.next()){
+            id = results.getInt("TicketID");
+        }
+
+        if(id == -1){
+            throw new DBConnectException("ticket id lol");
+        }
+
+        myStmt.close();
+        results.close();
+        dbConnect.close();
+        
+        return id;
+    }
+
     public void insertTicket(Ticket ticket, String name) throws SQLException, DBConnectException
     {
         initializeConnection();
-        String query = "INSERT IGNORE MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName, TicketID) VALUES (?,?,?,?,?,?)";
+        String query = "INSERT IGNORE MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName) VALUES (?,?,?,?,?)";
         PreparedStatement myStmt = dbConnect.prepareStatement(query);
         myStmt.setString(1, ticket.getTheatre());
         myStmt.setString(2, ticket.getMovie());
         myStmt.setTimestamp(3, ticket.getShowtime());
         myStmt.setString(4, ticket.getSeat());
         myStmt.setString(5, name);
-        myStmt.setInt(6,ticket.getTicketNum());
+        // myStmt.setInt(6,ticket.getTicketNum());
 
         int rowCount = myStmt.executeUpdate();
         if(rowCount == 0){

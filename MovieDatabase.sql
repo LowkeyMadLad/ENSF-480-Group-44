@@ -115,10 +115,10 @@ CREATE TABLE MovieTickets (
     primary key	(TicketID)
 );
 
--- INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName)
--- VALUES
--- ('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'A7', 'Larry David'),
--- ('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'B3', 'Britney Spears');
+INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName)
+VALUES
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 12:00:00', 'A7', 'Larry David'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 12:00:00', 'B3', 'Britney Spears');
 
 DROP TABLE IF EXISTS MovieCredit;
 CREATE TABLE MovieCredit (

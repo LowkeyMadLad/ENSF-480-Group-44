@@ -2,8 +2,6 @@ import java.sql.*;
 import java.util.*;
 
 public class Ticket {
-    private static int ticketID = 0; 
-
     private String movie;
     private String theatre;
     private Timestamp showtime;
@@ -14,11 +12,10 @@ public class Ticket {
         this.movie = movie;
         this.showtime = showtime;
         this.seat = seat;
-        ticketID++;
     }
 
-    public int getTicketNum() {
-        return Ticket.ticketID;
+    public int getTicketNum() throws SQLException, DBConnectException {
+        return TheatreDatabase.getDB().getTicketID(theatre, movie, showtime, seat);
     }
     public String getMovie() {
         return this.movie;

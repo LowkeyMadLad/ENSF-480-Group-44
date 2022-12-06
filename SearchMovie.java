@@ -40,7 +40,8 @@ public class SearchMovie implements TheatreStrategy{
             if (reply == JOptionPane.NO_OPTION) {
                 String goodbye = "Goodbye!";
                 JOptionPane.showMessageDialog(null, goodbye, "GOODBYE", JOptionPane.CLOSED_OPTION);
-                System.exit(0);
+                String[] a = new String[2];
+                return a;
             } 
         } else{
             theatre = (String) JOptionPane.showInputDialog(

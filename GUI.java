@@ -233,10 +233,10 @@ public class GUI extends JFrame implements ActionListener{
         //Email.sendEmail(sendEmail, msg);
     }
 
-    public void confirmationPaymentPage(ArrayList<Ticket> ticket)
+    public void confirmationPaymentPage(ArrayList<Ticket> ticket) throws SQLException, DBConnectException
     {
         JFrame frame1 = new JFrame("Confirmation Page");
-        frame1.setSize(350, 350);
+        frame1.setSize(700, 700);
         frame1.setLocationRelativeTo(null);
         JPanel panel1 = new JPanel();
         frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -268,12 +268,12 @@ public class GUI extends JFrame implements ActionListener{
         String seats = "Seats Requested: ";
         for(Ticket x : ticket)
         {
-            seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\n";
+            seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\t\n";
         }
 
         //displays all of the seats requested with their tkt number
         JLabel displaySeats = new JLabel(seats);
-        displaySeats.setBounds(5,250, 300, 50);
+        displaySeats.setBounds(5,250, 600, 300);
         panel1.add(displaySeats);
 
         frame1.setVisible(true);
@@ -1164,6 +1164,7 @@ public class GUI extends JFrame implements ActionListener{
                         String[] searchReturn = user.performSearch(searchchoice);           //perform the search if only a movie or theatre were selected
                         theatreSelection = searchReturn[0];
                         movieSelection = searchReturn[1];
+                        if(theatreSelection == null || movieSelection == null) return;
                     }
 
                     ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);            //get the showtimes for the movie
