@@ -11,6 +11,14 @@ public class Showtime {
 
     private HashMap<String, Boolean> seats;
 
+    /**
+     * Public showtime constructor
+     * @param theatre - String
+     * @param movie - String
+     * @param showtime - Timestamp
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public Showtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
         db = TheatreDatabase.getDB();
         dbConnect = db.getConnection();
@@ -21,6 +29,11 @@ public class Showtime {
         setSeatArrangement();
     }
 
+    /**
+     * Creates a seat arrangement to allow for selecting and unselecting of seats in the gui
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     private void setSeatArrangement() throws DBConnectException, SQLException{
         // add seats to hash
         // depends on how we want seats to look like
@@ -40,6 +53,14 @@ public class Showtime {
         }
     }
 
+    /**
+     * Checks if the showtime exists on the Database
+     * @param seatNo
+     * @param dbConnect - Requires access to TheatreDatabase
+     * @return Boolean - If it is found
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     private boolean isOnDB(String seatNo) throws DBConnectException, SQLException{
         db.initializeConnection();
         dbConnect = db.getConnection();
