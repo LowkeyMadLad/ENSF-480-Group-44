@@ -14,9 +14,7 @@ import java.sql.*;
 //main ProjectGUI class to generate the GUI components and implement actions
 public class GUI extends JFrame implements ActionListener{
     User user = new User();
-    //declaring all required variables (frames, buttons, global vars etc.)
-    //for the GUI, we are not using a pre-designed layout, we are designing a custom layout
-
+    //declaring all required variables (frames, buttons, global vars etc.)    
     private static JFrame frame;                //main frame for GUI
     private static JPanel panel;                //main panel for GUI
     private static JLabel welcomeLabel;
@@ -47,6 +45,8 @@ public class GUI extends JFrame implements ActionListener{
 
     private static String[] theatreToChoose;
     private static String[] moviesToChoose;
+
+    //static instance of a RU object, so the program only has one instance of RU
     public static RegisteredUser RU;
 
     public GUI(){}
@@ -105,32 +105,38 @@ public class GUI extends JFrame implements ActionListener{
         movieLabel.setBounds(5, 120, 600, 25);
         panel.add(movieLabel);
         
+        //creating the login button
         loginButton = new JButton("Login");
         loginButton.addActionListener(new GUI());
         loginButton.setFont(textFont);
         loginButton.setBounds(20, 350, 200, 100);
         panel.add(loginButton);
 
+        //creting the sign up button
         signUpButton = new JButton("Sign Up");
         signUpButton.addActionListener(new GUI());
         signUpButton.setFont(textFont);
         signUpButton.setBounds(240, 350, 200, 100);
         panel.add(signUpButton);
 
+        //creating the cancel button
         cancelPaymentButton = new JButton("Cancel Payment");
         cancelPaymentButton.addActionListener(new GUI());
         cancelPaymentButton.setFont(textFont);
         cancelPaymentButton.setBounds(460, 350, 200, 100);
         panel.add(cancelPaymentButton);
         
+        //this block inserts all theatres that are in the database
         try {
-            TheatreDatabase theatreDB = TheatreDatabase.getDB();
-            ArrayList<String> theatreList = theatreDB.getTheatreList();
+            TheatreDatabase theatreDB = TheatreDatabase.getDB();            //gets the databse
+            ArrayList<String> theatreList = theatreDB.getTheatreList();     //gets the list of theatres
             theatreToChoose = new String[theatreList.size() +1];
             for(int i=0;i<theatreList.size();i++)
             {
                 theatreToChoose[i] = theatreList.get(i);
             }
+
+            //creates a dropdown box of all theatres
             theatreToChoose[theatreList.size()] = "any";
             theatreComboBox = new JComboBox<>(theatreToChoose);
             theatreComboBox.setBounds(5, 80, 300, 25);
@@ -140,25 +146,26 @@ public class GUI extends JFrame implements ActionListener{
             panel.add(tLabel);
 
         } catch (DBConnectException e1) {
-            e1.printStackTrace();
-        } catch (SQLException e1) {
-            e1.printStackTrace();
+            // TODO: handle exception
+            //displays a pop up msg
+            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+        }
+        catch(SQLException e2)
+        {
+            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
         }
 
-
+        //this block inserts all movies that are in the database
         try {
             TheatreDatabase theatreDB = TheatreDatabase.getDB();
-            ArrayList<String> movieList = theatreDB.getMovieList();
+            ArrayList<String> movieList = theatreDB.getMovieList();         //gets all movies in the database
             moviesToChoose = new String[movieList.size() +1 ];
             for(int i=0;i<movieList.size();i++)
             {
                 moviesToChoose[i] = movieList.get(i);
             }
-            for(String x: movieList)
-            {
-                System.out.println(x);
-            }
 
+            //creates a dropdown menu where user can select a movie
             moviesToChoose[movieList.size()] = "any";
             movieComboBox = new JComboBox<>(moviesToChoose);
             movieComboBox.setBounds(5, 150, 300, 25);
@@ -168,11 +175,15 @@ public class GUI extends JFrame implements ActionListener{
             panel.add(mLabel);
 
         } catch (DBConnectException e1) {
-            e1.printStackTrace();
-        } catch (SQLException e1) {
-            e1.printStackTrace();
+            // TODO: handle exception
+            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
         }
-            
+        catch(SQLException e2)
+        {
+            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        //creates the search button
         searchButton = new JButton("Search");
         GUI gui  = new GUI();
         searchButton.addActionListener(gui);
@@ -194,6 +205,7 @@ public class GUI extends JFrame implements ActionListener{
     }
     public void cancelConfirmationPage(int token)
     {
+        //creates the frame
         JFrame frame1 = new JFrame("Confirmation Page");
         frame1.setSize(350, 350);
         frame1.setLocationRelativeTo(null);
@@ -209,6 +221,7 @@ public class GUI extends JFrame implements ActionListener{
         confirmPaymentPage.setBounds(5, 10, 300, 50);
         panel1.add(confirmPaymentPage);
 
+        //creates a label which lets user knwo what their voucher code is
         JLabel tokenInfo = new JLabel("Voucher (Valid Only for One Year): " + token);
         tokenInfo.setBounds(5,70, 300, 50);
         panel1.add(tokenInfo);
@@ -244,20 +257,23 @@ public class GUI extends JFrame implements ActionListener{
         panel1.setLayout(null);
         frame1.add(panel1);
 
+        
         JLabel confirmPaymentPage = new JLabel("Confirmation Of Your Payment");
-        //username.setFont(secondHeader);
         confirmPaymentPage.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
         confirmPaymentPage.setBounds(5, 10, 300, 50);
         panel1.add(confirmPaymentPage);
 
+        //displays movie
         JLabel movieInfo = new JLabel("Movie: " + ticket.get(0).getMovie());
         movieInfo.setBounds(5,70, 300, 50);
         panel1.add(movieInfo);
 
+        //displays the theatre
         JLabel theatreInfo = new JLabel("Theatre: " + ticket.get(0).getTheatre());
         theatreInfo.setBounds(5,130, 300, 50);
         panel1.add(theatreInfo);
 
+        //displays the time of the movie
         JLabel timeInfo = new JLabel("Time: " + ticket.get(0).getShowtime().toString());
         timeInfo.setBounds(5,190, 300, 50);
         panel1.add(timeInfo);
@@ -268,6 +284,7 @@ public class GUI extends JFrame implements ActionListener{
             seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\n";
         }
 
+        //displays all of the seats requested with their tkt number
         JLabel displaySeats = new JLabel(seats);
         displaySeats.setBounds(5,250, 300, 50);
         panel1.add(displaySeats);
@@ -491,6 +508,7 @@ public class GUI extends JFrame implements ActionListener{
         voucher.setBounds(400,300, 300, 20);
         panel1.add(voucher);
 
+        //this where the user can enter a voucher code if they have one
         JTextField voucherText = new JTextField(16);
         voucherText.setBounds(400,340, 200, 30);
         panel1.add(voucherText);
@@ -498,6 +516,7 @@ public class GUI extends JFrame implements ActionListener{
         JButton submitVoucher = new JButton("Submit Voucher");
         submitVoucher.addActionListener(new ActionListener() 
         {
+            //if a voucher code is entered then it will change the price and display the new price
             public void actionPerformed(ActionEvent e)
             {
                 try {
@@ -547,27 +566,8 @@ public class GUI extends JFrame implements ActionListener{
         JLabel CVV = new JLabel("CVV: " + RU.getCard().getCvv());
         CVV.setBounds(10, 180, 300, 25);
         panel1.add(CVV);
-    
-        // nameTextInput = new JTextField(16);
-        // nameTextInput.setBounds(5, 80, 300, 25);
-        // panel1.add(nameTextInput);
-
-        // emailTextInput = new JTextField(16);
-        // emailTextInput.setBounds(5, 150, 300, 25);
-        // panel1.add(emailTextInput);
-
-        // addressTextInput = new JTextField(16);
-        // addressTextInput.setBounds(5, 220, 300, 25);
-        // panel1.add(addressTextInput);
-
-        // creditTextInput = new JTextField(16);
-        // creditTextInput.setBounds(5, 290, 300, 25);
-        // panel1.add(creditTextInput);
-
-        // cvvTextInput = new JTextField(16);
-        // cvvTextInput.setBounds(5, 360, 300, 25);
-        // panel1.add(cvvTextInput);
-
+        
+        //creates the submit button to proceed with payment
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() 
         {
@@ -575,15 +575,15 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase database = TheatreDatabase.getDB();
-                    ArrayList<Ticket> ticketTotal = new ArrayList<Ticket>();
+                    ArrayList<Ticket> ticketTotal = new ArrayList<Ticket>();        //inserts a ticket for each ticket requested
                     for(String x : seatsRequested)
                     {
                         Ticket ticket = new Ticket(theatre, movie, time, x);
-                        database.insertTicket(ticket , RU.getName());
+                        database.insertTicket(ticket , RU.getName());           //inserts the tkt in the database with its corresponding seat $
                         ticketTotal.add(ticket);
                         
                     }
-                    confirmationPaymentPage(ticketTotal);
+                    confirmationPaymentPage(ticketTotal);       //user gets a confirmation with their tkt number for each seat
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
@@ -885,8 +885,8 @@ public class GUI extends JFrame implements ActionListener{
             {
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
-                    int token = theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);
-                    cancelConfirmationPage(token);
+                    int token = theatreDB.cancelTicket(tktInput.getText(), nameInput.getText(), RU);            //user enters which tkt they want to cancel, and recieve a voucher code to use
+                    cancelConfirmationPage(token);      //cancellation confirmation page will display the voucher
                     frame1.dispose();
                 } catch (DBConnectException e1) {
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
@@ -900,76 +900,84 @@ public class GUI extends JFrame implements ActionListener{
                     JOptionPane.showMessageDialog(null, "You cannot cancel a ticket within 72 hours of the showtime!", "WARNING!", JOptionPane.WARNING_MESSAGE);
                 }
                 
-                
-                // System.out.println("Seat #: " + seatNumInput.getText());
-                // System.out.println("Confirmation #: " + confirmationNumInput.getText());
+
             }
         });
         submitButton.setBounds(5, 230, 200, 25);
         panel1.add(submitButton);
-
-        
 
         frame1.setVisible(true);
     }
 
     public void seatMap(String movie, String theatre, Timestamp time, ArrayList<String> seatsTaken)
     {
-        int rows = 4;
-        int columns = 9;
-        int rowName = 'A';
-        ArrayList<String> seats = new ArrayList<>();
+        int rows = 4;               //number of rows of seats
+        int columns = 9;            //number of columns in seat map
+        int rowName = 'A';        
+        ArrayList<String> seats = new ArrayList<>();            //arraylist of seats which user selects
         
         JPanel seatPanel = new JPanel(new GridLayout(rows , columns));
 
-        int numberOfCurrSeatTaken = seatsTaken.size();
-        System.out.println("Number of Seats: " + numberOfCurrSeatTaken);
+        int numberOfCurrSeatTaken = seatsTaken.size();          //current # seats which are taken
+
         
         seatPanel.setSize(1400, 500);
         for (int row = 0; row < rows; row++) {
-            
             for (int column = 1; column < columns; column++) {
                 String seatName = (char)rowName + Integer.toString(column);
                 JToggleButton button = new JToggleButton(seatName);
                 for(String x : seatsTaken)
                 {
-                    System.out.println(x);
-                    if(seatName.equals(x))
+                    if(seatName.equals(x))          //if the seat is already taken then set the color to RED and user will be unable to select it
                     {
                         button.setBackground(Color.RED);
                     }
                 }
-                button.addActionListener(new ActionListener() {
-                
+                button.addActionListener(new ActionListener() {     //when seat button is pressed
                     @Override
                     public void actionPerformed(ActionEvent actionEvent) {
                         AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
                         boolean selected = abstractButton.getModel().isSelected();
-                        int reserved = numberOfCurrSeatTaken + seats.size();
+                        int reserved = numberOfCurrSeatTaken + seats.size();            //for reserved seats
+
+                        boolean isAnnounced = false;            //checks if the movie hasnt been announced as only RU can pre buy
+                        try {
+                            TheatreDatabase database = TheatreDatabase.getDB();
+                            isAnnounced =  database.isAnnounced(movie);
+                
+                        } catch (DBConnectException e1) {
+                            // TODO: handle exception
+                            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                        }
+                        catch(SQLException e2)
+                        {
+                            e2.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                        }
                         
-                        if (RU != null && selected && button.getBackground() != Color.RED && reserved != 3) 
+                        if (RU != null && selected && button.getBackground() != Color.RED && reserved != 3 && isAnnounced == false)     //if it is an RU and the movie hasnt been announced then RU can select 10% of seats
                         {
                             button.setBackground(Color.GREEN);
                             seats.add(button.getText());
                             
                         }
-                        else if(RU != null && selected && button.getBackground() != Color.RED && reserved == 3)
+                        else if(RU != null && selected && button.getBackground() != Color.RED && reserved == 3 && isAnnounced == false)         //if 10% of seats are selected a warning msgs pops up and RU cant select any seats
                         {
                             button.setBackground(null);
                             JOptionPane.showMessageDialog(null, "Sorry it seems that number of reserved seats has filled up, please buy when open to the public", "Reserved Seats", JOptionPane.WARNING_MESSAGE);
                         }
 
-                        else if (selected && button.getBackground() != Color.RED) {
+                        else if (selected && button.getBackground() != Color.RED) {         //if movie is announced and the seats hasnt been taken then the User can select the seat
                             button.setBackground(Color.GREEN);
-                            seats.add(button.getText());
+                            seats.add(button.getText());            //adds to arraylist
                             //button.setIcon(new ImageIcon(resize));
-                        } else if(button.getBackground() != Color.RED){
+                        } else if(button.getBackground() != Color.RED){         //if the seats wants to be unselected
                             button.setBackground(null);
                             for(int i =0; i<seats.size() ; i++) 
                             {
                                 if(seats.get(i) == button.getText())
                                 {
-                                    seats.remove(i);
+                                    seats.remove(i);            //removes from the arraylist
                                     break;
                                 }
                             }
@@ -995,11 +1003,11 @@ public class GUI extends JFrame implements ActionListener{
                 seatFrame.dispose();
                 if(!seats.isEmpty())
                 {
-                    if(RU == null)
+                    if(RU == null)              //if normal user then a payment page pops up where they must enter their info
                         PaymentPage(movie, theatre, time, seats);
-                    else
+                    else        //if user has logged in
                     {
-                        RUPaymentPage(movie, theatre, time, seats);
+                        RUPaymentPage(movie, theatre, time, seats);         //they dont have to enter their info just confirm it
                     }
 
                 }
@@ -1015,6 +1023,7 @@ public class GUI extends JFrame implements ActionListener{
         seatFrame.setVisible(true);
     }
     
+
     public void adminPage()
     {
         JFrame frame1 = new JFrame("Admin Page");
@@ -1045,15 +1054,15 @@ public class GUI extends JFrame implements ActionListener{
 
         JButton selectedMovie = new JButton("Delete Movie");
         GUI gui  = new GUI();
-        selectedMovie.addActionListener(new ActionListener()
+        selectedMovie.addActionListener(new ActionListener()            //if the delete movie is selected 
         {
             public void actionPerformed(ActionEvent e) 
             {
                 try {
                     TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
-                    String movie = adminMovieComboBox.getItemAt(adminMovieComboBox.getSelectedIndex());
+                    String movie = adminMovieComboBox.getItemAt(adminMovieComboBox.getSelectedIndex());         //get the movie from dropdown menu
                     
-                    theatreDatabase.deleteMovie(movie);
+                    theatreDatabase.deleteMovie(movie);             //delete the movie from the database
                     panel.repaint();
                     panel1.repaint();
                     JOptionPane.showMessageDialog(null, "Succesful Deletion", "Admin", JOptionPane.PLAIN_MESSAGE);
@@ -1089,15 +1098,15 @@ public class GUI extends JFrame implements ActionListener{
         panel1.add(addTime);
 
         JButton addedMovie = new JButton("Add Movie");
-        addedMovie.addActionListener(new ActionListener()
+        addedMovie.addActionListener(new ActionListener()               //if add movie is selected
         {
             public void actionPerformed(ActionEvent e) 
             {
                 try {
                     TheatreDatabase theatreDatabase = TheatreDatabase.getDB();
             
-                    theatreDatabase.addMovie(addMovie.getText(), Timestamp.valueOf(addTime.getText()));
-                    panel.repaint();
+                    theatreDatabase.addMovie(addMovie.getText(), Timestamp.valueOf(addTime.getText()));         //add the movie which user has selected with its corresponding announcment date
+                    panel.repaint();    
                     panel1.repaint();
                     JOptionPane.showMessageDialog(null, "Succesful Insertion", "Admin", JOptionPane.PLAIN_MESSAGE);
 
@@ -1127,54 +1136,51 @@ public class GUI extends JFrame implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        if(e.getActionCommand().equals("Search"))
+        if(e.getActionCommand().equals("Search"))           //if the search button has been pressed
         {   
-            adminPage();
             theatreSelection = theatreComboBox.getItemAt(theatreComboBox.getSelectedIndex());
             movieSelection = movieComboBox.getItemAt(movieComboBox.getSelectedIndex());
             String searchchoice = "";
             boolean valid = true;
 
-            if(theatreSelection.equals("any") && movieSelection.equals("any"))
+            if(theatreSelection.equals("any") && movieSelection.equals("any"))          //if both inputs are any then warning pop up msg appears
             {
                 JOptionPane.showMessageDialog(null, "Please Enter either Movie / Theatre", "Invalid Input", JOptionPane.WARNING_MESSAGE);
                 valid = false;
             }
-            else if(theatreSelection.equals("any") && !movieSelection.equals("any"))
-            {
+            else if(theatreSelection.equals("any") && !movieSelection.equals("any"))            //if movie is selected and theatre is not
+            {   
+                //we use a startegy a pattern which finds all theatres that have that movie
                 searchchoice = movieSelection;
                 user.setStrategy(new SearchMovie());
-                System.out.println("Search Movie Strategy Pattern");
             }
-            else if(!theatreSelection.equals("any") && movieSelection.equals("any"))
+            else if(!theatreSelection.equals("any") && movieSelection.equals("any"))            //if theatre is selected and movie is not
             {
+                //set the strategy pattern to serach for all the movies
                 searchchoice = theatreSelection;
                 user.setStrategy(new SearchTheatre());
-                System.out.println("Search Theatre Strategy Pattern");
             }
             if(searchchoice == null) valid = false;
-            if(valid)
+            if(valid)           //if input were valid choices then
             {
                 try {
                     TheatreDatabase theatreDB = TheatreDatabase.getDB();
                     if(!searchchoice.equals("")){
-                        String[] searchReturn = user.performSearch(searchchoice);
+                        String[] searchReturn = user.performSearch(searchchoice);           //perform the search if only a movie or theatre were selected
                         theatreSelection = searchReturn[0];
                         movieSelection = searchReturn[1];
                     }
 
-                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);
-                    if(showTimeList.isEmpty()){
+                    ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);            //get the showtimes for the movie
+                    if(showTimeList.isEmpty()){         //if no showtimes are available display user with a pop up msg
                         String msg = "Sorry, " + movieSelection + " is not available at " + theatreSelection + "!";
                         JOptionPane.showMessageDialog(null, msg, "ERROR", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     String[] showTimes = new String[showTimeList.size()];
-
-                    System.out.println(theatreDB.isAnnounced(movieSelection));
                     
-                    if(theatreDB.isAnnounced(movieSelection) || RU != null)
+                    if(theatreDB.isAnnounced(movieSelection) || RU != null)         //check if the movie has been announced to ordinary users
                     {
                         for(int i=0;i<showTimeList.size();i++)
                         {
@@ -1183,13 +1189,15 @@ public class GUI extends JFrame implements ActionListener{
                     }
                     else{
                         JOptionPane.showMessageDialog(null, "Sorry this movie hasn't been released to the public yet", "Showtime Error", JOptionPane.ERROR_MESSAGE);
-
+                        return;
                     }
 
 
                     if(showTimesComboBox != null)
                         panel.remove(showTimesComboBox);
 
+
+                    //creates a dropdown menu with all the available showtimes
                     showTimesComboBox = new JComboBox<>(showTimes);
                     showTimesComboBox.setBounds(5, 250, 300, 25);
                     panel.add(showTimesComboBox);
@@ -1199,27 +1207,28 @@ public class GUI extends JFrame implements ActionListener{
                     panel.add(sLabel);
                     panel.repaint();
 
-                    
-                    JButton showTimeButton = new JButton("Search Seats");
-                    if(RU == null)
-                    {
-                        System.out.println("Still null");
-                    }
+                    //serach seats button
+                    JButton showTimeButton = new JButton("Search Seats");           
+
                     GUI gui  = new GUI();
                     showTimeButton.addActionListener(new ActionListener()
                     {
                         public void actionPerformed(ActionEvent e) 
                         {
                             try {
-                                String timeSelection = showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex());
-                                ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection));
-                                for(String x : seats)
-                                {
-                                    System.out.println(x);
-                                }
-                                seatMap(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection), seats);
-                            } catch (Exception e2) {
+                                String timeSelection = showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex());           //get the showtime
+                                ArrayList<String> seats = theatreDB.getSeats(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection));           //get all seats which are taken for that show
+      
+                                seatMap(movieSelection, theatreSelection, Timestamp.valueOf(timeSelection), seats);     //display the seat map
+                            } catch (DBConnectException e1) {
+
                                 // TODO: handle exception
+                                JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                            }
+                            catch(SQLException e2)
+                            {
+                                e2.printStackTrace();
+                                JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                             }
 
                         }
@@ -1227,39 +1236,40 @@ public class GUI extends JFrame implements ActionListener{
 
                     showTimeButton.setBounds(5, 280, 200, 25);
                     panel.add(showTimeButton);
+                } catch (DBConnectException e1) {
 
-                } catch (Exception e1) {
                     // TODO: handle exception
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                catch(SQLException e2)
+                {
+                    e2.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
+                }
+                catch(IllegalArgumentException e2)
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid Information", "Invalid Information", JOptionPane.ERROR_MESSAGE);
+
                 }
             }
 
         }
 
-        if(e.getActionCommand().equals("Login"))
+        if(e.getActionCommand().equals("Login"))            //if the login button is selected display login page
         {
             LoginPage();
         }
 
-        if(e.getActionCommand().equals("Sign Up"))
+        if(e.getActionCommand().equals("Sign Up"))          //if the sign up button is selected display sign up page
         {
             SignUpPage();
         }
 
-        if(e.getActionCommand().equals("Cancel Payment"))
+        if(e.getActionCommand().equals("Cancel Payment"))           //if the cancel payment button is selected display the cancel payment page
         {
             CancelPayment();
         }
 
-
-        if(showTimesComboBox != null)
-            showTimesComboBox.addItemListener(new ItemListener(){
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    System.out.println("Time: "+ showTimesComboBox.getItemAt(showTimesComboBox.getSelectedIndex()));
-                }
-            }
-    });
 
         //code for ending the program if endProgram button clicked
         if (e.getSource().equals(endProgram)){

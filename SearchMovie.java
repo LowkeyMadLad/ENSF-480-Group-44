@@ -13,7 +13,7 @@ import javax.swing.*;
 public class SearchMovie implements TheatreStrategy{
 
     @Override
-    public String[] search(String choice) throws DBConnectException, SQLException{
+    public String[] search(String choice) throws DBConnectException, SQLException, IllegalArgumentException{
         TheatreDatabase db = TheatreDatabase.getDB();
 
         ArrayList<String> fullTheatreList = db.getTheatreList();
@@ -47,9 +47,9 @@ public class SearchMovie implements TheatreStrategy{
                 null, "What theatre would you like to watch " + choice + " at?", "Theatres playing " + choice,
                 JOptionPane.QUESTION_MESSAGE, null, theatreToChoose, theatreToChoose[0]);
             // verify validity of input
-            if(theatre.equals("") || theatre == null){
-                throw new IllegalArgumentException("No theatre chosen.");
-            }
+            // if(theatre.equals("") || theatre == null){
+            //     throw new IllegalArgumentException("No theatre chosen.");
+            // }
         }
 
         String[] ret = new String[2];
