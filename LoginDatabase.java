@@ -5,16 +5,25 @@ import javax.swing.JOptionPane;
 
 // import com.mysql.cj.log.Log;
 
+/**
+ * The login database deals with login/signup information for RU's and login for Admins
+ */
 public class LoginDatabase {
     //Singelton pattern, so we only have one logindatabase
-    private static LoginDatabase loginDatabase = null;
+    private static LoginDatabase loginDatabase = null; 
 
+    // Connection to DB
     private final String DBURL = "jdbc:mysql://localhost:3306/MOVIE_DATABASE";
     private final String USERNAME = "student";
     private final String PASSWORD = "ensf";
     private Connection dbConnect;
 
-    
+    /**
+     * Establishes a connection to the database MOVIE_DATABASE using the private final variables 
+     * DBURL, USERNAME, PASSWORD
+     * Sets dbConnect to a valid connection
+     * @throws DBConnectException
+     */
     public void initializeConnection() throws DBConnectException{
         try {
             dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
@@ -28,6 +37,14 @@ public class LoginDatabase {
 
 
     //This function checks the login information if it is correct and return a boolean
+    /**
+     * Ensures Registered User login information is valid
+     * @param username - String
+     * @param password - String
+     * @return Boolean - If the login information is valid
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public boolean checkLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
@@ -49,6 +66,14 @@ public class LoginDatabase {
     }
 
     //This function checks the admin login information
+    /**
+     * Checks if Admin login information is valid
+     * @param username - String
+     * @param password - String
+     * @return Boolean - If the login information is valid
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public boolean checkAdminInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
@@ -69,6 +94,14 @@ public class LoginDatabase {
     }
 
     //This returns the login information as Registered User object
+    /**
+     * This should be called after checkLoginInformation(). Will get the information related to the RegisteredUser
+     * @param username - String
+     * @param password - String
+     * @return RegisteredUser - Class with info about the RU
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public RegisteredUser getLoginInformation(String username, String password) throws DBConnectException, SQLException
     {
         initializeConnection();
@@ -105,6 +138,18 @@ public class LoginDatabase {
 
 
     //Signs up the user into the database
+    /**
+     * This function will sign up the user for a RegisteredUser account
+     * @param username - String
+     * @param name - String
+     * @param email - String
+     * @param address - String
+     * @param password - String
+     * @param cardNumber - String
+     * @param cvv - Int
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public void signUp(String username, String name, String email, String address, String password, String cardNumber, int cvv) throws DBConnectException, SQLException
     {
         initializeConnection();
@@ -133,6 +178,11 @@ public class LoginDatabase {
 
     }
 
+    /**
+     * Singleton LoginDatabase getter
+     * @return LoginDatabase
+     * @throws DBConnectException
+     */
     public static LoginDatabase getDB() throws DBConnectException{
         if(loginDatabase == null){
             loginDatabase = new LoginDatabase();
@@ -142,8 +192,8 @@ public class LoginDatabase {
 
     /**
      * Deletes a registered user from the loginserver database, and all their tickets. 
-     * @param username
-     * @param fullname
+     * @param username - String
+     * @param fullname - String
      * @throws DBConnectException
      * @throws SQLException
      */
@@ -173,8 +223,8 @@ public class LoginDatabase {
 
     /**
      * Adds an admin manually. Cannot be the head admin.
-     * @param user
-     * @param pw
+     * @param user - String
+     * @param pw - String
      * @throws DBConnectException
      * @throws SQLException
      */
