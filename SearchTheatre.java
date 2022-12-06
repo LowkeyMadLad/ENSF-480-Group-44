@@ -11,6 +11,13 @@ import javax.swing.*;
  */
 public class SearchTheatre implements TheatreStrategy{
 
+    /**
+     * Strategy pattern for searching a movie when the Movie isn't specified
+     * @param choice - String
+     * @throws DBConnectException
+     * @throws SQLException
+     * @throws IllegalArgumentException
+     */
     @Override
     public String[] search(String choice) throws DBConnectException, SQLException, IllegalArgumentException {
         TheatreDatabase db = TheatreDatabase.getDB();
