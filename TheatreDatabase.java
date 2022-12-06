@@ -38,6 +38,11 @@ public class TheatreDatabase {
     // private ArrayList<Showtime> allShowtimes;
     // private HashMap<String, Date> announcementDates;
 
+    /**
+     * Singleton TheatreDatabase Constructor
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     private TheatreDatabase() throws DBConnectException, SQLException{
         // allShowtimes = new ArrayList<Showtime>();
         // announcementDates = new HashMap<String, Date>();
@@ -212,6 +217,15 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * Gets taken seats in the database
+     * @param movie - String
+     * @param theatre - String
+     * @param time - Timestamp
+     * @return ArrayList<String> - List of seats found in the database that are taken
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<String> getSeats(String movie, String theatre, Timestamp time) throws DBConnectException, SQLException{
         ArrayList<String> list = new ArrayList<String>();
         initializeConnection();
@@ -233,6 +247,16 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * Gets the ticket ID for a very specific time, movie and theatre
+     * @param theatre - String
+     * @param movie - String
+     * @param showtime - Timestamp
+     * @param seat - String
+     * @return Int - The ID of the ticket in question if it exists, -1 otherwise
+     * @throws SQLException
+     * @throws DBConnectException
+     */
     public int getTicketID(String theatre, String movie, Timestamp showtime, String seat) throws SQLException, DBConnectException{
         initializeConnection();
         String query = "SELECT TicketID FROM MovieTickets WHERE MovieName = ? AND MovieTheatre = ? AND MovieTime = ? AND Seat = ?";
@@ -259,6 +283,13 @@ public class TheatreDatabase {
         return id;
     }
 
+    /**
+     * Inserts a ticket into the database so that the ticket information is stored for later
+     * @param ticket - Ticket
+     * @param name - String
+     * @throws SQLException
+     * @throws DBConnectException
+     */
     public void insertTicket(Ticket ticket, String name) throws SQLException, DBConnectException
     {
         initializeConnection();
@@ -280,6 +311,16 @@ public class TheatreDatabase {
 
     }
 
+    /**
+     * Cancels a ticket from the database if the given ticketID and name match that on the DB
+     * @param ticketID - String
+     * @param name - String
+     * @param RU - RegisteredUser (null if not available)
+     * @return Int - Token of the ID for the voucher (credit)
+     * @throws SQLException
+     * @throws DBConnectException
+     * @throws UnderTimeException
+     */
     public int cancelTicket(String ticketID, String name, RegisteredUser RU) throws SQLException, DBConnectException, UnderTimeException
     {
         initializeConnection();
@@ -436,6 +477,14 @@ public class TheatreDatabase {
         return ret;
     }
 
+    /**
+     * Adds a showtime to the database for a given Theatre and movie
+     * @param theatre - String
+     * @param movie - String
+     * @param showtime - Timestamp
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public void addShowtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
         initializeConnection();
         String query = "INSERT IGNORE INTO MOVIE_INFORMATION (MovieTheatre, MovieName, MovieTime) VALUES (?,?,?)";
@@ -451,6 +500,13 @@ public class TheatreDatabase {
         validateDB();
     }
 
+    /**
+     * Adds a given movie to the database with an announcement date (ADMIN ONLY)
+     * @param movie - String
+     * @param announcementDate - Timestamp
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public void addMovie(String movie, Timestamp announcementDate) throws DBConnectException, SQLException{
         initializeConnection();
         String query = "INSERT IGNORE INTO MovieReleaseDate (MovieName, ReleaseDate) VALUES (?,?)";
@@ -465,6 +521,12 @@ public class TheatreDatabase {
         validateDB();
     }
 
+    /**
+     * Gets all showtimes in the database for any movie
+     * @return ArrayList<Showtime> - List of all showtimes
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public ArrayList<Showtime> getAllShowtimes() throws DBConnectException, SQLException{
         ArrayList<Showtime> list = new ArrayList<Showtime>();
         //validateDB();
@@ -488,6 +550,14 @@ public class TheatreDatabase {
         return list;
     }
 
+    /**
+     * Removes a given showtime from the Database for a specific Theatre and Movie
+     * @param theatre - String
+     * @param movie - Movie
+     * @param showtime - Timestamp
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public void removeShowtime(String theatre, String movie, Timestamp showtime) throws DBConnectException, SQLException{
         initializeConnection();
         
@@ -517,6 +587,12 @@ public class TheatreDatabase {
         dbConnect.close();
     }
 
+    /**
+     * Deletes a movie from the database (ADMIN ONLY)
+     * @param movie - String
+     * @throws DBConnectException
+     * @throws SQLException
+     */
     public void deleteMovie(String movie) throws DBConnectException, SQLException{
         initializeConnection();
         
@@ -540,6 +616,13 @@ public class TheatreDatabase {
         dbConnect.close();
     }
 
+    /**
+     * Gets the amount of a voucher for a given ID input. 
+     * @param voucherCode - Int
+     * @return Float - Amount the voucher is worth
+     * @throws SQLException
+     * @throws DBConnectException
+     */
     public float retrieveVoucher(int voucherCode) throws SQLException, DBConnectException
     {
         initializeConnection();
@@ -560,6 +643,12 @@ public class TheatreDatabase {
         return amount;
     }
 
+    /**
+     * Removes the voucher after use 
+     * @param voucherCode - Int
+     * @throws SQLException
+     * @throws DBConnectException
+     */
     public void removeVoucher(int voucherCode) throws SQLException, DBConnectException
     {
         initializeConnection();
@@ -636,6 +725,10 @@ public class TheatreDatabase {
     }
     */
 
+    /**
+     * Initializes connection to the database
+     * @throws DBConnectException
+     */
     public void initializeConnection() throws DBConnectException{
         try {
             dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);

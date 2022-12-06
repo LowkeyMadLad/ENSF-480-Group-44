@@ -7,6 +7,10 @@ public class User {
         
     }
 
+    /**
+     * Sets the strategy of the user to the input strategy. Part of a StrategyPattern
+     * @param strat - TheatreStrategy
+     */
     public void setStrategy(TheatreStrategy strat){
         searchStrat = strat;
     }

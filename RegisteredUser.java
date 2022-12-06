@@ -1,6 +1,8 @@
-import java.security.Timestamp;
 import java.util.*;
 
+/**
+ * Registered user contains information that will be stored on the database and will allow a seamless transition between database and code
+ */
 public class RegisteredUser extends User{
     private String name; // Changing name does not make sense in this context
     private String email;
@@ -11,6 +13,16 @@ public class RegisteredUser extends User{
     // tickets bought by an RU will be saved to their account
     private ArrayList<Ticket> tickets;
 
+    /**
+     * Public constructor for Registered User
+     * @param name - String
+     * @param email - String
+     * @param address - String
+     * @param password - String
+     * @param cardNumber - String (16 characters)
+     * @param cvv - Int (3 digits)
+     * @throws IllegalArgumentException
+     */
     public RegisteredUser(String name, String email, String address, String password, String cardNumber, int cvv) throws IllegalArgumentException {
         this.name = name;
         this.email = email;

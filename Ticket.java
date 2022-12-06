@@ -7,6 +7,13 @@ public class Ticket {
     private Timestamp showtime;
     private String seat;
 
+    /**
+     * Public Ticket Constructor
+     * @param theatre - String  
+     * @param movie - Movie
+     * @param showtime - Timestamp
+     * @param seat - String
+     */
     public Ticket(String theatre, String movie, Timestamp showtime, String seat){
         this.theatre = theatre;
         this.movie = movie;
