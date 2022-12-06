@@ -226,27 +226,14 @@ public class GUI extends JFrame implements ActionListener{
         tokenInfo.setBounds(5,70, 300, 50);
         panel1.add(tokenInfo);
 
-        // JLabel theatreInfo = new JLabel("Theatre: " + ticket.getTheatre());
-        // theatreInfo.setBounds(5,130, 300, 50);
-        // panel1.add(theatreInfo);
-
-        // JLabel timeInfo = new JLabel("Time: " + ticket.getShowtime().toString());
-        // timeInfo.setBounds(5,190, 300, 50);
-        // panel1.add(timeInfo);
-
-        // JLabel displaySeats = new JLabel(ticket.getSeat());
-        // displaySeats.setBounds(5,250, 300, 50);
-        // panel1.add(displaySeats);
-
-        
-        // JLabel voucher = new JLabel(seats);
-        // displaySeats.setBounds(5,250, 300, 50);
-        // panel1.add(displaySeats);
-
         frame1.setVisible(true);
+
+        String msg = "Cancellation Confirmation \n" + "Voucher (Valid Only for One Year): " + token;
+
+        //Email.sendEmail(sendEmail, msg);
     }
 
-    public void confirmationPaymentPage(ArrayList<Ticket> ticket)
+    public void confirmationPaymentPage(ArrayList<Ticket> ticket, String sendEmail)
     {
         JFrame frame1 = new JFrame("Confirmation Page");
         frame1.setSize(350, 350);
@@ -290,6 +277,13 @@ public class GUI extends JFrame implements ActionListener{
         panel1.add(displaySeats);
 
         frame1.setVisible(true);
+
+        // Email email = new Email();
+
+        String msg = "Movie: " + ticket.get(0).getMovie() + "\n" + "Theatre: " + ticket.get(0).getTheatre() +"\n"
+                        +"Time: " + ticket.get(0).getShowtime().toString() + "\n"  +seats;
+
+        Email.sendEmail(sendEmail, msg);
     }
 
     public void PaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
@@ -432,7 +426,7 @@ public class GUI extends JFrame implements ActionListener{
                         ticketTotal.add(ticket);
                         
                     }
-                    confirmationPaymentPage(ticketTotal);
+                    confirmationPaymentPage(ticketTotal, emailTextInput.getText());
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);

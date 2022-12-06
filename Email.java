@@ -10,11 +10,13 @@ import javax.mail.internet.MimeMessage;
 
 public class Email {
 
-    public static void sendEmail(String to)
+    public Email()
+    {}
+
+    public static void sendEmail(String to , String msg)
     {
         final String username = "testingschoolprojects@outlook.com";
         final String password = "testemail123";
-
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -34,9 +36,8 @@ public class Email {
             message.setFrom(new InternetAddress("testingschoolprojects@outlook.com"));
             message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse(to));
-            message.setSubject("A testing mail header !!!");
-            message.setText("Dear Mail Crawler,"
-                + "\n\n No spam to my email, please!");
+            message.setSubject("Confirmation Movie Ticket System");
+            message.setText(msg);
 
             Transport.send(message);
 
@@ -52,10 +53,10 @@ public class Email {
     }
 
 
-    public static void main(String[] args) 
-    {
-        String to = "testingschoolprojects@outlook.com";
-        sendEmail(to);
-    }
+    // public static void main(String[] args) 
+    // {
+    //     String to = "testingschoolprojects@outlook.com";
+    //     sendEmail(to , "hello");
+    // }
 
 }
