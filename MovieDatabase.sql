@@ -66,6 +66,7 @@ CREATE TABLE LoginServer (
     CardNumber      varchar(200) NOT NULL,
     CVV             int,
     AnnualFee       datetime,
+--     LoginName		varchar(200),
     
     primary key	(Username)
 );
@@ -75,12 +76,12 @@ VALUES
 
 DROP TABLE IF EXISTS Admins;
 CREATE TABLE Admins (
-	Username	varchar(100) NOT NULL,
-    Pass		varchar(100) NOT NULL,
-    primary key	(Username)
+	AdminUsername	varchar(100) NOT NULL,
+    AdminPass		varchar(100) NOT NULL,
+    primary key	(AdminUsername)
 );
 -- admin is the head admin and cannot be deleted
-INSERT INTO Admins (Username, Pass)
+INSERT INTO Admins (AdminUsername, AdminPass)
 VALUES
 ('admin', 'pass'),
 ('danny', 'picazo');

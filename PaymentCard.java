@@ -38,7 +38,7 @@ public class PaymentCard {
     }
 
     private void validate() throws IllegalArgumentException{
-        if(cardNumber.length() != 12 || Integer.toString(cvv).length() != 3){
+        if(cardNumber.length() != 16 || Integer.toString(cvv).length() != 3){
             throw new IllegalArgumentException("Invalid Card");
         }
     }

@@ -433,6 +433,7 @@ public class GUI extends JFrame implements ActionListener{
                 }
                 catch(SQLException e2)
                 {
+                    e2.printStackTrace();
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(IllegalArgumentException e1)
