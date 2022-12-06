@@ -233,10 +233,10 @@ public class GUI extends JFrame implements ActionListener{
         //Email.sendEmail(sendEmail, msg);
     }
 
-    public void confirmationPaymentPage(ArrayList<Ticket> ticket, String sendEmail)
+    public void confirmationPaymentPage(ArrayList<Ticket> ticket) throws SQLException, DBConnectException
     {
         JFrame frame1 = new JFrame("Confirmation Page");
-        frame1.setSize(350, 350);
+        frame1.setSize(700, 700);
         frame1.setLocationRelativeTo(null);
         JPanel panel1 = new JPanel();
         frame1.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -268,22 +268,22 @@ public class GUI extends JFrame implements ActionListener{
         String seats = "Seats Requested: ";
         for(Ticket x : ticket)
         {
-            seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\n";
+            seats += x.getSeat() + " Ticket number: " + x.getTicketNum() + "\t\n";
         }
 
         //displays all of the seats requested with their tkt number
         JLabel displaySeats = new JLabel(seats);
-        displaySeats.setBounds(5,250, 300, 50);
+        displaySeats.setBounds(5,250, 600, 300);
         panel1.add(displaySeats);
 
         frame1.setVisible(true);
 
         // Email email = new Email();
 
-        String msg = "Movie: " + ticket.get(0).getMovie() + "\n" + "Theatre: " + ticket.get(0).getTheatre() +"\n"
-                        +"Time: " + ticket.get(0).getShowtime().toString() + "\n"  +seats;
+        // String msg = "Movie: " + ticket.get(0).getMovie() + "\n" + "Theatre: " + ticket.get(0).getTheatre() +"\n"
+        //                 +"Time: " + ticket.get(0).getShowtime().toString() + "\n"  +seats;
 
-        Email.sendEmail(sendEmail, msg);
+        // Email.sendEmail(sendEmail, msg);
     }
 
     public void PaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
@@ -426,13 +426,14 @@ public class GUI extends JFrame implements ActionListener{
                         ticketTotal.add(ticket);
                         
                     }
-                    confirmationPaymentPage(ticketTotal, emailTextInput.getText());
+                    confirmationPaymentPage(ticketTotal);
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(SQLException e2)
                 {
+                    e2.printStackTrace();
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(IllegalArgumentException e1)
@@ -1163,6 +1164,7 @@ public class GUI extends JFrame implements ActionListener{
                         String[] searchReturn = user.performSearch(searchchoice);           //perform the search if only a movie or theatre were selected
                         theatreSelection = searchReturn[0];
                         movieSelection = searchReturn[1];
+                        if(theatreSelection == null || movieSelection == null) return;
                     }
 
                     ArrayList<Timestamp> showTimeList = theatreDB.getShowtimeList(theatreSelection, movieSelection);            //get the showtimes for the movie

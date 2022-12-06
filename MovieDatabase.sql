@@ -72,19 +72,18 @@ CREATE TABLE LoginServer (
 );
 INSERT INTO LoginServer (Username, Pass, FullName, Email, HomeAddress, CardNumber, CVV , AnnualFee)
 VALUES
-('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '111122223333', 888, "2022-11-30 12:00:00");
+('test', 'pw', 'random scrandom', 'fbi@cia.gov', '12 sesame st', '1111222233334444', 888, "2022-11-30 12:00:00");
 
 DROP TABLE IF EXISTS Admins;
 CREATE TABLE Admins (
-	Username	varchar(100) NOT NULL,
-    Pass		varchar(100) NOT NULL,
-    primary key	(Username)
+	AdminUsername	varchar(100) NOT NULL,
+    AdminPass		varchar(100) NOT NULL,
+    primary key	(AdminUsername)
 );
 -- admin is the head admin and cannot be deleted
-INSERT INTO Admins (Username, Pass)
+INSERT INTO Admins (AdminUsername, AdminPass)
 VALUES
-('admin', 'pass'),
-('danny', 'picazo');
+('admin', 'pass');
 
 DROP TABLE IF EXISTS MovieReleaseDate;
 CREATE TABLE MovieReleaseDate (
@@ -118,8 +117,8 @@ CREATE TABLE MovieTickets (
 
 INSERT INTO MovieTickets (MovieTheatre, MovieName, MovieTime, Seat, FullName)
 VALUES
-('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'A7', 'Larry David'),
-('LandMark Cinemas', 'AVATAR' , '2022-12-30 12:00:00', 'B3', 'Britney Spears');
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 12:00:00', 'A7', 'Larry David'),
+('LandMark Cinemas', 'AVATAR' , '2022-12-25 12:00:00', 'B3', 'Britney Spears');
 
 DROP TABLE IF EXISTS MovieCredit;
 CREATE TABLE MovieCredit (
