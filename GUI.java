@@ -233,7 +233,7 @@ public class GUI extends JFrame implements ActionListener{
         //Email.sendEmail(sendEmail, msg);
     }
 
-    public void confirmationPaymentPage(ArrayList<Ticket> ticket, String sendEmail)
+    public void confirmationPaymentPage(ArrayList<Ticket> ticket)
     {
         JFrame frame1 = new JFrame("Confirmation Page");
         frame1.setSize(350, 350);
@@ -280,10 +280,10 @@ public class GUI extends JFrame implements ActionListener{
 
         // Email email = new Email();
 
-        String msg = "Movie: " + ticket.get(0).getMovie() + "\n" + "Theatre: " + ticket.get(0).getTheatre() +"\n"
-                        +"Time: " + ticket.get(0).getShowtime().toString() + "\n"  +seats;
+        // String msg = "Movie: " + ticket.get(0).getMovie() + "\n" + "Theatre: " + ticket.get(0).getTheatre() +"\n"
+        //                 +"Time: " + ticket.get(0).getShowtime().toString() + "\n"  +seats;
 
-        Email.sendEmail(sendEmail, msg);
+        // Email.sendEmail(sendEmail, msg);
     }
 
     public void PaymentPage(String movie, String theatre, Timestamp time, ArrayList<String> seatsRequested)
@@ -426,7 +426,7 @@ public class GUI extends JFrame implements ActionListener{
                         ticketTotal.add(ticket);
                         
                     }
-                    confirmationPaymentPage(ticketTotal, emailTextInput.getText());
+                    confirmationPaymentPage(ticketTotal);
                 } catch (DBConnectException e1) {
                     // TODO: handle exception
                     JOptionPane.showMessageDialog(null, "Database Problem Please Restart the Program", "Database Problem", JOptionPane.ERROR_MESSAGE);
