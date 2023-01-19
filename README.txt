@@ -1,4 +1,4 @@
-This project is now being labelled as complete and is being archived as of Jan 11, 2023.
+This project is now being labelled as complete and is being archived as of Jan 18, 2023.
 
 The task in this project was to create a Movie Theatre application which connected to a local database to store information about tickets and showtimes for a given Movie Theatre and Movie. Features of the program include:
 - Searching for movies, theaters, and a combination of the two
